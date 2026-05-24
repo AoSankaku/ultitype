@@ -1,0 +1,257 @@
+export const shortChallenges = [
+  "解析結果を見てから判断する速度は、経験によって大きく変わる。",
+  "正確な入力は速さを支え、速さは集中の質を試す。",
+  "短い休憩を挟むことで、指先の緊張は自然にほどける。",
+  "高密度な文章ほど、視線の置き方と呼吸の安定が重要になる。",
+  "数字と記号が混ざる課題では、手癖に頼らず位置を確認する。",
+  "一定のリズムを保てる人は、長文でも速度が崩れにくい。",
+  "変換を使わない練習では、文字単位の精度がそのまま表れる。",
+  "ミスを恐れすぎると、次の文字への準備が遅れてしまう。",
+  "速度を上げる前に、誤打の発生位置を把握しておきたい。",
+  "文章全体を先読みできると、指の移動に余裕が生まれる。",
+  "難しい語句が続いても、視線は常に少し先へ置いておく。",
+  "同じ練習を続けるより、負荷の種類を変えるほうが伸びる。",
+  "記録は結果だけでなく、疲労の兆候を見つける材料にもなる。",
+  "打鍵間隔の乱れは、焦りや迷いが指先に出た合図である。",
+  "正確率を保ったまま速度を上げるには、余計な力を抜く。",
+  "長文では一文字の失敗より、復帰までの時間が重要になる。",
+  "速度型の練習では、多少の誤差を許容して流れを切らない。",
+  "精度型の練習では、間違いをすぐに認識する力を鍛える。",
+  "安定型の練習では、速い打鍵より均等な打鍵を優先する。",
+  "読点の位置を意識すると、文章のまとまりを追いやすくなる。",
+  "上級者の伸びしろは、細かな無駄の削減に隠れている。",
+  "負荷が高い課題ほど、姿勢と手首の角度が結果に影響する。",
+  "最初の十秒で飛ばしすぎると、後半の精度が落ちやすい。",
+  "記号入力を避けていると、本番でリズムが大きく乱れる。",
+  "ひらがなだけの文章でも、速度を維持するのは簡単ではない。",
+  "漢字を含む文章では、視覚的な区切りを素早く拾う必要がある。",
+  "同音語が並ぶ文章は、読解の遅れが入力の遅れにつながる。",
+  "一回の練習で全てを改善しようとせず、狙いを一つに絞る。",
+  "ミスの直後に慌てないことは、上級者にとって重要な技術だ。",
+  "速度の限界を測る日は、正確率の低下も記録して比較する。",
+  "打鍵音が乱れた瞬間に、集中の揺れを自覚できることがある。",
+  "疲れた状態での無理な練習は、悪い癖を固定しやすい。",
+  "誤字の多い文字列は、指の移動経路を見直すきっかけになる。",
+  "入力欄を見すぎると、次の課題への視線移動が遅れる。",
+  "画面の情報量は多すぎても少なすぎても集中を妨げる。",
+  "良い練習画面は、必要な数値だけをすぐに確認できる。",
+  "苦手な並びを見つけたら、速度を落として再現性を確かめる。",
+  "瞬間速度よりも、二分間の平均速度が実力をよく表す。",
+  "文章を理解しながら打つと、予測と入力の流れが自然につながる。",
+  "高速入力では、修正の判断にも速さと冷静さが求められる。",
+  "変換なしの練習は、基礎ではなく上級者の精密検査にもなる。",
+  "慣れた文章だけを打つと、未知の語句への対応力が伸びにくい。",
+  "集中が切れたら、速度を維持するより中断する判断が必要だ。",
+  "弱い指に負荷が集まる配列では、無意識の遅れが出やすい。",
+  "入力速度の向上は、読解速度と運指の両方に支えられている。",
+  "正確なリズムは、視線、呼吸、姿勢が揃ったときに生まれる。",
+  "練習後の記録を見返すと、伸びた部分と崩れた部分が分かる。",
+  "短文を連続で処理する力は、集中の立て直しにも関係する。",
+  "高い目標を置くほど、測定条件を一定にする意味が大きい。",
+  "上級者向けの練習では、簡単な成功より明確な負荷が必要だ。",
+];
+
+export type DirectChallenge = {
+  display: string;
+  guide?: string;
+  input: string;
+};
+
+const directShortInputs = [
+  "kaiseki kekka wo mitekara handan suru sokudo ha, keiken ni yotte ookiku kawaru.",
+  "seikakuna nyuuryoku ha hayasa wo sasae, hayasa ha shuuchuu no shitsu wo tamesu.",
+  "mijikai kyuukei wo hasamu koto de, yubisaki no kinchou ha shizen ni hodokeru.",
+  "koumitsudona bunshou hodo, shisen no okikata to kokyuu no antei ga juuyou ni naru.",
+  "suuji to kigou ga mazaru kadai deha, teguse ni tayorazu ichi wo kakunin suru.",
+  "ittei no rizumu wo tamoteru hito ha, choubun demo sokudo ga kuzurenikui.",
+  "henkan wo tsukawanai renshuu deha, mojitan'i no seido ga sonomama arawareru.",
+  "misu wo osore sugiru to, tsugi no moji eno junbi ga okurete shimau.",
+  "sokudo wo ageru mae ni, goda no hassei ichi wo haaku shite okitai.",
+  "bunshou zentai wo sakiyomi dekiru to, yubi no idou ni yoyuu ga umareru.",
+  "muzukashii goku ga tsuzuite mo, shisen ha tsuneni sukoshi saki he oite oku.",
+  "onaji renshuu wo tsuzukeru yori, fuka no shurui wo kaeru hou ga nobiru.",
+  "kiroku ha kekka dake denaku, hirou no choukou wo mitsukeru zairyou ni mo naru.",
+  "daken kankaku no midare ha, aseri ya mayoi ga yubisaki ni deta aizu de aru.",
+  "seikakuritsu wo tamotta mama sokudo wo ageru niha, yokeina chikara wo nuku.",
+  "choubun deha ichimoji no shippai yori, fukki made no jikan ga juuyou ni naru.",
+  "sokudogata no renshuu deha, tashou no gosa wo kyoyou shite nagare wo kiranai.",
+  "seidogata no renshuu deha, machigai wo sugu ni ninshiki suru chikara wo kitaeru.",
+  "anteigata no renshuu deha, hayai daken yori kintouna daken wo yuusen suru.",
+  "touten no ichi wo ishiki suru to, bunshou no matomari wo oiyasuku naru.",
+  "joukyuusha no nobishiro ha, komakana muda no sakugen ni kakurete iru.",
+  "fuka ga takai kadai hodo, shisei to tekubi no kakudo ga kekka ni eikyou suru.",
+  "saisho no juubyou de tobashisugiru to, kouhan no seido ga ochiyasui.",
+  "kigou nyuuryoku wo sakete iru to, honban de rizumu ga ookiku midareru.",
+  "hiragana dake no bunshou demo, sokudo wo iji suru noha kantan deha nai.",
+  "kanji wo fukumu bunshou deha, shikakutekina kugiri wo subayaku hirou hitsuyou ga aru.",
+  "douongo ga narabu bunshou ha, dokkai no okure ga nyuuryoku no okure ni tsunagaru.",
+  "ikkai no renshuu de subete wo kaizen shiyou to sezu, nerai wo hitotsu ni shiboru.",
+  "misu no chokugo ni awatenai koto ha, joukyuusha ni totte juuyouna gijutsu da.",
+  "sokudo no genkai wo hakaru hi ha, seikakuritsu no teika mo kiroku shite hikaku suru.",
+  "daken'on ga midareta shunkan ni, shuuchuu no yure wo jikaku dekiru koto ga aru.",
+  "tsukareta joutai deno murina renshuu ha, warui kuse wo kotei shiyasui.",
+  "goji no ooi mojiretsu ha, yubi no idou keiro wo minaosu kikkake ni naru.",
+  "nyuuryokuran wo misugiru to, tsugi no kadai eno shisen idou ga okureru.",
+  "gamen no jouhouryou ha oosugite mo sukunasugite mo shuuchuu wo samatageru.",
+  "yoi renshuu gamen ha, hitsuyouna suuchi dake wo sugu ni kakunin dekiru.",
+  "nigatena narabi wo mitsuketara, sokudo wo otoshite saigensei wo tashikameru.",
+  "shunkan sokudo yori mo, nifunkan no heikin sokudo ga jitsuryoku wo yoku arawasu.",
+  "bunshou wo rikai shinagara utsu to, yosoku to nyuuryoku no nagare ga shizen ni tsunagaru.",
+  "kousoku nyuuryoku deha, shuusei no handan ni mo hayasa to reiseisa ga motomerareru.",
+  "henkan nashi no renshuu ha, kiso deha naku joukyuusha no seimitsu kensa ni mo naru.",
+  "nareta bunshou dake wo utsu to, michi no goku eno taiouryoku ga nobinikui.",
+  "shuuchuu ga kiretara, sokudo wo iji suru yori chuudan suru handan ga hitsuyou da.",
+  "yowai yubi ni fuka ga atsumaru hairetsu deha, muishiki no okure ga deyasui.",
+  "nyuuryoku sokudo no koujou ha, dokkai sokudo to unshi no ryouhou ni sasaerarete iru.",
+  "seikakuna rizumu ha, shisen, kokyuu, shisei ga sorotta toki ni umareru.",
+  "renshuugo no kiroku wo mikaesu to, nobita bubun to kuzureta bubun ga wakaru.",
+  "tanbun wo renzoku de shori suru chikara ha, shuuchuu no tatenaoshi ni mo kankei suru.",
+  "takai mokuhyou wo oku hodo, sokutei jouken wo ittei ni suru imi ga ookii.",
+  "joukyuusha muke no renshuu deha, kantanna seikou yori meikakuna fuka ga hitsuyou da.",
+];
+
+export const directShortChallenges: DirectChallenge[] = shortChallenges.map((display, index) => {
+  const guide = directShortInputs[index] ?? "";
+
+  return {
+    display,
+    guide,
+    input: removeVisualSpaces(guide),
+  };
+});
+
+export const englishShortChallenges = [
+  "Stable rhythm reduces recovery cost after every mistake.",
+  "Accuracy under pressure is measured by the next decision.",
+  "Fast typing depends on vision, posture, and relaxed fingers.",
+  "Dense text exposes weak transitions between distant keys.",
+  "Measure the session before changing the training target.",
+  "Do not chase peak speed when the error pattern is unclear.",
+  "Short bursts reveal hesitation faster than long routines.",
+  "Consistent intervals make difficult passages less volatile.",
+  "A clean correction matters more than a dramatic restart.",
+  "Read ahead just enough to prepare the next movement.",
+  "Precise input gives speed a stable foundation.",
+  "A difficult line should change focus, not posture.",
+  "Numbers and punctuation are useful stress points.",
+  "A strong typist notices tension before accuracy collapses.",
+  "The next character is easier when the phrase is understood.",
+  "Speed without control only moves the mistake forward.",
+  "Even pacing turns a hard paragraph into smaller decisions.",
+  "A missed key should be diagnosed, not ignored.",
+  "The best warmup is short, deliberate, and measurable.",
+  "Visual attention must stay ahead of the cursor.",
+  "High speed typing punishes unnecessary hand movement.",
+  "Recovery speed is part of real performance.",
+  "A short test can expose more than a long unfocused drill.",
+  "When the rhythm breaks, the next input becomes harder.",
+  "The screen should show the signal, not distract from it.",
+  "A stable pace makes the score easier to reproduce.",
+  "Clean technique matters most when the text becomes dense.",
+  "The first ten seconds should not decide the whole session.",
+  "Mistake patterns are more useful than vague frustration.",
+  "A narrow target makes practice easier to evaluate.",
+  "Reading too little creates sudden pauses.",
+  "Reading too far ahead can create skipped characters.",
+  "Strong accuracy allows speed to rise safely.",
+  "A weak transition often appears in the same letter pair.",
+  "Useful practice creates pressure without chaos.",
+  "The score should reflect both output and control.",
+  "A calm correction protects the next five characters.",
+  "Advanced practice needs friction, not comfort.",
+  "The goal is a repeatable ceiling, not one lucky burst.",
+  "A dense sentence tests reading and movement together.",
+  "Keyboard guides are noise for users who already know keys.",
+  "The interval between keys reveals hidden hesitation.",
+  "Focus declines quietly before the score drops.",
+  "Short sessions make daily comparisons cleaner.",
+  "The hard part is keeping form while moving faster.",
+  "A good drill shows exactly where control disappears.",
+  "Precision work should not feel slow or decorative.",
+  "The current line is only useful if feedback is immediate.",
+  "Consistent measurement makes improvement visible.",
+  "Advanced users need clear load and honest numbers.",
+];
+
+export const englishDirectShortChallenges: DirectChallenge[] = englishShortChallenges.map(
+  (display) => ({
+    display,
+    input: display,
+  }),
+);
+
+export const longChallenges = [
+  "高速なタイピングでは、単純に指を速く動かすだけでは限界が来る。文章を少し先まで読み、次に必要な動きを準備し、ミスが起きた瞬間にも流れを切らない判断が求められる。",
+  "長文課題の目的は、瞬間的な最高速度を出すことではなく、一定時間にわたって集中を維持することにある。視線の移動、姿勢、呼吸、手首の安定がすべて結果に反映される。",
+  "IMEを使わない入力では、変換候補に頼れないため、一文字ごとの認識と打鍵の一致が重要になる。誤字を放置できる条件でも、どこで乱れたのかを把握することが練習の価値を高める。",
+  "IMEを使う本番課題では、打鍵速度だけではなく、文章を正しく組み立てて提出する力が問われる。行単位で一致を確認し、表記揺れを許容しながらも意味のある違いは見逃さない設計が必要だ。",
+  "上級者は基礎的な配列をすでに覚えているため、練習の効果は課題の密度に左右される。読みにくい語句、句読点、数字、長い修飾を含む文章が、実力差を見えやすくする。",
+  "二分間の練習は短いように見えて、集中の質を測るには十分な長さがある。序盤に速度を上げすぎると後半で正確率が下がり、慎重すぎると本来の速度を発揮できない。",
+  "レーティングは単なる称号ではなく、練習の入口を制御するための指標として使う。仮レーティングが一定以上に達してから本番モードへ進むことで、課題の難度とユーザーの状態を揃えやすくなる。",
+  "打鍵ペースの均等さは、速さや正確さとは別の能力を示している。間隔のばらつきが小さい人は、難しい文章に出会っても崩れ方が小さく、修正後の復帰も速い傾向がある。",
+  "ミスロックのある課題では、誤入力そのものよりも、誤入力を認識して戻るまでの動作が重要になる。強制的に修正を挟むことで、曖昧なまま進む癖を減らす効果が期待できる。",
+  "速度特化の課題では、完璧さよりも流れを維持することを優先する。誤字があっても前へ進める条件にすることで、限界速度に近い状態でどれだけ制御できるかを観察できる。",
+  "正確性特化の課題では、同じ速度でもミスの価値が大きく変わる。わずかな誤打がスコアに強く反映されるため、上級者でも雑な入力を続ければすぐに評価が下がる。",
+  "練習結果を保存する場合、最初は最高値だけでも十分に意味がある。詳細な履歴や分析はあとから追加できるため、雛形では計算と表示の一貫性を優先するほうがよい。",
+  "日本語の文章では、漢字、ひらがな、カタカナ、句読点が混ざることで視覚的な負荷が生まれる。この負荷を利用すると、単語練習では見えにくい読解と入力の連携を測定できる。",
+  "表記揺れを許容する設計では、どこまでを同じ文字として扱うかを明確にする必要がある。句読点の違いは吸収しても、アルファベットの大小や全角半角を同一視しない方針なら、判定は一貫する。",
+  "練習時間を長くしすぎると、速度向上より疲労への耐性を測る結果になりやすい。短く区切った測定を継続するほうが、日々の変化を把握しやすく、悪い癖も残りにくい。",
+  "画面設計では、キーボードを表示せず、文章と計測値に集中できる構成が望ましい。上級者はキー位置の案内より、現在のミス、残り時間、ペースの変動を素早く確認したい。",
+  "本番モードの五分または十分という長さは、練習モードとは異なる緊張を作る。途中で集中が落ちたときにも、どの程度スコアを保てるかが本番レーティングに反映される。",
+  "高い打鍵速度を前提にすると、入力欄の遅延や表示の揺れは体験を大きく損なう。雛形であっても、入力に対する反応は軽くし、視覚的な更新は必要な範囲に絞るべきだ。",
+  "ミス数、正確率、打鍵秒、打鍵ペースを同時に見ることで、ユーザーは自分の崩れ方を分類できる。速いが荒いのか、正確だが遅いのか、またはリズムだけが乱れているのかを判断できる。",
+  "最初の実装では、すべてを完全に作り込む必要はない。重要なのは、モードごとの採点思想が画面と計算に反映され、今後の調整に耐えられる構造になっていることだ。",
+];
+
+export const directLongChallenges: DirectChallenge[] = longChallenges.map((display) => ({
+  display,
+  guide: romanizeLongChallenge(display),
+  input: removeVisualSpaces(romanizeLongChallenge(display)),
+}));
+
+export const englishLongChallenges = [
+  "Advanced typing is not only a contest of raw finger speed. The better measure is how long a typist can preserve rhythm, accuracy, and visual control while the sentence keeps changing shape.",
+  "A strong session starts with restraint. If the first seconds are too aggressive, the later part of the test becomes a recovery exercise instead of a clean speed measurement.",
+  "When the input method is disabled, every visible character must be handled directly. This makes hesitation, weak key transitions, and careless corrections easier to observe.",
+  "The purpose of a high level typing drill is to expose narrow limits. Easy text can feel satisfying, but dense text gives better evidence about what actually breaks under pressure.",
+  "A correction should be fast, deliberate, and quiet. The time lost after a mistake often matters more than the mistake itself, especially during a timed production run.",
+  "Uniform key intervals are a separate skill from peak speed. A typist with stable rhythm can meet difficult passages without creating a large collapse in the next line.",
+  "The display should not compete with the text. High level users need remaining time, current pace, accuracy, and mistakes, but they do not need a decorative keyboard guide.",
+  "Rating systems are useful when they control access as well as reward progress. A provisional rating can keep production tests locked until the practice signal is high enough.",
+  "Speed focused practice should allow the user to move through errors. Accuracy focused practice should force correction so the cost of careless input becomes visible.",
+  "A five minute test changes the problem. It asks whether the typist can manage fatigue, attention, and recovery while still keeping the same technical standard.",
+  "The best training record is consistent enough to compare across days. It should preserve the score, the rank, the mode, and the core measurements without adding noise.",
+  "Reading ahead is valuable only when it remains controlled. Looking too far forward can cause skipped characters, while looking too narrowly makes every phrase feel sudden.",
+  "The interface must respond immediately to each key. Any delay between action and visible feedback makes high speed typing feel heavier than it really is.",
+  "Dense punctuation and numbers are useful because they interrupt automatic movement. The goal is not comfort, but a precise view of the user's current ceiling.",
+  "Mistake lock changes behavior. It prevents the user from ignoring a wrong character and turns recognition speed into part of the scoring environment.",
+  "A production test with an input method enabled should score submitted lines, not raw physical key speed. The important output is whether the final text matches the prompt.",
+  "A short daily routine is easier to compare than an exhausting marathon. Two focused minutes can reveal more useful information than a long unfocused session.",
+  "A typist who can maintain six keys per second still has room to improve. The remaining gains often come from fewer pauses, cleaner corrections, and steadier pacing.",
+  "The rank label should be visible but not distracting. It gives the session a clear target while the main attention stays on the sentence and the current position.",
+  "A useful prototype should make the scoring assumptions obvious. Once the model feels coherent, challenge selection and storage can become more sophisticated later.",
+];
+
+export const englishDirectLongChallenges: DirectChallenge[] = englishLongChallenges.map(
+  (display) => ({
+    display,
+    input: display,
+  }),
+);
+
+function romanizeLongChallenge(display: string): string {
+  const index = longChallenges.indexOf(display);
+  const inputs = [
+    "kousokuna taiping deha, tanjun ni yubi wo hayaku ugokasu dake deha genkai ga kuru. bunshou wo sukoshi saki made yomi, tsugi ni hitsuyouna ugoki wo junbi shi, misu ga okita shunkan ni mo nagare wo kiranai handan ga motomerareru.",
+    "choubun kadai no mokuteki ha, shunkantekina saikou sokudo wo dasu koto deha naku, ittei jikan ni watatte shuuchuu wo iji suru koto ni aru. shisen no idou, shisei, kokyuu, tekubi no antei ga subete kekka ni han'ei sareru.",
+    "ime wo tsukawanai nyuuryoku deha, henkan kouho ni tayorenai tame, ichimoji goto no ninshiki to daken no icchi ga juuyou ni naru. goji wo houchi dekiru jouken demo, doko de midareta noka wo haaku suru koto ga renshuu no kachi wo takameru.",
+    "ime wo tsukau honban kadai deha, daken sokudo dake deha naku, bunshou wo tadashiku kumitatete teishutsu suru chikara ga towareru. gyoutan'i de icchi wo kakunin shi, hyouki bure wo kyoyou shinagara mo imi no aru chigai ha minogasanai sekkei ga hitsuyou da.",
+    "joukyuusha ha kisotekina hairetsu wo sudeni oboete iru tame, renshuu no kouka ha kadai no mitsudo ni sayuu sareru. yominikui goku, kutouten, suuji, nagai shuushoku wo fukumu bunshou ga, jitsuryokusa wo mieyasuku suru.",
+  ];
+
+  return inputs[index] ?? directShortInputs[index % directShortInputs.length];
+}
+
+function removeVisualSpaces(value: string): string {
+  return value.replace(/[\s　]/g, "");
+}

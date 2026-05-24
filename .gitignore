@@ -1,0 +1,6 @@
+.next/
+node_modules/
+.playwright-mcp/
+*.log
+*.tsbuildinfo
+ultitype-home.png

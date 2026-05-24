@@ -100,7 +100,7 @@ type StoredSession = {
 type ChallengeLanguage = (typeof challengeLanguages)[number]["id"];
 type Theme = "dark" | "light";
 type AppSettings = {
-  typeRomajiWordSpaces: boolean;
+  showRomajiWordSpaces: boolean;
   idleRetireSeconds: number;
   theme: Theme;
 };
@@ -135,7 +135,7 @@ const initialStats: RuntimeStats = {
 };
 
 const initialSettings: AppSettings = {
-  typeRomajiWordSpaces: false,
+  showRomajiWordSpaces: true,
   idleRetireSeconds: 0,
   theme: "dark",
 };
@@ -183,12 +183,16 @@ export default function Home() {
   const currentDisplay = mode.requiresIme
     ? currentImeChallenge
     : currentDirectChallenge.display;
-  const shouldTypeRomajiSpaces =
-    challengeLanguage === "ja" && !mode.requiresIme && stored.settings.typeRomajiWordSpaces;
   const currentInputTarget = mode.requiresIme
     ? currentImeChallenge
-    : getDirectInputTarget(currentDirectChallenge, shouldTypeRomajiSpaces);
-  const guideIncludesInputSpaces = /\s/.test(currentInputTarget);
+    : currentDirectChallenge.input;
+  const currentGuide =
+    challengeLanguage === "ja" &&
+    !mode.requiresIme &&
+    !stored.settings.showRomajiWordSpaces &&
+    currentDirectChallenge.guide
+      ? removeRomajiVisualSpaces(currentDirectChallenge.guide)
+      : currentDirectChallenge.guide;
   const bestPracticeRank = getRank(stored.bestPracticeScore);
   const bestProductionRank = getRank(stored.bestProductionScore);
 
@@ -535,6 +539,7 @@ export default function Home() {
 
   const isProductionBlocked = mode.group === "production" && !productionUnlocked;
   const progress = Math.min(100, (elapsedSeconds / durationSeconds) * 100);
+  const correctionDebt = !acceptsTextInput && mode.lockMistakes ? stats.mistakeDebt : 0;
 
   return (
     <main className="shell">
@@ -694,16 +699,17 @@ export default function Home() {
             </div>
           ) : (
             <>
+              <CorrectionDebtIndicator debt={correctionDebt} />
+
               <div className="target-view" aria-label="current challenge">
                 {mode.requiresIme ? (
                   <p>{currentDisplay}</p>
                 ) : (
                   renderDirectChallenge(
                     currentDisplay,
-                    currentDirectChallenge.guide ?? currentInputTarget,
+                    currentGuide ?? currentInputTarget,
                     currentInputTarget,
                     input,
-                    guideIncludesInputSpaces,
                   )
                 )}
               </div>
@@ -796,6 +802,27 @@ export default function Home() {
         </section>
       ) : null}
     </main>
+  );
+}
+
+function CorrectionDebtIndicator({ debt }: { debt: number }) {
+  if (debt <= 0) {
+    return null;
+  }
+
+  const visibleDots = Math.min(debt, 12);
+
+  return (
+    <div aria-live="polite" className="correction-debt" role="status">
+      <span className="keycap">Backspace</span>
+      <span className="debt-count">あと {debt} 回</span>
+      <span className="debt-dots" aria-hidden="true">
+        {Array.from({ length: visibleDots }, (_, index) => (
+          <span key={index} />
+        ))}
+        {debt > visibleDots ? <em>+{debt - visibleDots}</em> : null}
+      </span>
+    </div>
   );
 }
 
@@ -892,13 +919,13 @@ function SettingsScreen({
         <section className="settings-row" aria-labelledby="romaji-space-setting">
           <div>
             <h3 id="romaji-space-setting">日本語ローマ字のスペース</h3>
-            <p>単語間のスペースを入力対象に含める</p>
+            <p>ローマ字ガイドの単語間スペースを表示する</p>
           </div>
           <label className="toggle-control">
             <input
-              checked={settings.typeRomajiWordSpaces}
+              checked={settings.showRomajiWordSpaces}
               onChange={(event) =>
-                onChange({ typeRomajiWordSpaces: event.currentTarget.checked })
+                onChange({ showRomajiWordSpaces: event.currentTarget.checked })
               }
               type="checkbox"
             />
@@ -964,7 +991,6 @@ function renderDirectChallenge(
   guide: string,
   target: string,
   input: string,
-  countGuideSpaces: boolean,
 ) {
   const hasSeparateDisplay = display !== guide;
 
@@ -972,17 +998,17 @@ function renderDirectChallenge(
     <>
       {hasSeparateDisplay ? <p className="display-text">{display}</p> : null}
       <p className="input-target" aria-label={hasSeparateDisplay ? "romaji input target" : "input target"}>
-        {renderGuideCharacters(guide, input, countGuideSpaces)}
+        {renderGuideCharacters(guide, input)}
       </p>
     </>
   );
 }
 
-function renderGuideCharacters(guide: string, input: string, countSpaces: boolean) {
+function renderGuideCharacters(guide: string, input: string) {
   let targetIndex = 0;
 
   return Array.from(guide).map((character, index) => {
-    if (/\s/.test(character) && !countSpaces) {
+    if (/\s/.test(character)) {
       return (
         <span className="visual-space" key={`space-${index}`} aria-hidden="true">
           {character}
@@ -1004,19 +1030,15 @@ function renderGuideCharacters(guide: string, input: string, countSpaces: boolea
           : "char wrong";
 
     return (
-      <span className={`${className} ${/\s/.test(character) ? "visual-space" : ""}`} key={`${character}-${index}`}>
+      <span className={className} key={`${character}-${index}`}>
         {character}
       </span>
     );
   });
 }
 
-function getDirectInputTarget(challenge: DirectChallenge, typeRomajiWordSpaces: boolean) {
-  if (typeRomajiWordSpaces && challenge.guide) {
-    return challenge.guide;
-  }
-
-  return challenge.input;
+function removeRomajiVisualSpaces(value: string) {
+  return value.replace(/\s/g, "");
 }
 
 function clampInteger(value: string, min: number, max: number) {

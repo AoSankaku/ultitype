@@ -1,0 +1,20 @@
+Advanced typing is not only a contest of raw finger speed. The better measure is how long a typist can preserve rhythm, accuracy, and visual control while the sentence keeps changing shape.
+A strong session starts with restraint. If the first seconds are too aggressive, the later part of the test becomes a recovery exercise instead of a clean speed measurement.
+When the input method is disabled, every visible character must be handled directly. This makes hesitation, weak key transitions, and careless corrections easier to observe.
+The purpose of a high level typing drill is to expose narrow limits. Easy text can feel satisfying, but dense text gives better evidence about what actually breaks under pressure.
+A correction should be fast, deliberate, and quiet. The time lost after a mistake often matters more than the mistake itself, especially during a timed production run.
+Uniform key intervals are a separate skill from peak speed. A typist with stable rhythm can meet difficult passages without creating a large collapse in the next line.
+The display should not compete with the text. High level users need remaining time, current pace, accuracy, and mistakes, but they do not need a decorative keyboard guide.
+Rating systems are useful when they control access as well as reward progress. A provisional rating can keep production tests locked until the practice signal is high enough.
+Speed focused practice should allow the user to move through errors. Accuracy focused practice should force correction so the cost of careless input becomes visible.
+A five minute test changes the problem. It asks whether the typist can manage fatigue, attention, and recovery while still keeping the same technical standard.
+The best training record is consistent enough to compare across days. It should preserve the score, the rank, the mode, and the core measurements without adding noise.
+Reading ahead is valuable only when it remains controlled. Looking too far forward can cause skipped characters, while looking too narrowly makes every phrase feel sudden.
+The interface must respond immediately to each key. Any delay between action and visible feedback makes high speed typing feel heavier than it really is.
+Dense punctuation and numbers are useful because they interrupt automatic movement. The goal is not comfort, but a precise view of the user's current ceiling.
+Mistake lock changes behavior. It prevents the user from ignoring a wrong character and turns recognition speed into part of the scoring environment.
+A production test with an input method enabled should score submitted lines, not raw physical key speed. The important output is whether the final text matches the prompt.
+A short daily routine is easier to compare than an exhausting marathon. Two focused minutes can reveal more useful information than a long unfocused session.
+A typist who can maintain six keys per second still has room to improve. The remaining gains often come from fewer pauses, cleaner corrections, and steadier pacing.
+The rank label should be visible but not distracting. It gives the session a clear target while the main attention stays on the sentence and the current position.
+A useful prototype should make the scoring assumptions obvious. Once the model feels coherent, challenge selection and storage can become more sophisticated later.

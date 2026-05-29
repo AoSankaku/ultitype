@@ -9,7 +9,7 @@ import type {
 export type ChallengeLanguage = "ja" | "en";
 export type Theme = "dark" | "light";
 export type FinishReason = "completed" | "retired";
-export type Screen = "mode-select" | "typing" | "settings";
+export type Screen = "mode-select" | "typing";
 export type ProductionDuration = 300 | 600;
 export type DirectKeyEvent = Pick<
   globalThis.KeyboardEvent,

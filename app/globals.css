@@ -299,8 +299,8 @@ h2 span {
 }
 
 .rank-guide-page-head {
-  display: grid;
-  grid-template-columns: auto 1fr;
+  display: flex;
+  justify-content: space-between;
   gap: 16px;
   align-items: start;
   border-bottom: 1px solid var(--line);
@@ -1622,10 +1622,6 @@ dd {
   .rank-guide-link {
     min-width: 64px;
     padding: 0 9px;
-  }
-
-  .rank-guide-page-head {
-    grid-template-columns: 1fr;
   }
 
   .rank-guide-summary {

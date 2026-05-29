@@ -16,7 +16,6 @@ type AppHeaderProps = {
   challengeLanguage: ChallengeLanguage;
   soundSettings: SoundSettings;
   onChangeChallengeLanguage: (language: ChallengeLanguage) => void;
-  onOpenSettings: () => void;
 };
 
 export function AppHeader({
@@ -27,7 +26,6 @@ export function AppHeader({
   challengeLanguage,
   soundSettings,
   onChangeChallengeLanguage,
-  onOpenSettings,
 }: AppHeaderProps) {
   const playTypingSound = useTypingSounds(soundSettings);
   const bestOverallRank =
@@ -39,11 +37,6 @@ export function AppHeader({
     }
 
     onChangeChallengeLanguage(language);
-  }
-
-  function handleOpenSettings() {
-    playTypingSound("select");
-    onOpenSettings();
   }
 
   return (
@@ -87,14 +80,15 @@ export function AppHeader({
               width={58}
             />
           </SelectSoundLink>
-          <button
+          <SelectSoundLink
+            aria-label="設定"
             className="settings-button"
-            onClick={handleOpenSettings}
+            href="/settings"
+            soundSettings={soundSettings}
             title="設定"
-            type="button"
           >
             <Settings size={18} />
-          </button>
+          </SelectSoundLink>
         </div>
       </div>
     </header>

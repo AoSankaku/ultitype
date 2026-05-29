@@ -430,11 +430,6 @@ export function useTypingSession() {
     setScreen("mode-select");
   }
 
-  function openSettings() {
-    resetSession();
-    setScreen("settings");
-  }
-
   function changeChallengeLanguage(nextLanguage: ChallengeLanguage) {
     if (challengeLanguage === nextLanguage) {
       return;
@@ -472,7 +467,7 @@ export function useTypingSession() {
     setChallengeLanguage("ja");
     setProductionDuration(300);
     resetSession();
-    setScreen("settings");
+    setScreen("mode-select");
   }
 
   function recordKey(metricKeystrokes = 1, physicalKeystrokes = 1) {
@@ -677,7 +672,6 @@ export function useTypingSession() {
     stats,
     changeChallengeLanguage,
     clearLocalData,
-    openSettings,
     selectMode,
     setProductionDuration,
     showModeSelect: () => setScreen("mode-select"),

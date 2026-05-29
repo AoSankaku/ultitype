@@ -105,7 +105,7 @@ export function TypingPanel({
         <Metric label="WPM" value={metrics.wpm.toFixed(1)} />
         <Metric label="正確率" value={`${(metrics.accuracy * 100).toFixed(1)}%`} />
         <Metric label="ミス" value={stats.mistakes.toString()} />
-        <Metric label="均等率" value={`${(metrics.consistency * 100).toFixed(0)}%`} />
+        <Metric label="安定度" value={`${(metrics.consistency * 100).toFixed(0)}%`} />
       </div>
 
       <div className="progress-track" aria-hidden="true">

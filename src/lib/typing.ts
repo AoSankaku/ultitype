@@ -35,12 +35,12 @@ export const modes: TypingMode[] = [
     id: "practice-flow",
     group: "practice",
     label: "行雲流水",
-    shortLabel: "均等",
+    shortLabel: "安定",
     durationSeconds: 120,
     accuracyExponent: 3,
     lockMistakes: false,
     requiresIme: false,
-    description: "打鍵間隔の均等さをスコアに乗算するリズム練習。",
+    description: "自然な揺れを許容し、打鍵リズムの安定度をスコアに乗算する練習。",
   },
   {
     id: "practice-speed",
@@ -969,8 +969,21 @@ function calculateConsistency(intervals: number[]): number {
     rhythmIntervals.reduce((sum, interval) => sum + Math.pow(interval - average, 2), 0) /
     rhythmIntervals.length;
   const standardDeviation = Math.sqrt(variance);
+  const perfectToleranceMs = 24 + average * 0.1;
+  const unstableThresholdMs = 70 + average * 0.3;
 
-  return clamp(1 - standardDeviation / average, 0, 1);
+  if (standardDeviation <= perfectToleranceMs) {
+    return 1;
+  }
+
+  const instability =
+    (standardDeviation - perfectToleranceMs) / (unstableThresholdMs - perfectToleranceMs);
+
+  return 1 - smoothstep(clamp(instability, 0, 1));
+}
+
+function smoothstep(value: number): number {
+  return value * value * (3 - 2 * value);
 }
 
 function filterRhythmIntervals(intervals: number[]): number[] {

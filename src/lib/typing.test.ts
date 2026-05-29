@@ -60,6 +60,20 @@ describe("calculateMetrics", () => {
     expect(metrics.consistency).toBe(1);
   });
 
+  test("allows the same absolute jitter at high speed", () => {
+    const metrics = calculateMetrics({
+      elapsedSeconds: 1,
+      keystrokes: 12,
+      characterAttempts: 12,
+      correctCharacters: 12,
+      mistakes: 0,
+      intervals: [50, 90, 55, 85, 60, 80, 65, 75],
+      accuracyExponent: 3,
+    });
+
+    expect(metrics.consistency).toBe(1);
+  });
+
   test("penalizes clearly uneven pacing after the tolerance band", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 2,

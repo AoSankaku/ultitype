@@ -74,6 +74,7 @@ describe("SettingsScreen", () => {
 
     expect(getCategoryItemLabels(markup, "screen-settings")).toEqual([
       "テーマ",
+      "速度表示",
       "日本語ローマ字のスペース",
     ]);
     expect(getCategoryItemLabels(markup, "sound-settings")).toEqual(["サウンド"]);
@@ -94,5 +95,15 @@ describe("SettingsScreen", () => {
 
     expect(soundMarkup).toContain('aria-disabled="true"');
     expect(Array.from(soundMarkup.matchAll(/disabled=""/g))).toHaveLength(3);
+  });
+
+  test("shows the speed display setting", () => {
+    const markup = renderSettingsScreen();
+    const screenMarkup = getCategoryMarkup(markup, "screen-settings");
+
+    expect(screenMarkup).toContain("速度表示");
+    expect(screenMarkup).toContain("打鍵/秒");
+    expect(screenMarkup).toContain("打鍵/分");
+    expect(screenMarkup).toContain('aria-pressed="true"');
   });
 });

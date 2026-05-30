@@ -8,6 +8,7 @@ import type {
 
 export type ChallengeLanguage = "ja" | "en";
 export type Theme = "dark" | "light";
+export type SpeedDisplayUnit = "keysPerSecond" | "keysPerMinute";
 export type FinishReason = "completed" | "retired";
 export type Screen = "mode-select" | "typing";
 export type ProductionDuration = 300 | 600;
@@ -27,6 +28,7 @@ export type AppSettings = {
   soundVolume: number;
   typingSoundEnabled: boolean;
   uiSoundEnabled: boolean;
+  speedDisplayUnit: SpeedDisplayUnit;
 };
 
 export type StoredSession = {
@@ -46,6 +48,16 @@ export type StoredState = {
   settings: AppSettings;
 };
 
+export type KeyStabilitySample = {
+  id: number;
+  key: string;
+  intervalMs: number | null;
+  isCorrect: boolean;
+  kind: "input" | "correction";
+  promptIndex: number;
+  at: number;
+};
+
 export type RuntimeStats = {
   keystrokes: number;
   scoredInputLength: number;
@@ -55,6 +67,7 @@ export type RuntimeStats = {
   mistakes: number;
   mistakeDebt: number;
   intervals: number[];
+  keyStabilityHistory: KeyStabilitySample[];
   lastKeyAt: number | null;
   lastInputAt: number | null;
   completedPrompts: number;

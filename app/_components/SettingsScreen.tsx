@@ -188,6 +188,31 @@ export function SettingsScreen({
               </div>
             </section>
 
+            <section className="settings-row" aria-labelledby="speed-display-setting">
+              <div>
+                <h4 id="speed-display-setting">速度表示</h4>
+                <p>練習中に表示する速度の単位を切り替える</p>
+              </div>
+              <div className="theme-segmented" role="group" aria-label="速度表示">
+                <button
+                  aria-pressed={settings.speedDisplayUnit === "keysPerSecond"}
+                  className={settings.speedDisplayUnit === "keysPerSecond" ? "selected" : ""}
+                  onClick={() => onChange({ speedDisplayUnit: "keysPerSecond" })}
+                  type="button"
+                >
+                  打鍵/秒
+                </button>
+                <button
+                  aria-pressed={settings.speedDisplayUnit === "keysPerMinute"}
+                  className={settings.speedDisplayUnit === "keysPerMinute" ? "selected" : ""}
+                  onClick={() => onChange({ speedDisplayUnit: "keysPerMinute" })}
+                  type="button"
+                >
+                  打鍵/分
+                </button>
+              </div>
+            </section>
+
             <section className="settings-row" aria-labelledby="romaji-space-setting">
               <div>
                 <h4 id="romaji-space-setting">日本語ローマ字のスペース</h4>

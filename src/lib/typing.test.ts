@@ -28,6 +28,7 @@ describe("calculateMetrics", () => {
     });
 
     expect(metrics.keysPerSecond).toBeCloseTo(7);
+    expect("wpm" in metrics).toBe(false);
     expect(metrics.accuracy).toBeCloseTo(0.9);
     expect(metrics.score).toBeCloseTo(5103);
   });

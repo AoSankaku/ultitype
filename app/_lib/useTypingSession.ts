@@ -58,6 +58,12 @@ import type {
 } from "./types";
 import { getFinishSoundKind, useTypingSounds } from "./typing-sounds";
 
+type KeyStabilityInput = {
+  key: string;
+  isCorrect: boolean;
+  kind: "input" | "correction";
+};
+
 const directCodeKeyMap: Record<string, [normal: string, shifted: string]> = {
   Backquote: ["`", "~"],
   BracketLeft: ["[", "{"],
@@ -458,20 +464,43 @@ export function useTypingSession() {
     setScreen("mode-select");
   }
 
-  function recordKey(metricKeystrokes = 1, physicalKeystrokes = 1) {
+  function recordKey(
+    metricKeystrokes = 1,
+    physicalKeystrokes = 1,
+    stabilityInput?: KeyStabilityInput,
+  ) {
     const timestamp = Date.now();
 
-    setStats((previous) => ({
-      ...previous,
-      keystrokes: previous.keystrokes + metricKeystrokes,
-      physicalKeystrokes: previous.physicalKeystrokes + physicalKeystrokes,
-      intervals:
-        previous.lastKeyAt === null
-          ? previous.intervals
-          : [...previous.intervals, timestamp - previous.lastKeyAt],
-      lastKeyAt: timestamp,
-      lastInputAt: timestamp,
-    }));
+    setStats((previous) => {
+      const intervalMs = previous.lastKeyAt === null ? null : timestamp - previous.lastKeyAt;
+      const nextHistory = stabilityInput
+        ? [
+            ...previous.keyStabilityHistory,
+            {
+              id: previous.keyStabilityHistory.length,
+              key: stabilityInput.key,
+              intervalMs,
+              isCorrect: stabilityInput.isCorrect,
+              kind: stabilityInput.kind,
+              promptIndex: previous.completedPrompts,
+              at: timestamp,
+            },
+          ]
+        : previous.keyStabilityHistory;
+
+      return {
+        ...previous,
+        keystrokes: previous.keystrokes + metricKeystrokes,
+        physicalKeystrokes: previous.physicalKeystrokes + physicalKeystrokes,
+        intervals:
+          intervalMs === null
+            ? previous.intervals
+            : [...previous.intervals, intervalMs],
+        keyStabilityHistory: nextHistory,
+        lastKeyAt: timestamp,
+        lastInputAt: timestamp,
+      };
+    });
   }
 
   function handleDirectKeyDown(event: DirectKeyEvent) {
@@ -521,7 +550,11 @@ export function useTypingSession() {
     const didMistype = result.state.mistakes > directState.mistakes;
 
     playTypingSound(didMistype ? "mistake" : "normal");
-    recordKey(result.scoredKeystrokes);
+    recordKey(result.scoredKeystrokes, 1, {
+      key,
+      isCorrect: key === "Backspace" ? true : !didMistype,
+      kind: key === "Backspace" ? "correction" : "input",
+    });
     setStats((previous) => ({
       ...previous,
       scoredInputLength: result.state.scoredInputLength,
@@ -548,7 +581,11 @@ export function useTypingSession() {
 
     if (!ignoredKeys.has(event.key) && event.key !== "Enter" && startedAt) {
       playTypingSound("normal");
-      recordKey(0, 1);
+      recordKey(0, 1, {
+        key: event.key,
+        isCorrect: true,
+        kind: "input",
+      });
     }
 
     if (event.key !== "Enter" || event.shiftKey) {
@@ -593,7 +630,11 @@ export function useTypingSession() {
     if (!startedAt && nextInput.length > 0) {
       beginSession();
       playTypingSound("normal");
-      recordKey(0, 1);
+      recordKey(0, 1, {
+        key: nextInput.at(-1) ?? "",
+        isCorrect: true,
+        kind: "input",
+      });
     }
 
     setInput(nextInput);
@@ -628,6 +669,7 @@ export function useTypingSession() {
       acceptsTextInput,
       challengeLanguage,
       correctionDebt,
+      currentAccuracy,
       currentDisplay,
       elapsedSeconds: startedAt ? elapsedSeconds : null,
       currentGuide:
@@ -645,6 +687,7 @@ export function useTypingSession() {
       progress,
       remainingSeconds,
       soundSettings: stored.settings,
+      speedDisplayUnit: stored.settings.speedDisplayUnit,
       startedAt,
       stats,
       onBackToModeSelect: returnToModeSelect,

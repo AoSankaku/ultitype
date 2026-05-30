@@ -94,7 +94,6 @@ export type MetricsInput = {
 
 export type Metrics = {
   keysPerSecond: number;
-  wpm: number;
   accuracy: number;
   paceMs: number;
   consistency: number;
@@ -799,7 +798,6 @@ export function calculateMetrics(input: MetricsInput): Metrics {
     input.characterAttempts === 0
       ? 1
       : clamp(input.correctCharacters / input.characterAttempts, 0, 1);
-  const wpm = input.correctCharacters / 5 / (elapsed / 60);
   const paceMs = calculateAverage(input.intervals);
   const consistency = calculateConsistency(input.intervals);
   const flowMultiplier = input.useFlowMultiplier ? consistency : 1;
@@ -808,7 +806,6 @@ export function calculateMetrics(input: MetricsInput): Metrics {
 
   return {
     keysPerSecond,
-    wpm,
     accuracy,
     paceMs,
     consistency,

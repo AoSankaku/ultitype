@@ -27,7 +27,13 @@ import {
 } from "@/src/lib/typing";
 import { getVisibleSessionRank } from "../_lib/session-rank-visibility";
 import { type SoundSettings, useTypingSounds } from "../_lib/typing-sounds";
-import type { ChallengeLanguage, FinishReason, RuntimeStats } from "../_lib/types";
+import type {
+  ChallengeLanguage,
+  FinishReason,
+  KeyStabilitySample,
+  RuntimeStats,
+  SpeedDisplayUnit,
+} from "../_lib/types";
 
 type BlockableTextEvent =
   | FormEvent<HTMLTextAreaElement>
@@ -39,6 +45,7 @@ type TypingPanelProps = {
   acceptsTextInput: boolean;
   challengeLanguage: ChallengeLanguage;
   correctionDebt: number;
+  currentAccuracy: number;
   currentDisplay: string;
   currentGuide: string;
   currentRomajiTarget: RomajiInputTarget | null;
@@ -55,6 +62,7 @@ type TypingPanelProps = {
   progress: number;
   remainingSeconds: number;
   soundSettings: SoundSettings;
+  speedDisplayUnit: SpeedDisplayUnit;
   startedAt: number | null;
   stats: RuntimeStats;
   onBackToModeSelect: () => void;
@@ -69,6 +77,7 @@ export function TypingPanel({
   acceptsTextInput,
   challengeLanguage,
   correctionDebt,
+  currentAccuracy,
   currentDisplay,
   currentGuide,
   currentRomajiTarget,
@@ -85,6 +94,7 @@ export function TypingPanel({
   progress,
   remainingSeconds,
   soundSettings,
+  speedDisplayUnit,
   startedAt,
   stats,
   onBackToModeSelect,
@@ -99,6 +109,7 @@ export function TypingPanel({
     elapsedSeconds,
     rankLabel: currentRank.label,
   });
+  const speedMetric = getSpeedMetric(metrics.keysPerSecond, speedDisplayUnit);
 
   function handleBackToModeSelect() {
     playTypingSound("back");
@@ -112,11 +123,11 @@ export function TypingPanel({
     >
       <div className="meter-row">
         <Metric label="残り" value={formatTimer(remainingSeconds)} icon={<Timer size={17} />} />
-        <Metric label="打鍵/秒" value={metrics.keysPerSecond.toFixed(2)} />
-        <Metric label="WPM" value={metrics.wpm.toFixed(1)} />
+        <Metric label={speedMetric.label} value={speedMetric.value} />
         <Metric label="正確率" value={`${(metrics.accuracy * 100).toFixed(1)}%`} />
         <Metric label="ミス" value={stats.mistakes.toString()} />
-        <Metric label="安定度" value={`${(metrics.consistency * 100).toFixed(0)}%`} />
+        <Metric label="物理打鍵" value={stats.physicalKeystrokes.toString()} />
+        <Metric label="完了課題" value={stats.completedPrompts.toString()} />
       </div>
 
       <div className="progress-track" aria-hidden="true">
@@ -186,6 +197,16 @@ export function TypingPanel({
 
           <CorrectionDebtIndicator debt={correctionDebt} />
 
+          <ChallengeAnalysis
+            acceptsTextInput={acceptsTextInput}
+            currentAccuracy={currentAccuracy}
+            currentDisplay={currentDisplay}
+            input={input}
+            metrics={metrics}
+            speedDisplayUnit={speedDisplayUnit}
+            stats={stats}
+          />
+
           {acceptsTextInput ? (
             <textarea
               aria-label="typing input"
@@ -225,6 +246,90 @@ export function TypingPanel({
   );
 }
 
+function ChallengeAnalysis({
+  acceptsTextInput,
+  currentAccuracy,
+  currentDisplay,
+  input,
+  metrics,
+  speedDisplayUnit,
+  stats,
+}: {
+  acceptsTextInput: boolean;
+  currentAccuracy: number;
+  currentDisplay: string;
+  input: string;
+  metrics: Metrics;
+  speedDisplayUnit: SpeedDisplayUnit;
+  stats: RuntimeStats;
+}) {
+  const tiles = acceptsTextInput
+    ? getImeCorrectnessTiles(input, currentDisplay)
+    : getDirectCorrectnessTiles(stats.keyStabilityHistory);
+  const speedMetric = getSpeedMetric(metrics.keysPerSecond, speedDisplayUnit);
+  const driftMs = getAverageAbsoluteDrift(stats.keyStabilityHistory, metrics.paceMs);
+
+  return (
+    <section className="challenge-analysis" aria-label="Live Analysis">
+      <div className="challenge-analysis-title">Live Analysis</div>
+      <div className="analysis-column correctness-column">
+        <div className="analysis-heading">
+          <span>正誤率</span>
+          <strong>{(currentAccuracy * 100).toFixed(1)}%</strong>
+          <small>ミス {stats.mistakes}</small>
+        </div>
+        <div className="correctness-tiles" aria-label="正誤履歴">
+          {tiles.length === 0 ? (
+            <span className="analysis-empty">入力待ち</span>
+          ) : (
+            tiles.map((tile) => (
+              <span className={`correctness-tile ${tile.state}`} key={tile.id} title={tile.title}>
+                {tile.label}
+              </span>
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className="analysis-column stability-column">
+        <div className="analysis-heading">
+          <span>安定度</span>
+          <strong>{(metrics.consistency * 100).toFixed(0)}%</strong>
+          <small>{speedMetric.label} {speedMetric.value}</small>
+        </div>
+        <div className="analysis-metrics">
+          <div>
+            <span>平均打鍵間隔</span>
+            <strong>{metrics.paceMs ? `${metrics.paceMs.toFixed(0)} ms` : "--"}</strong>
+          </div>
+          <div>
+            <span>ズレ平均</span>
+            <strong>{driftMs ? `${driftMs.toFixed(0)} ms` : "--"}</strong>
+          </div>
+          <div>
+            <span>物理打鍵</span>
+            <strong>{stats.physicalKeystrokes}</strong>
+          </div>
+        </div>
+        <div className="stability-mini-chart" aria-label="打鍵間隔の安定度グラフ">
+          {stats.keyStabilityHistory.slice(-48).length === 0 ? (
+            <span className="analysis-empty">入力待ち</span>
+          ) : (
+            stats.keyStabilityHistory.slice(-48).map((sample) => (
+              <span
+                className={getStabilityBarClass(sample, metrics.paceMs)}
+                key={sample.id}
+                style={{ height: `${getBarHeight(sample.intervalMs, metrics.paceMs)}%` }}
+                title={formatSampleTitle(sample)}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CorrectionDebtIndicator({ debt }: { debt: number }) {
   if (debt <= 0) {
     return null;
@@ -244,6 +349,126 @@ function CorrectionDebtIndicator({ debt }: { debt: number }) {
       </span>
     </div>
   );
+}
+
+type CorrectnessTile = {
+  id: string;
+  label: string;
+  state: "correct" | "wrong" | "correction" | "neutral";
+  title: string;
+};
+
+function getSpeedMetric(keysPerSecond: number, unit: SpeedDisplayUnit) {
+  if (unit === "keysPerMinute") {
+    return {
+      label: "打鍵/分",
+      value: Math.round(keysPerSecond * 60).toLocaleString(),
+    };
+  }
+
+  return {
+    label: "打鍵/秒",
+    value: keysPerSecond.toFixed(2),
+  };
+}
+
+function getDirectCorrectnessTiles(history: KeyStabilitySample[]): CorrectnessTile[] {
+  return history.slice(-48).map((sample) => {
+    const state = sample.kind === "correction" ? "correction" : sample.isCorrect ? "correct" : "wrong";
+    const label = formatKeyLabel(sample.key);
+
+    return {
+      id: `direct-${sample.id}`,
+      label,
+      state,
+      title: formatSampleTitle(sample),
+    };
+  });
+}
+
+function getImeCorrectnessTiles(input: string, target: string): CorrectnessTile[] {
+  const inputCharacters = Array.from(input);
+  const targetCharacters = Array.from(target);
+  const startIndex = Math.max(0, inputCharacters.length - 48);
+
+  return inputCharacters.slice(startIndex).map((character, offset) => {
+    const index = startIndex + offset;
+    const expected = targetCharacters[index];
+    const isCorrect = expected !== undefined && character === expected;
+    const label = formatKeyLabel(character);
+
+    return {
+      id: `ime-${index}-${character}`,
+      label,
+      state: expected === undefined ? "wrong" : isCorrect ? "correct" : "wrong",
+      title: `${label} / ${isCorrect ? "正打" : "ミス"}`,
+    };
+  });
+}
+
+function getAverageAbsoluteDrift(history: KeyStabilitySample[], averageMs: number) {
+  const intervals = history
+    .map((sample) => sample.intervalMs)
+    .filter((interval): interval is number => interval !== null);
+
+  if (intervals.length === 0 || averageMs === 0) {
+    return 0;
+  }
+
+  return intervals.reduce((sum, interval) => sum + Math.abs(interval - averageMs), 0) / intervals.length;
+}
+
+function getStabilityBarClass(sample: KeyStabilitySample, averageMs: number) {
+  if (!sample.isCorrect) {
+    return "stability-mini-bar wrong";
+  }
+
+  if (sample.kind === "correction") {
+    return "stability-mini-bar correction";
+  }
+
+  if (sample.intervalMs === null || averageMs === 0) {
+    return "stability-mini-bar neutral";
+  }
+
+  const ratio = sample.intervalMs / averageMs;
+  if (ratio < 0.72) {
+    return "stability-mini-bar fast";
+  }
+  if (ratio > 1.42) {
+    return "stability-mini-bar slow";
+  }
+  return "stability-mini-bar stable";
+}
+
+function getBarHeight(intervalMs: number | null, averageMs: number) {
+  if (intervalMs === null || averageMs === 0) {
+    return 34;
+  }
+
+  return Math.max(16, Math.min(100, (intervalMs / averageMs) * 54));
+}
+
+function formatKeyLabel(key: string) {
+  if (key === " ") {
+    return "SP";
+  }
+
+  if (key === "Backspace") {
+    return "BS";
+  }
+
+  if (key.length > 2) {
+    return "IME";
+  }
+
+  return key;
+}
+
+function formatSampleTitle(sample: KeyStabilitySample) {
+  const interval = sample.intervalMs === null ? "開始" : `${sample.intervalMs} ms`;
+  const state = sample.kind === "correction" ? "修正" : sample.isCorrect ? "正打" : "ミス";
+  return `${formatKeyLabel(sample.key)} / ${interval} / ${state}`;
 }
 
 function Metric({

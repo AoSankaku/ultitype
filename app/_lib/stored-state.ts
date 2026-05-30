@@ -22,6 +22,7 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
     settings: {
       ...initialSettings,
       ...storedState?.settings,
+      speedDisplayUnit: storedState?.settings?.speedDisplayUnit ?? initialSettings.speedDisplayUnit,
       sokuonInput: {
         ...initialSettings.sokuonInput,
         ...storedState?.settings?.sokuonInput,

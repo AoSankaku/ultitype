@@ -42,6 +42,7 @@ export const initialStats: RuntimeStats = {
   mistakes: 0,
   mistakeDebt: 0,
   intervals: [],
+  keyStabilityHistory: [],
   lastKeyAt: null,
   lastInputAt: null,
   completedPrompts: 0,
@@ -62,6 +63,7 @@ export const initialSettings: AppSettings = {
   soundVolume: 0.7,
   typingSoundEnabled: true,
   uiSoundEnabled: true,
+  speedDisplayUnit: "keysPerSecond",
 };
 
 export const initialStoredState: StoredState = {

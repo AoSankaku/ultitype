@@ -3,6 +3,7 @@ import { initialStoredState } from "./constants";
 import {
   cacheStoredState,
   getInitialStoredState,
+  normalizeStoredState,
   resetStoredStateCache,
   shouldPersistStoredState,
 } from "./stored-state";
@@ -45,5 +46,16 @@ describe("stored state persistence", () => {
     cacheStoredState(loadedState);
 
     expect(getInitialStoredState()).toEqual(loadedState);
+  });
+
+  test("fills the speed display setting when loading older stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        speedDisplayUnit: undefined,
+      },
+    });
+
+    expect(stored.settings.speedDisplayUnit).toBe("keysPerSecond");
   });
 });

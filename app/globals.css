@@ -126,6 +126,19 @@ h1 {
   letter-spacing: 0;
 }
 
+.brand-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.app-version {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
 .brand-block p {
   margin: 6px 0 0;
   color: var(--muted);

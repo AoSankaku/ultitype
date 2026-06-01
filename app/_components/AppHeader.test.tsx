@@ -32,6 +32,13 @@ describe("AppHeader", () => {
     expect(markup).toContain('href="/user"');
   });
 
+  test("shows the app version beside the brand name", () => {
+    const markup = renderAppHeader();
+
+    expect(markup).toContain("UltiType");
+    expect(markup).toContain("v0.1.0");
+  });
+
   test("places the user page link before settings", () => {
     const markup = renderAppHeader();
 

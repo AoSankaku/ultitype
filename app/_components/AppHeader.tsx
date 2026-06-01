@@ -5,6 +5,7 @@ import type { Rank } from "@/src/lib/typing";
 import { challengeLanguages } from "../_lib/constants";
 import { type SoundSettings, useTypingSounds } from "../_lib/typing-sounds";
 import type { ChallengeLanguage } from "../_lib/types";
+import { APP_VERSION } from "../_lib/version";
 import { RankBadgeCanvas } from "./RankBadgeCanvas";
 import { SelectSoundLink } from "./SelectSoundLink";
 
@@ -42,7 +43,10 @@ export function AppHeader({
   return (
     <header className="app-header" aria-label="UltiType header">
       <div className="brand-block">
-        <h1>UltiType</h1>
+        <div className="brand-title">
+          <h1>UltiType</h1>
+          <span className="app-version">v{APP_VERSION}</span>
+        </div>
         <p>Typing practice and rating</p>
       </div>
       <div className="header-status">

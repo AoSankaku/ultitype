@@ -57,6 +57,12 @@ export function SettingsScreen({
     });
   }
 
+  function updateNextChallengePreviewLength(nextValue: number) {
+    onChange({
+      nextChallengePreviewLength: Math.min(40, Math.max(0, nextValue)),
+    });
+  }
+
   function updateSoundVolume(nextValue: string) {
     onChange({
       soundVolume: clampInteger(nextValue, 0, 100) / 100,
@@ -115,48 +121,6 @@ export function SettingsScreen({
                   Light
                 </button>
               </div>
-            </section>
-
-            <section className="settings-row" aria-labelledby="speed-display-setting">
-              <div>
-                <h4 id="speed-display-setting">速度表示</h4>
-                <p>練習中に表示する速度の単位を切り替える</p>
-              </div>
-              <div className="theme-segmented" role="group" aria-label="速度表示">
-                <button
-                  aria-pressed={settings.speedDisplayUnit === "keysPerSecond"}
-                  className={settings.speedDisplayUnit === "keysPerSecond" ? "selected" : ""}
-                  onClick={() => onChange({ speedDisplayUnit: "keysPerSecond" })}
-                  type="button"
-                >
-                  打鍵/秒
-                </button>
-                <button
-                  aria-pressed={settings.speedDisplayUnit === "keysPerMinute"}
-                  className={settings.speedDisplayUnit === "keysPerMinute" ? "selected" : ""}
-                  onClick={() => onChange({ speedDisplayUnit: "keysPerMinute" })}
-                  type="button"
-                >
-                  打鍵/分
-                </button>
-              </div>
-            </section>
-
-            <section className="settings-row" aria-labelledby="romaji-space-setting">
-              <div>
-                <h4 id="romaji-space-setting">日本語ガイドのスペース</h4>
-                <p>ひらがな読みとローマ字ガイドの単語間スペースを表示する</p>
-              </div>
-              <label className="toggle-control">
-                <input
-                  checked={settings.showRomajiWordSpaces}
-                  onChange={(event) =>
-                    onChange({ showRomajiWordSpaces: event.currentTarget.checked })
-                  }
-                  type="checkbox"
-                />
-                <span aria-hidden="true" />
-              </label>
             </section>
 
             <section className="settings-row settings-link-row" aria-labelledby="screen-preview-setting">
@@ -328,6 +292,66 @@ export function SettingsScreen({
                   value={settings.accuracyRetireBorderPercent}
                 />
                 <span>%</span>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section className="settings-category" aria-labelledby="other-settings">
+          <h3 className="settings-category-title" id="other-settings">
+            その他の設定
+          </h3>
+          <div className="settings-category-list">
+            <section className="settings-row" aria-labelledby="next-challenge-preview-setting">
+              <div>
+                <h4 id="next-challenge-preview-setting">次の課題の表示文字数</h4>
+                <p>短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示</p>
+              </div>
+              <div className="number-control">
+                <input
+                  aria-label="次の課題の表示文字数"
+                  min={0}
+                  max={40}
+                  onChange={(event) =>
+                    onChange({
+                      nextChallengePreviewLength: clampInteger(
+                        event.currentTarget.value,
+                        0,
+                        40,
+                      ),
+                    })
+                  }
+                  step={1}
+                  type="number"
+                  value={settings.nextChallengePreviewLength}
+                />
+                <span>文字</span>
+                <div className="number-stepper" aria-label="次の課題の表示文字数を調整">
+                  <button
+                    aria-label="次の課題の表示文字数を増やす"
+                    disabled={settings.nextChallengePreviewLength >= 40}
+                    onClick={() =>
+                      updateNextChallengePreviewLength(
+                        settings.nextChallengePreviewLength + 1,
+                      )
+                    }
+                    type="button"
+                  >
+                    <ChevronUp size={14} />
+                  </button>
+                  <button
+                    aria-label="次の課題の表示文字数を減らす"
+                    disabled={settings.nextChallengePreviewLength <= 0}
+                    onClick={() =>
+                      updateNextChallengePreviewLength(
+                        settings.nextChallengePreviewLength - 1,
+                      )
+                    }
+                    type="button"
+                  >
+                    <ChevronDown size={14} />
+                  </button>
+                </div>
               </div>
             </section>
           </div>

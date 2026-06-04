@@ -267,6 +267,31 @@ describe("applyDirectKey", () => {
     expect(typeDirectKeys(strictTarget, Array.from("kixa")).mistakes).toBeGreaterThan(0);
   });
 
+  test("can enable special split yoon inputs such as vula and texi separately", () => {
+    const generalOnlyTarget = createRomajiInputTarget("vathi", {
+      preset: "hepburn",
+      selections: {},
+      allowSplitYoon: true,
+      allowSplitSpecialYoon: false,
+    });
+
+    expect(typeDirectKeys(generalOnlyTarget, Array.from("vathi")).completedPrompts).toBe(1);
+    expect(typeDirectKeys(generalOnlyTarget, Array.from("vulatexi")).completedPrompts).toBe(0);
+    expect(typeDirectKeys(generalOnlyTarget, Array.from("vulatexi")).mistakes).toBeGreaterThan(0);
+
+    const specialPermissiveTarget = createRomajiInputTarget("vathi", {
+      preset: "hepburn",
+      selections: {},
+      allowSplitYoon: false,
+      allowSplitSpecialYoon: true,
+    });
+
+    expect(typeDirectKeys(specialPermissiveTarget, Array.from("vathi")).completedPrompts).toBe(1);
+    expect(typeDirectKeys(specialPermissiveTarget, Array.from("vulatexi")).completedPrompts).toBe(1);
+    expect(typeDirectKeys(specialPermissiveTarget, Array.from("vuxatexi")).completedPrompts).toBe(1);
+    expect(typeDirectKeys(specialPermissiveTarget, Array.from("kila")).completedPrompts).toBe(0);
+  });
+
   test("can allow only selected split sokuon inputs before consonants", () => {
     const target = createRomajiInputTarget("ke^ka", {
       preset: "hepburn",

@@ -20,7 +20,9 @@ import type {
   KeyboardEvent,
   ReactNode,
   RefObject,
+  CSSProperties,
 } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import {
   formatTimer,
   getRomajiInputProgress,
@@ -42,8 +44,8 @@ import type {
   FinishReason,
   KeyStabilitySample,
   MistakeFlash,
+  NextChallengePreviewMode,
   RuntimeStats,
-  SpeedDisplayUnit,
   StrictMistakeDisplayMode,
   TopDisplayMetricId,
 } from "../_lib/types";
@@ -75,6 +77,17 @@ type TypingPanelProps = {
   mistakeFlash: MistakeFlash | null;
   metrics: Metrics;
   mode: TypingMode;
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  nextChallengeGuide: string;
+  nextChallengePreview: string;
+  nextChallengePreviewMode: NextChallengePreviewMode;
+  nextChallengeReading: string;
+  nextChallengeRomajiTarget: RomajiInputTarget | null;
+  previousChallengeDisplay: string;
+  previousChallengeFurigana: JapaneseFuriganaEntry[];
+  previousChallengeGuide: string;
+  previousChallengeReading: string;
   progress: number;
   productionBlockReason: string;
   remainingSeconds: number;
@@ -85,14 +98,27 @@ type TypingPanelProps = {
   showKanjiDisplay: boolean;
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
+  kanjiFontSize: number;
+  furiganaFontScale: number;
+  hiraganaFontSize: number;
+  romajiFontSize: number;
+  kanjiLineHeight: number;
+  kanjiMarginBottom: number;
+  furiganaLineHeight: number;
+  furiganaMarginBottom: number;
+  hiraganaLineHeight: number;
+  hiraganaMarginBottom: number;
+  romajiLineHeight: number;
+  romajiMarginBottom: number;
   soundSettings: SoundSettings;
-  speedDisplayUnit: SpeedDisplayUnit;
   startedAt: number | null;
   stats: RuntimeStats;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
   sessionModeIcon?: LucideIcon | null;
   sessionModeLabel?: string;
+  prepareActionIcon?: LucideIcon;
+  prepareActionTitle?: string;
   topDisplayMetricIds: TopDisplayMetricId[];
   onBackToModeSelect: () => void;
   onImeInput: (input: string) => void;
@@ -123,6 +149,17 @@ export function TypingPanel({
   mistakeFlash,
   metrics,
   mode,
+  nextChallengeDisplay,
+  nextChallengeFurigana,
+  nextChallengeGuide,
+  nextChallengePreview,
+  nextChallengePreviewMode,
+  nextChallengeReading,
+  nextChallengeRomajiTarget,
+  previousChallengeDisplay,
+  previousChallengeFurigana,
+  previousChallengeGuide,
+  previousChallengeReading,
   progress,
   productionBlockReason,
   remainingSeconds,
@@ -133,14 +170,27 @@ export function TypingPanel({
   showKanjiDisplay,
   showKanjiMarker,
   showRomajiMarker,
+  kanjiFontSize,
+  furiganaFontScale,
+  hiraganaFontSize,
+  romajiFontSize,
+  kanjiLineHeight,
+  kanjiMarginBottom,
+  furiganaLineHeight,
+  furiganaMarginBottom,
+  hiraganaLineHeight,
+  hiraganaMarginBottom,
+  romajiLineHeight,
+  romajiMarginBottom,
   soundSettings,
-  speedDisplayUnit,
   startedAt,
   stats,
   strictMistakeDisplayMode,
   strictMistakeInput,
   sessionModeIcon,
   sessionModeLabel,
+  prepareActionIcon,
+  prepareActionTitle,
   topDisplayMetricIds,
   onBackToModeSelect,
   onImeInput,
@@ -163,7 +213,23 @@ export function TypingPanel({
   });
   const SessionModeIcon = sessionModeIcon === undefined ? getSessionModeIcon(mode) : sessionModeIcon;
   const visibleModeLabel = sessionModeLabel ?? mode.label;
+  const PrepareActionIcon = prepareActionIcon ?? Play;
+  const visiblePrepareActionTitle = prepareActionTitle ?? "開始";
   const showDisplayText = challengeLanguage !== "ja" || showKanjiDisplay;
+  const targetViewStyle = {
+    "--target-kanji-font-size": `${kanjiFontSize}px`,
+    "--target-furigana-font-scale": `${furiganaFontScale}em`,
+    "--target-hiragana-font-size": `${hiraganaFontSize}px`,
+    "--target-romaji-font-size": `${romajiFontSize}px`,
+    "--target-kanji-line-height": `${kanjiLineHeight}`,
+    "--target-kanji-margin-bottom": `${kanjiMarginBottom}px`,
+    "--target-furigana-line-height": `${furiganaLineHeight}`,
+    "--target-furigana-margin-bottom": `${furiganaMarginBottom}px`,
+    "--target-hiragana-line-height": `${hiraganaLineHeight}`,
+    "--target-hiragana-margin-bottom": `${hiraganaMarginBottom}px`,
+    "--target-romaji-line-height": `${romajiLineHeight}`,
+    "--target-romaji-margin-bottom": `${romajiMarginBottom}px`,
+  } as CSSProperties;
 
   function handleBackToModeSelect() {
     playTypingSound("back");
@@ -220,10 +286,10 @@ export function TypingPanel({
           <button
             className="icon-button primary"
             onClick={onPrepareSession}
-            title="開始"
+            title={visiblePrepareActionTitle}
             type="button"
           >
-            <Play size={18} />
+            <PrepareActionIcon size={18} />
           </button>
           <button
             className="icon-button"
@@ -243,7 +309,7 @@ export function TypingPanel({
         </div>
       ) : (
         <>
-          <div className="target-view" aria-label="current challenge">
+          <div className="target-view" aria-label="current challenge" style={targetViewStyle}>
             {mode.requiresIme ? (
               <>
                 {showDisplayText ? (
@@ -267,6 +333,17 @@ export function TypingPanel({
                 guide={currentGuide}
                 input={input}
                 mistakeFlash={mistakeFlash}
+                nextChallengeDisplay={nextChallengeDisplay}
+                nextChallengeFurigana={nextChallengeFurigana}
+                nextChallengeGuide={nextChallengeGuide}
+                nextChallengePreview={nextChallengePreview}
+                nextChallengePreviewMode={nextChallengePreviewMode}
+                nextChallengeReading={nextChallengeReading}
+                nextChallengeRomajiTarget={nextChallengeRomajiTarget}
+                previousChallengeDisplay={previousChallengeDisplay}
+                previousChallengeFurigana={previousChallengeFurigana}
+                previousChallengeGuide={previousChallengeGuide}
+                previousChallengeReading={previousChallengeReading}
                 reading={currentReading}
                 romajiTarget={currentRomajiTarget}
                 showFuriganaDisplay={showFuriganaDisplay}
@@ -276,6 +353,8 @@ export function TypingPanel({
                 showKanjiMarker={showKanjiMarker}
                 showRomajiMarker={showRomajiMarker}
                 showDisplayText={showDisplayText}
+                currentChallengeLane={stats.completedPrompts % 2 === 0 ? "top" : "bottom"}
+                completedPrompts={stats.completedPrompts}
                 strictMistakeDisplayMode={strictMistakeDisplayMode}
                 strictMistakeInput={strictMistakeInput}
               />
@@ -290,7 +369,6 @@ export function TypingPanel({
             currentDisplay={currentDisplay}
             input={input}
             metrics={metrics}
-            speedDisplayUnit={speedDisplayUnit}
             stats={stats}
           />
 
@@ -339,7 +417,6 @@ function ChallengeAnalysis({
   currentDisplay,
   input,
   metrics,
-  speedDisplayUnit,
   stats,
 }: {
   acceptsTextInput: boolean;
@@ -347,13 +424,12 @@ function ChallengeAnalysis({
   currentDisplay: string;
   input: string;
   metrics: Metrics;
-  speedDisplayUnit: SpeedDisplayUnit;
   stats: RuntimeStats;
 }) {
   const tiles = acceptsTextInput
     ? getImeCorrectnessTiles(input, currentDisplay)
     : getDirectCorrectnessTiles(stats.keyStabilityHistory);
-  const speedMetric = getSpeedMetric(metrics.keysPerSecond, speedDisplayUnit);
+  const speedMetric = getSpeedMetric(metrics.keysPerSecond);
   const driftMs = getAverageAbsoluteDrift(stats.keyStabilityHistory, metrics.paceMs);
 
   return (
@@ -549,14 +625,7 @@ type CorrectnessTile = {
   title: string;
 };
 
-function getSpeedMetric(keysPerSecond: number, unit: SpeedDisplayUnit) {
-  if (unit === "keysPerMinute") {
-    return {
-      label: "打鍵/分",
-      value: Math.round(keysPerSecond * 60).toLocaleString(),
-    };
-  }
-
+function getSpeedMetric(keysPerSecond: number) {
   return {
     label: "打鍵/秒",
     value: keysPerSecond.toFixed(2),
@@ -698,6 +767,17 @@ function DirectChallengeView({
   guide,
   input,
   mistakeFlash,
+  nextChallengeDisplay,
+  nextChallengeFurigana,
+  nextChallengeGuide,
+  nextChallengePreview,
+  nextChallengePreviewMode,
+  nextChallengeReading,
+  nextChallengeRomajiTarget,
+  previousChallengeDisplay,
+  previousChallengeFurigana,
+  previousChallengeGuide,
+  previousChallengeReading,
   reading,
   romajiTarget,
   showFuriganaDisplay,
@@ -705,6 +785,8 @@ function DirectChallengeView({
   showHiraganaDisplay,
   showHiraganaMarker,
   showDisplayText,
+  currentChallengeLane,
+  completedPrompts,
   showKanjiMarker,
   showRomajiMarker,
   strictMistakeDisplayMode,
@@ -715,6 +797,17 @@ function DirectChallengeView({
   guide: string;
   input: string;
   mistakeFlash: MistakeFlash | null;
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  nextChallengeGuide: string;
+  nextChallengePreview: string;
+  nextChallengePreviewMode: NextChallengePreviewMode;
+  nextChallengeReading: string;
+  nextChallengeRomajiTarget: RomajiInputTarget | null;
+  previousChallengeDisplay: string;
+  previousChallengeFurigana: JapaneseFuriganaEntry[];
+  previousChallengeGuide: string;
+  previousChallengeReading: string;
   reading: string;
   romajiTarget: RomajiInputTarget | null;
   showFuriganaDisplay: boolean;
@@ -722,43 +815,273 @@ function DirectChallengeView({
   showHiraganaDisplay: boolean;
   showHiraganaMarker: boolean;
   showDisplayText: boolean;
+  currentChallengeLane: "top" | "bottom";
+  completedPrompts: number;
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
 }) {
-  const hasSeparateDisplay = display !== guide;
+  const challengeContent = (
+    <ChallengeTextStack
+      display={display}
+      furigana={furigana}
+      guide={guide}
+      input={input}
+      mistakeFlash={mistakeFlash}
+      reading={reading}
+      renderMarkers={true}
+      romajiTarget={romajiTarget}
+      showDisplayText={showDisplayText}
+      showFuriganaDisplay={showFuriganaDisplay}
+      showFuriganaMarker={showFuriganaMarker}
+      showHiraganaDisplay={showHiraganaDisplay}
+      showHiraganaMarker={showHiraganaMarker}
+      showKanjiMarker={showKanjiMarker}
+      showRomajiMarker={showRomajiMarker}
+      strictMistakeDisplayMode={strictMistakeDisplayMode}
+      strictMistakeInput={strictMistakeInput}
+    />
+  );
+  const nextChallengeContent = (
+    <ChallengeTextStack
+      display={nextChallengeDisplay}
+      furigana={nextChallengeFurigana}
+      guide={nextChallengeGuide}
+      input=""
+      mistakeFlash={null}
+      reading={nextChallengeReading}
+      renderMarkers={false}
+      romajiTarget={nextChallengeRomajiTarget}
+      showDisplayText={showDisplayText}
+      showFuriganaDisplay={showFuriganaDisplay}
+      showFuriganaMarker={false}
+      showHiraganaDisplay={showHiraganaDisplay}
+      showHiraganaMarker={false}
+      showKanjiMarker={false}
+      showRomajiMarker={false}
+      strictMistakeDisplayMode="none"
+      strictMistakeInput=""
+    />
+  );
 
-  return (
-    <>
-      {showDisplayText && hasSeparateDisplay ? (
-        <DisplayText
+  if (!nextChallengePreview || nextChallengePreviewMode === "none") {
+    return challengeContent;
+  }
+
+  if (nextChallengePreviewMode === "center-scroll") {
+    return (
+      <div className="challenge-preview-layout center-scroll">
+        <ContinuousChallengeTextStack
           display={display}
           furigana={furigana}
-          markerProgress={romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null}
-          showFurigana={showFuriganaDisplay}
+          guide={guide}
+          input={input}
+          mistakeFlash={mistakeFlash}
+          nextChallengeDisplay={nextChallengeDisplay}
+          nextChallengeFurigana={nextChallengeFurigana}
+          nextChallengeGuide={nextChallengeRomajiTarget?.guide ?? nextChallengeGuide}
+          nextChallengeReading={nextChallengeReading}
+          previousChallengeDisplay={previousChallengeDisplay}
+          previousChallengeFurigana={previousChallengeFurigana}
+          previousChallengeGuide={previousChallengeGuide}
+          previousChallengeReading={previousChallengeReading}
+          reading={reading}
+          romajiTarget={romajiTarget}
+          showDisplayText={showDisplayText}
+          showFuriganaDisplay={showFuriganaDisplay}
           showFuriganaMarker={showFuriganaMarker}
+          showHiraganaDisplay={showHiraganaDisplay}
+          showHiraganaMarker={showHiraganaMarker}
           showKanjiMarker={showKanjiMarker}
+          showRomajiMarker={showRomajiMarker}
+          startsAtLeft={completedPrompts === 0}
+          strictMistakeDisplayMode={strictMistakeDisplayMode}
+          strictMistakeInput={strictMistakeInput}
         />
-      ) : null}
-      {showHiraganaDisplay && reading ? (
-        <p className="reading-text">
-          {romajiTarget
-            ? renderReadingGuideCharacters(
-                reading,
-                romajiTarget,
-                input,
-                mistakeFlash,
-                showHiraganaMarker,
-              )
-            : reading}
-        </p>
-      ) : null}
-      <p
-        className="input-target"
-        aria-label={hasSeparateDisplay ? "romaji input target" : "input target"}
+      </div>
+    );
+  }
+
+  if (nextChallengePreviewMode === "split-alternate") {
+    const nextChallengeLane = currentChallengeLane === "top" ? "bottom" : "top";
+    const currentLaneContent = (
+      <div
+        className={`challenge-preview-lane current-lane ${currentChallengeLane}-lane active-lane`}
       >
-        {romajiTarget
+        {challengeContent}
+      </div>
+    );
+    const nextLaneContent = (
+      <NextChallengePreviewLane
+        lane={nextChallengeLane}
+        nextChallengeContent={nextChallengeContent}
+      />
+    );
+
+    return (
+      <div className="challenge-preview-layout split-alternate">
+        {currentChallengeLane === "top" ? currentLaneContent : nextLaneContent}
+        <div className="challenge-preview-separator" aria-hidden="true" />
+        {currentChallengeLane === "top" ? nextLaneContent : currentLaneContent}
+      </div>
+    );
+  }
+
+  return (
+    <div className="challenge-preview-layout split-slide">
+      <div className="challenge-preview-lane current-lane top-lane">{challengeContent}</div>
+      <div className="challenge-preview-separator" aria-hidden="true" />
+      <NextChallengePreviewLane lane="bottom" nextChallengeContent={nextChallengeContent} />
+    </div>
+  );
+}
+
+function NextChallengePreviewLane({
+  lane,
+  nextChallengeContent,
+}: {
+  lane: "top" | "bottom";
+  nextChallengeContent: ReactNode;
+}) {
+  return (
+    <div className={`challenge-preview-lane next-lane ${lane}-lane`}>
+        {nextChallengeContent}
+    </div>
+  );
+}
+
+function ContinuousChallengeTextStack({
+  display,
+  furigana,
+  guide,
+  input,
+  mistakeFlash,
+  nextChallengeDisplay,
+  nextChallengeFurigana,
+  nextChallengeGuide,
+  nextChallengeReading,
+  previousChallengeDisplay,
+  previousChallengeFurigana,
+  previousChallengeGuide,
+  previousChallengeReading,
+  reading,
+  romajiTarget,
+  showDisplayText,
+  showFuriganaDisplay,
+  showFuriganaMarker,
+  showHiraganaDisplay,
+  showHiraganaMarker,
+  showKanjiMarker,
+  showRomajiMarker,
+  startsAtLeft,
+  strictMistakeDisplayMode,
+  strictMistakeInput,
+}: {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  guide: string;
+  input: string;
+  mistakeFlash: MistakeFlash | null;
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  nextChallengeGuide: string;
+  nextChallengeReading: string;
+  previousChallengeDisplay: string;
+  previousChallengeFurigana: JapaneseFuriganaEntry[];
+  previousChallengeGuide: string;
+  previousChallengeReading: string;
+  reading: string;
+  romajiTarget: RomajiInputTarget | null;
+  showDisplayText: boolean;
+  showFuriganaDisplay: boolean;
+  showFuriganaMarker: boolean;
+  showHiraganaDisplay: boolean;
+  showHiraganaMarker: boolean;
+  showKanjiMarker: boolean;
+  showRomajiMarker: boolean;
+  startsAtLeft: boolean;
+  strictMistakeDisplayMode: StrictMistakeDisplayMode;
+  strictMistakeInput: string;
+}) {
+  const hasSeparateDisplay = display !== guide;
+  const centerMarkerPosition = getCenterMarkerPosition(romajiTarget, input);
+  const centerMarkerKey = `${centerMarkerPosition}-${input}`;
+
+  return (
+    <div className="center-continuous-stack">
+      {showDisplayText && hasSeparateDisplay ? (
+        <CenterScrollViewport
+          kind="display"
+          markerKey={centerMarkerKey}
+          markerPosition={centerMarkerPosition}
+          startsAtLeft={startsAtLeft}
+        >
+          <p className="display-text center-continuous-line">
+            <PreviousCenterDisplayText
+              display={previousChallengeDisplay}
+              furigana={previousChallengeFurigana}
+              showFurigana={showFuriganaDisplay}
+            />
+            {renderCenterDisplayText(
+              display,
+              furigana,
+              centerMarkerPosition,
+              showFuriganaDisplay,
+              showFuriganaMarker,
+              showKanjiMarker,
+              renderCenterNextDisplayText(
+                nextChallengeDisplay,
+                nextChallengeFurigana,
+                showFuriganaDisplay,
+              ),
+            )}
+          </p>
+        </CenterScrollViewport>
+      ) : null}
+      {showHiraganaDisplay && (reading || nextChallengeReading) ? (
+        <CenterScrollViewport
+          kind="reading"
+          markerKey={centerMarkerKey}
+          markerPosition={centerMarkerPosition}
+          startsAtLeft={startsAtLeft}
+        >
+          <p className="reading-text center-continuous-line">
+            {previousChallengeReading ? (
+              <span className="center-scroll-previous-text">{previousChallengeReading}</span>
+            ) : null}
+            {romajiTarget
+              ? insertCenterMarker(
+                  renderReadingGuideCharacters(
+                    reading,
+                    romajiTarget,
+                    input,
+                    mistakeFlash,
+                    showHiraganaMarker,
+                  ),
+                  centerMarkerPosition,
+                )
+              : renderCenterTextWithMarker(reading, centerMarkerPosition, "")}
+            <span className="center-scroll-next-text">{nextChallengeReading}</span>
+          </p>
+        </CenterScrollViewport>
+      ) : null}
+      <CenterScrollViewport
+        kind="input"
+        markerKey={centerMarkerKey}
+        markerPosition={centerMarkerPosition}
+        startsAtLeft={startsAtLeft}
+      >
+        <p
+          className="input-target center-continuous-line"
+          aria-label={hasSeparateDisplay ? "romaji input target" : "input target"}
+        >
+          {previousChallengeGuide ? (
+            <span className="center-scroll-previous-text">
+              {renderGuideCharacters(previousChallengeGuide, "", null, "", "none", false)}
+            </span>
+          ) : null}
+          {romajiTarget
             ? renderRomajiGuideCharacters(
                 romajiTarget,
                 input,
@@ -775,6 +1098,390 @@ function DirectChallengeView({
                 strictMistakeDisplayMode,
                 showRomajiMarker,
               )}
+          <span className="center-scroll-next-text">
+            {renderGuideCharacters(nextChallengeGuide, "", null, "", "none", false)}
+          </span>
+        </p>
+      </CenterScrollViewport>
+    </div>
+  );
+}
+
+function CenterScrollViewport({
+  children,
+  kind,
+  markerKey,
+  markerPosition,
+  startsAtLeft,
+}: {
+  children: ReactNode;
+  kind: "display" | "reading" | "input";
+  markerKey: string;
+  markerPosition: number;
+  startsAtLeft: boolean;
+}) {
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+  const [markerTranslatePx, setMarkerTranslatePx] = useState<number | null>(null);
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+
+    const line = viewport.querySelector<HTMLElement>(".center-continuous-line");
+    const marker = viewport.querySelector<HTMLElement>(
+      ".center-scroll-current-marker, .furigana-marker-current, .kanji-marker-current, .char.current:not(.correct), .char.current",
+    );
+    if (!marker) {
+      setMarkerTranslatePx(null);
+      return;
+    }
+
+    const previousLineTransition = line?.style.transition ?? "";
+    const previousLineTransform = line?.style.transform ?? "";
+    if (line) {
+      line.style.transition = "none";
+      line.style.transform = "none";
+    }
+
+    const viewportRect = viewport.getBoundingClientRect();
+    const markerRect = marker.getBoundingClientRect();
+    const markerCenter = markerRect.left - viewportRect.left + markerRect.width / 2;
+    const viewportCenter = viewportRect.width / 2;
+    const nextTranslate =
+      startsAtLeft && markerCenter <= viewportCenter ? 0 : viewportCenter - markerCenter;
+
+    if (line) {
+      line.style.transition = previousLineTransition;
+      line.style.transform = previousLineTransform;
+    }
+
+    setMarkerTranslatePx(Math.round(nextTranslate * 10) / 10);
+  }, [markerKey, markerPosition, startsAtLeft]);
+
+  const style = {
+    "--center-marker-position": `${markerPosition}ch`,
+    "--center-marker-translate":
+      markerTranslatePx === null
+        ? startsAtLeft
+          ? "calc(-1 * max(0ch, var(--center-marker-position) - 8ch))"
+          : "calc(8ch - var(--center-marker-position))"
+        : `${markerTranslatePx}px`,
+  } as CSSProperties;
+
+  return (
+    <div
+      className={`center-scroll-viewport ${kind}-center-viewport`}
+      ref={viewportRef}
+      style={style}
+    >
+      {children}
+    </div>
+  );
+}
+
+function getCenterMarkerPosition(target: RomajiInputTarget | null, input: string) {
+  if (!target) {
+    return Array.from(input).length;
+  }
+
+  return getRomajiInputProgress(target, input).currentTokenIndex;
+}
+
+function PreviousCenterDisplayText({
+  display,
+  furigana,
+  showFurigana,
+}: {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  showFurigana: boolean;
+}) {
+  if (!display) {
+    return null;
+  }
+
+  return (
+    <span className="center-scroll-previous-text">
+      {showFurigana && furigana.length > 0
+        ? createJapaneseFuriganaParts(display, furigana).map((part, index) =>
+            part.ruby ? (
+              <ruby className="display-ruby" key={`previous-display-ruby-${part.text}-${index}`}>
+                {part.text}
+                <rt>{part.ruby}</rt>
+              </ruby>
+            ) : (
+              <span className="display-plain" key={`previous-display-plain-${part.text}-${index}`}>
+                {part.text}
+              </span>
+            ),
+          )
+        : display}
+    </span>
+  );
+}
+
+function renderCenterNextDisplayText(
+  display: string,
+  furigana: JapaneseFuriganaEntry[],
+  showFurigana: boolean,
+) {
+  if (!display) {
+    return "";
+  }
+
+  if (!showFurigana || furigana.length === 0) {
+    return display;
+  }
+
+  return createJapaneseFuriganaParts(display, furigana).map((part, index) =>
+    part.ruby ? (
+      <ruby className="display-ruby" key={`next-display-ruby-${part.text}-${index}`}>
+        {part.text}
+        <rt>{part.ruby}</rt>
+      </ruby>
+    ) : (
+      <span className="display-plain" key={`next-display-plain-${part.text}-${index}`}>
+        {part.text}
+      </span>
+    ),
+  );
+}
+
+function renderCenterDisplayText(
+  display: string,
+  furigana: JapaneseFuriganaEntry[],
+  currentTokenIndex: number,
+  showFurigana: boolean,
+  showFuriganaMarker: boolean,
+  showKanjiMarker: boolean,
+  nextText: ReactNode,
+) {
+  if (furigana.length === 0) {
+    return renderCenterTextWithMarker(
+      display,
+      currentTokenIndex,
+      nextText,
+      `center-scroll-next-text ${showKanjiMarker ? "" : "seamless"}`.trim(),
+    );
+  }
+
+  let tokenStart = 0;
+  let insertedMarker = false;
+  const content: ReactNode[] = [];
+
+  createJapaneseFuriganaParts(display, furigana).forEach((part, index) => {
+    const partTokenStart = tokenStart;
+    const tokenCount = countJapaneseReadingTokens(part.ruby ?? part.text);
+    const tokenEnd = tokenStart + tokenCount;
+    const isCurrentPart = partTokenStart <= currentTokenIndex && currentTokenIndex < tokenEnd;
+    tokenStart = tokenEnd;
+
+    if (!insertedMarker && isCurrentPart) {
+      content.push(<CenterScrollCurrentMarker key="center-display-marker" />);
+      insertedMarker = true;
+    }
+
+    if (part.ruby && showFurigana) {
+      const rubyClassName = getDisplayMarkerClassName(
+        "display-ruby",
+        showKanjiMarker,
+        { completedTokens: currentTokenIndex, currentTokenIndex },
+        partTokenStart,
+        tokenEnd,
+      );
+      const rubyText = showFuriganaMarker
+        ? renderFuriganaMarkerCharacters(
+            part.ruby,
+            partTokenStart,
+            currentTokenIndex,
+            currentTokenIndex,
+          )
+        : part.ruby;
+
+      content.push(
+        <ruby className={rubyClassName} key={`center-display-ruby-${part.text}-${index}`}>
+          {part.text}
+          <rt>{rubyText}</rt>
+        </ruby>,
+      );
+      return;
+    }
+
+    if (showKanjiMarker) {
+      content.push(
+        ...renderDisplayMarkerCharacters(
+          part.text,
+          partTokenStart,
+          currentTokenIndex,
+          currentTokenIndex,
+          `center-display-${index}`,
+        ),
+      );
+      return;
+    }
+
+    content.push(
+      <span className="display-plain" key={`center-display-plain-${part.text}-${index}`}>
+        {part.text}
+      </span>,
+    );
+  });
+
+  if (!insertedMarker) {
+    content.push(<CenterScrollCurrentMarker key="center-display-marker" />);
+  }
+
+  if (nextText) {
+    content.push(
+      <span
+        className={`center-scroll-next-text ${showKanjiMarker ? "" : "seamless"}`.trim()}
+        key="center-next-text"
+      >
+        {nextText}
+      </span>,
+    );
+  }
+
+  return content;
+}
+
+function renderCenterTextWithMarker(
+  text: string,
+  markerPosition: number,
+  nextText: ReactNode,
+  nextTextClassName = "center-scroll-next-text",
+) {
+  const characters = Array.from(text);
+  const markerIndex = Math.min(characters.length, Math.max(0, markerPosition));
+  const content: ReactNode[] = [];
+
+  characters.forEach((character, index) => {
+    if (index === markerIndex) {
+      content.push(<CenterScrollCurrentMarker key="center-marker" />);
+    }
+    content.push(<span key={`center-character-${index}`}>{character}</span>);
+  });
+
+  if (markerIndex === characters.length) {
+    content.push(<CenterScrollCurrentMarker key="center-marker" />);
+  }
+
+  if (nextText) {
+    content.push(
+      <span className={nextTextClassName} key="center-next-text">
+        {nextText}
+      </span>,
+    );
+  }
+
+  return content;
+}
+
+function insertCenterMarker(nodes: ReactNode, markerPosition: number) {
+  const nodeList = Array.isArray(nodes) ? nodes : [nodes];
+  const markerIndex = Math.min(nodeList.length, Math.max(0, markerPosition));
+
+  return [
+    ...nodeList.slice(0, markerIndex),
+    <CenterScrollCurrentMarker key="center-marker" />,
+    ...nodeList.slice(markerIndex),
+  ];
+}
+
+function CenterScrollCurrentMarker() {
+  return <span aria-hidden="true" className="center-scroll-current-marker" />;
+}
+
+function ChallengeTextStack({
+  display,
+  furigana,
+  guide,
+  input,
+  mistakeFlash,
+  reading,
+  renderMarkers,
+  romajiTarget,
+  showDisplayText,
+  showFuriganaDisplay,
+  showFuriganaMarker,
+  showHiraganaDisplay,
+  showHiraganaMarker,
+  showKanjiMarker,
+  showRomajiMarker,
+  strictMistakeDisplayMode,
+  strictMistakeInput,
+}: {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  guide: string;
+  input: string;
+  mistakeFlash: MistakeFlash | null;
+  reading: string;
+  renderMarkers: boolean;
+  romajiTarget: RomajiInputTarget | null;
+  showDisplayText: boolean;
+  showFuriganaDisplay: boolean;
+  showFuriganaMarker: boolean;
+  showHiraganaDisplay: boolean;
+  showHiraganaMarker: boolean;
+  showKanjiMarker: boolean;
+  showRomajiMarker: boolean;
+  strictMistakeDisplayMode: StrictMistakeDisplayMode;
+  strictMistakeInput: string;
+}) {
+  const hasSeparateDisplay = display !== guide;
+  const markerProgress = romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null;
+
+  return (
+    <>
+      {showDisplayText && hasSeparateDisplay ? (
+        <DisplayText
+          display={display}
+          furigana={furigana}
+          markerProgress={showKanjiMarker || showFuriganaMarker ? markerProgress : null}
+          showFurigana={showFuriganaDisplay}
+          showFuriganaMarker={showFuriganaMarker}
+          showKanjiMarker={showKanjiMarker}
+        />
+      ) : null}
+      {showHiraganaDisplay && reading ? (
+        <p className="reading-text">
+          {romajiTarget && renderMarkers
+            ? renderReadingGuideCharacters(
+                reading,
+                romajiTarget,
+                input,
+                mistakeFlash,
+                showHiraganaMarker,
+              )
+            : reading}
+        </p>
+      ) : null}
+      <p
+        className="input-target"
+        aria-label={hasSeparateDisplay ? "romaji input target" : "input target"}
+      >
+        {romajiTarget
+          ? renderMarkers
+            ? renderRomajiGuideCharacters(
+                romajiTarget,
+                input,
+                mistakeFlash,
+                strictMistakeInput,
+                strictMistakeDisplayMode,
+                showRomajiMarker,
+              )
+            : renderGuideCharacters(guide, "", null, "", "none", false)
+          : renderGuideCharacters(
+              guide,
+              input,
+              mistakeFlash,
+              strictMistakeInput,
+              strictMistakeDisplayMode,
+              showRomajiMarker,
+            )}
       </p>
     </>
   );

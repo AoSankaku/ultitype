@@ -48,17 +48,6 @@ describe("stored state persistence", () => {
     expect(getInitialStoredState()).toEqual(loadedState);
   });
 
-  test("fills the speed display setting when loading older stored state", () => {
-    const stored = normalizeStoredState({
-      settings: {
-        ...initialStoredState.settings,
-        speedDisplayUnit: undefined,
-      },
-    });
-
-    expect(stored.settings.speedDisplayUnit).toBe("keysPerSecond");
-  });
-
   test("fills the strict mistake display setting when loading older stored state", () => {
     const stored = normalizeStoredState({
       settings: {
@@ -131,6 +120,73 @@ describe("stored state persistence", () => {
     expect(stored.settings.showRomajiMarker).toBe(true);
   });
 
+  test("fills special split yoon setting when loading older stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        allowSplitSpecialYoon: undefined,
+      },
+    });
+
+    expect(stored.settings.allowSplitYoon).toBe(true);
+    expect(stored.settings.allowSplitSpecialYoon).toBe(false);
+  });
+
+  test("fills input screen font sizes when loading older stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        kanjiFontSize: undefined,
+        furiganaFontScale: undefined,
+        hiraganaFontSize: undefined,
+        romajiFontSize: undefined,
+      },
+    });
+
+    expect(stored.settings.kanjiFontSize).toBe(32);
+    expect(stored.settings.furiganaFontScale).toBe(0.42);
+    expect(stored.settings.hiraganaFontSize).toBe(24);
+    expect(stored.settings.romajiFontSize).toBe(20);
+  });
+
+  test("migrates legacy furigana pixel font size into a kanji-relative scale", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        kanjiFontSize: 40,
+        furiganaFontScale: undefined,
+        furiganaFontSize: 16,
+      },
+    });
+
+    expect(stored.settings.furiganaFontScale).toBe(0.4);
+  });
+
+  test("fills input screen line heights and bottom spacing when loading older stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        kanjiLineHeight: undefined,
+        kanjiMarginBottom: undefined,
+        furiganaLineHeight: undefined,
+        furiganaMarginBottom: undefined,
+        hiraganaLineHeight: undefined,
+        hiraganaMarginBottom: undefined,
+        romajiLineHeight: undefined,
+        romajiMarginBottom: undefined,
+      },
+    });
+
+    expect(stored.settings.kanjiLineHeight).toBe(1.45);
+    expect(stored.settings.kanjiMarginBottom).toBe(6);
+    expect(stored.settings.furiganaLineHeight).toBe(1.1);
+    expect(stored.settings.furiganaMarginBottom).toBe(0);
+    expect(stored.settings.hiraganaLineHeight).toBe(1.4);
+    expect(stored.settings.hiraganaMarginBottom).toBe(10);
+    expect(stored.settings.romajiLineHeight).toBe(1.45);
+    expect(stored.settings.romajiMarginBottom).toBe(0);
+  });
+
   test("turns furigana display off when kanji display is off in stored settings", () => {
     const stored = normalizeStoredState({
       settings: {
@@ -175,5 +231,18 @@ describe("stored state persistence", () => {
 
     expect(stored.settings.consecutiveMistypeRetireCount).toBe(0);
     expect(stored.settings.accuracyRetireBorderPercent).toBe(0);
+  });
+
+  test("fills the next challenge preview length when loading older stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        nextChallengePreviewLength: undefined,
+        nextChallengePreviewMode: undefined,
+      },
+    });
+
+    expect(stored.settings.nextChallengePreviewLength).toBe(8);
+    expect(stored.settings.nextChallengePreviewMode).toBe("split-slide");
   });
 });

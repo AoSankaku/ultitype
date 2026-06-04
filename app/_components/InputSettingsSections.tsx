@@ -1,17 +1,345 @@
-import { Lock } from "lucide-react";
+import { ChevronDown, ChevronUp, Lock, RotateCcw } from "lucide-react";
 import {
   romajiVariantOptions,
   sokuonInputOptions,
   type RomajiVariantOption,
   type SokuonInputId,
 } from "@/src/lib/typing";
-import { topDisplayMetricOptions } from "../_lib/constants";
-import type { AppSettings } from "../_lib/types";
+import { initialSettings, topDisplayMetricOptions } from "../_lib/constants";
+import { clampInteger } from "../_lib/challenge-utils";
+import type { AppSettings, NextChallengePreviewMode } from "../_lib/types";
 
 type InputSettingsSectionsProps = {
   settings: AppSettings;
   onChange: (settings: Partial<AppSettings>) => void;
 };
+
+type FontSizeSettingKey =
+  | "kanjiFontSize"
+  | "hiraganaFontSize"
+  | "romajiFontSize";
+
+type LineHeightSettingKey =
+  | "kanjiLineHeight"
+  | "furiganaLineHeight"
+  | "hiraganaLineHeight"
+  | "romajiLineHeight";
+
+type MarginBottomSettingKey =
+  | "kanjiMarginBottom"
+  | "furiganaMarginBottom"
+  | "hiraganaMarginBottom"
+  | "romajiMarginBottom";
+
+const nextChallengePreviewModeOptions: Array<{
+  id: NextChallengePreviewMode;
+  label: string;
+  description: string;
+}> = [
+  {
+    id: "split-slide",
+    label: "スライド",
+    description: "上下に分け、次の課題が上へ移る",
+  },
+  {
+    id: "split-alternate",
+    label: "交代",
+    description: "上下の入力位置を交互に切り替える",
+  },
+  {
+    id: "center-scroll",
+    label: "中央揃え",
+    description: "入力位置を中心に置く連続表示",
+  },
+  {
+    id: "none",
+    label: "非表示",
+    description: "次の課題を表示しない",
+  },
+];
+
+type NumericSettingRowProps = {
+  ariaLabel: string;
+  defaultValue: number;
+  description: string;
+  disabled?: boolean;
+  id: string;
+  label: string;
+  max: number;
+  min: number;
+  step: number;
+  unit: string;
+  value: number;
+  onChange: (value: string) => void;
+  lockLabel?: string;
+};
+
+function NumericSettingRow({
+  ariaLabel,
+  defaultValue,
+  description,
+  disabled = false,
+  id,
+  label,
+  max,
+  min,
+  step,
+  unit,
+  value,
+  onChange,
+  lockLabel,
+}: NumericSettingRowProps) {
+  return (
+    <section className="settings-row" aria-labelledby={id}>
+      <div>
+        <h4 className="font-size-setting" id={id}>
+          {label}
+        </h4>
+        <p>{description}</p>
+      </div>
+      <NumberControl
+        ariaLabel={ariaLabel}
+        defaultValue={defaultValue}
+        disabled={disabled}
+        lockLabel={lockLabel}
+        max={max}
+        min={min}
+        onChange={onChange}
+        step={step}
+        unit={unit}
+        value={value}
+      />
+    </section>
+  );
+}
+
+type NumberControlProps = {
+  ariaLabel: string;
+  defaultValue: number;
+  disabled?: boolean;
+  lockLabel?: string;
+  max: number;
+  min: number;
+  step: number;
+  unit: string;
+  value: number;
+  onChange: (value: string) => void;
+};
+
+function NumberControl({
+  ariaLabel,
+  defaultValue,
+  disabled = false,
+  lockLabel,
+  max,
+  min,
+  step,
+  unit,
+  value,
+  onChange,
+}: NumberControlProps) {
+  const canIncrease = !disabled && value < max;
+  const canDecrease = !disabled && value > min;
+  const formattedDefaultValue = formatNumberControlValue(defaultValue, step);
+  const canReset =
+    !disabled && formatNumberControlValue(value, step) !== formattedDefaultValue;
+
+  function changeBy(delta: number) {
+    const nextValue = Math.min(max, Math.max(min, value + delta));
+    onChange(formatNumberControlValue(nextValue, step));
+  }
+
+  function resetToDefault() {
+    onChange(formattedDefaultValue);
+  }
+
+  return (
+    <div className={`number-control ${disabled ? "locked" : ""}`}>
+      <input
+        aria-label={ariaLabel}
+        disabled={disabled}
+        min={min}
+        max={max}
+        onChange={(event) => onChange(event.currentTarget.value)}
+        step={step}
+        type="number"
+        value={value}
+      />
+      <span>{unit}</span>
+      {disabled && lockLabel ? (
+        <b className="number-lock-icon" aria-label={lockLabel}>
+          <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
+        </b>
+      ) : null}
+      <button
+        aria-label={`${ariaLabel} を初期値に戻す`}
+        className="number-reset-button"
+        disabled={!canReset}
+        onClick={resetToDefault}
+        title="初期値に戻す"
+        type="button"
+      >
+        <RotateCcw aria-hidden="true" size={14} />
+      </button>
+      <div className="number-stepper" aria-label={`${ariaLabel} を調整`}>
+        <button
+          aria-label={`${ariaLabel} を増やす`}
+          disabled={!canIncrease}
+          onClick={() => changeBy(step)}
+          type="button"
+        >
+          <ChevronUp size={14} />
+        </button>
+        <button
+          aria-label={`${ariaLabel} を減らす`}
+          disabled={!canDecrease}
+          onClick={() => changeBy(-step)}
+          type="button"
+        >
+          <ChevronDown size={14} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function formatNumberControlValue(value: number, step: number) {
+  const fractionDigits = Math.max(0, `${step}`.split(".")[1]?.length ?? 0);
+  return Number(value.toFixed(fractionDigits)).toString();
+}
+
+type TextSpacingSettingRowsProps = {
+  bottomSpacingAriaLabel: string;
+  bottomSpacingDefaultValue: number;
+  bottomSpacingDescription: string;
+  bottomSpacingId: string;
+  bottomSpacingKey: MarginBottomSettingKey;
+  bottomSpacingLabel: string;
+  bottomSpacingValue: number;
+  lineHeightAriaLabel: string;
+  lineHeightDefaultValue: number;
+  lineHeightDescription: string;
+  lineHeightId: string;
+  lineHeightKey: LineHeightSettingKey;
+  lineHeightLabel: string;
+  lineHeightValue: number;
+  onBottomSpacingChange: (key: MarginBottomSettingKey, value: string) => void;
+  onLineHeightChange: (key: LineHeightSettingKey, value: string) => void;
+};
+
+function TextSpacingSettingRows({
+  bottomSpacingAriaLabel,
+  bottomSpacingDefaultValue,
+  bottomSpacingDescription,
+  bottomSpacingId,
+  bottomSpacingKey,
+  bottomSpacingLabel,
+  bottomSpacingValue,
+  lineHeightAriaLabel,
+  lineHeightDefaultValue,
+  lineHeightDescription,
+  lineHeightId,
+  lineHeightKey,
+  lineHeightLabel,
+  lineHeightValue,
+  onBottomSpacingChange,
+  onLineHeightChange,
+}: TextSpacingSettingRowsProps) {
+  return (
+    <>
+      <NumericSettingRow
+        ariaLabel={lineHeightAriaLabel}
+        defaultValue={lineHeightDefaultValue}
+        description={lineHeightDescription}
+        id={lineHeightId}
+        label={lineHeightLabel}
+        max={2.5}
+        min={0.8}
+        onChange={(value) => onLineHeightChange(lineHeightKey, value)}
+        step={0.05}
+        unit="倍"
+        value={lineHeightValue}
+      />
+      <NumericSettingRow
+        ariaLabel={bottomSpacingAriaLabel}
+        defaultValue={bottomSpacingDefaultValue}
+        description={bottomSpacingDescription}
+        id={bottomSpacingId}
+        label={bottomSpacingLabel}
+        max={48}
+        min={0}
+        onChange={(value) => onBottomSpacingChange(bottomSpacingKey, value)}
+        step={1}
+        unit="px"
+        value={bottomSpacingValue}
+      />
+    </>
+  );
+}
+
+type FontSizeSettingRowProps = {
+  ariaLabel: string;
+  defaultValue: number;
+  description: string;
+  id: string;
+  label: string;
+  value: number;
+  onChange: (key: FontSizeSettingKey, value: string) => void;
+  settingKey: FontSizeSettingKey;
+};
+
+function FontSizeSettingRow({
+  ariaLabel,
+  defaultValue,
+  description,
+  id,
+  label,
+  value,
+  onChange,
+  settingKey,
+}: FontSizeSettingRowProps) {
+  return (
+    <NumericSettingRow
+      ariaLabel={ariaLabel}
+      defaultValue={defaultValue}
+      description={description}
+      id={id}
+      label={label}
+      max={48}
+      min={10}
+      onChange={(nextValue) => onChange(settingKey, nextValue)}
+      step={1}
+      unit="px"
+      value={value}
+    />
+  );
+}
+
+type FontScaleSettingRowProps = {
+  disabled: boolean;
+  value: number;
+  onChange: (value: string) => void;
+};
+
+function FontScaleSettingRow({ disabled, value, onChange }: FontScaleSettingRowProps) {
+  return (
+    <NumericSettingRow
+      ariaLabel="furigana font scale"
+      defaultValue={initialSettings.furiganaFontScale}
+      description="漢字フォントサイズに対するふりがなの倍率"
+      disabled={disabled}
+      id="furigana-font-scale-setting"
+      label="ふりがなフォント倍率"
+      lockLabel="ふりがな表示オフのためロック"
+      max={1}
+      min={0.2}
+      onChange={onChange}
+      step={0.01}
+      unit="倍"
+      value={value}
+    />
+  );
+}
 
 export function InputSettingsSections({ settings, onChange }: InputSettingsSectionsProps) {
   const showFuriganaDisplay = settings.showKanjiDisplay && settings.showFuriganaDisplay;
@@ -111,6 +439,31 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
         .map((option) => option.id)
         .filter((metricId) => selectedIds.has(metricId)),
     });
+  }
+
+  function updateFontSize(
+    key: FontSizeSettingKey,
+    value: string,
+  ) {
+    onChange({ [key]: clampInteger(value, 10, 48) } as Partial<AppSettings>);
+  }
+
+  function updateFuriganaFontScale(value: string) {
+    const parsed = Number.parseFloat(value);
+    const scale = Number.isNaN(parsed) ? 0.42 : Math.min(1, Math.max(0.2, parsed));
+
+    onChange({ furiganaFontScale: Math.round(scale * 100) / 100 });
+  }
+
+  function updateLineHeight(key: LineHeightSettingKey, value: string) {
+    const parsed = Number.parseFloat(value);
+    const lineHeight = Number.isNaN(parsed) ? 1.45 : Math.min(2.5, Math.max(0.8, parsed));
+
+    onChange({ [key]: Math.round(lineHeight * 100) / 100 } as Partial<AppSettings>);
+  }
+
+  function updateMarginBottom(key: MarginBottomSettingKey, value: string) {
+    onChange({ [key]: clampInteger(value, 0, 48) } as Partial<AppSettings>);
   }
 
   return (
@@ -285,13 +638,30 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
 
           <section className="settings-row" aria-labelledby="split-yoon-setting">
             <div>
-              <h4 id="split-yoon-setting">拗音分割入力</h4>
+              <h4 id="split-yoon-setting">一般拗音分割入力</h4>
               <p>「きゃ」を kya だけでなく kila / kixa でも入力できるようにする</p>
             </div>
             <label className="toggle-control">
               <input
                 checked={settings.allowSplitYoon}
                 onChange={(event) => onChange({ allowSplitYoon: event.currentTarget.checked })}
+                type="checkbox"
+              />
+              <span aria-hidden="true" />
+            </label>
+          </section>
+
+          <section className="settings-row" aria-labelledby="special-split-yoon-setting">
+            <div>
+              <h4 id="special-split-yoon-setting">特殊拗音分割入力</h4>
+              <p>「ヴァ」「てぃ」を va / thi だけでなく vula / texi でも入力できるようにする</p>
+            </div>
+            <label className="toggle-control">
+              <input
+                checked={settings.allowSplitSpecialYoon}
+                onChange={(event) =>
+                  onChange({ allowSplitSpecialYoon: event.currentTarget.checked })
+                }
                 type="checkbox"
               />
               <span aria-hidden="true" />
@@ -304,207 +674,386 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
         <h3 className="settings-category-title" id="input-screen-settings">
           入力画面
         </h3>
-        <div className="settings-category-list">
-          <section className="settings-row" aria-labelledby="kanji-display-setting">
-            <div>
-              <h4 id="kanji-display-setting">漢字表示</h4>
-              <p>入力画面に漢字混じりの課題文を表示する</p>
-            </div>
-            <label className="toggle-control" aria-label="漢字表示">
-              <input
-                checked={settings.showKanjiDisplay}
-                onChange={(event) =>
-                  onChange({
-                    showFuriganaDisplay: event.currentTarget.checked
-                      ? settings.showFuriganaDisplay
-                      : false,
-                    showFuriganaMarker: event.currentTarget.checked
-                      ? settings.showFuriganaMarker
-                      : false,
-                    showKanjiDisplay: event.currentTarget.checked,
-                    showKanjiMarker: event.currentTarget.checked ? settings.showKanjiMarker : false,
-                  })
-                }
-                type="checkbox"
+        <div className="settings-category-list input-screen-category-list">
+          <section className="settings-subcategory" aria-labelledby="kanji-input-screen-settings">
+            <h4 className="settings-subcategory-title" id="kanji-input-screen-settings">
+              漢字
+            </h4>
+            <div className="settings-subcategory-list">
+              <section className="settings-row" aria-labelledby="kanji-display-setting">
+                <div>
+                  <h4 id="kanji-display-setting">漢字表示</h4>
+                  <p>入力画面に漢字混じりの課題文を表示する</p>
+                </div>
+                <label className="toggle-control" aria-label="漢字表示">
+                  <input
+                    checked={settings.showKanjiDisplay}
+                    onChange={(event) =>
+                      onChange({
+                        showFuriganaDisplay: event.currentTarget.checked
+                          ? settings.showFuriganaDisplay
+                          : false,
+                        showFuriganaMarker: event.currentTarget.checked
+                          ? settings.showFuriganaMarker
+                          : false,
+                        showKanjiDisplay: event.currentTarget.checked,
+                        showKanjiMarker: event.currentTarget.checked
+                          ? settings.showKanjiMarker
+                          : false,
+                      })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                </label>
+              </section>
+              <FontSizeSettingRow
+                ariaLabel="kanji font size"
+                defaultValue={initialSettings.kanjiFontSize}
+                description="漢字混じりの課題文の文字サイズ"
+                id="kanji-font-size-setting"
+                label="漢字フォントサイズ"
+                onChange={updateFontSize}
+                settingKey="kanjiFontSize"
+                value={settings.kanjiFontSize}
               />
-              <span aria-hidden="true" />
-            </label>
+              <TextSpacingSettingRows
+                bottomSpacingAriaLabel="kanji bottom spacing"
+                bottomSpacingDefaultValue={initialSettings.kanjiMarginBottom}
+                bottomSpacingDescription="漢字行の下に空ける余白"
+                bottomSpacingId="kanji-bottom-spacing-setting"
+                bottomSpacingKey="kanjiMarginBottom"
+                bottomSpacingLabel="漢字の下余白"
+                bottomSpacingValue={settings.kanjiMarginBottom}
+                lineHeightAriaLabel="kanji line height"
+                lineHeightDefaultValue={initialSettings.kanjiLineHeight}
+                lineHeightDescription="漢字行の行間倍率"
+                lineHeightId="kanji-line-height-setting"
+                lineHeightKey="kanjiLineHeight"
+                lineHeightLabel="漢字の行間"
+                lineHeightValue={settings.kanjiLineHeight}
+                onBottomSpacingChange={updateMarginBottom}
+                onLineHeightChange={updateLineHeight}
+              />
+              <section className="settings-row" aria-labelledby="kanji-marker-setting">
+                <div>
+                  <h4 id="kanji-marker-setting">漢字マーカー</h4>
+                  <p>入力中の位置を漢字表示に下線で表示する</p>
+                </div>
+                <label
+                  className={`toggle-control ${settings.showKanjiDisplay ? "" : "locked"}`}
+                  aria-label="漢字マーカー"
+                >
+                  <input
+                    checked={showKanjiMarker}
+                    disabled={!settings.showKanjiDisplay}
+                    onChange={(event) =>
+                      onChange({ showKanjiMarker: event.currentTarget.checked })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                  {!settings.showKanjiDisplay ? (
+                    <b className="toggle-lock-icon" aria-label="漢字表示オフのためロック">
+                      <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
+                    </b>
+                  ) : null}
+                </label>
+              </section>
+            </div>
           </section>
 
-          <section className="settings-row" aria-labelledby="furigana-display-setting">
-            <div>
-              <h4 id="furigana-display-setting">ふりがな表示</h4>
-              <p>漢字混じりの課題文の上にふりがなを表示する</p>
-            </div>
-            <label
-              className={`toggle-control ${settings.showKanjiDisplay ? "" : "locked"}`}
-              aria-label="ふりがな表示"
-            >
-              <input
-                checked={showFuriganaDisplay}
-                disabled={!settings.showKanjiDisplay}
-                onChange={(event) =>
-                  onChange({
-                    showFuriganaDisplay: event.currentTarget.checked,
-                    showFuriganaMarker: event.currentTarget.checked
-                      ? settings.showFuriganaMarker
-                      : false,
-                  })
-                }
-                type="checkbox"
-              />
-              <span aria-hidden="true" />
-              {!settings.showKanjiDisplay ? (
-                <b className="toggle-lock-icon" aria-label="漢字表示オフのためロック">
-                  <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
-                </b>
-              ) : null}
-            </label>
-          </section>
-
-          <section className="settings-row" aria-labelledby="hiragana-display-setting">
-            <div>
-              <h4 id="hiragana-display-setting">ひらがな表示</h4>
-              <p>入力画面にひらがなの読みを表示する</p>
-            </div>
-            <label className="toggle-control" aria-label="ひらがな表示">
-              <input
-                checked={settings.showHiraganaDisplay}
-                onChange={(event) =>
-                  onChange({
-                    showHiraganaDisplay: event.currentTarget.checked,
-                    showHiraganaMarker: event.currentTarget.checked
-                      ? settings.showHiraganaMarker
-                      : false,
-                  })
-                }
-                type="checkbox"
-              />
-              <span aria-hidden="true" />
-            </label>
-          </section>
-
-          <section className="settings-row" aria-labelledby="kanji-marker-setting">
-            <div>
-              <h4 id="kanji-marker-setting">漢字マーカー</h4>
-              <p>入力中の位置を漢字表示に下線で表示する</p>
-            </div>
-            <label
-              className={`toggle-control ${settings.showKanjiDisplay ? "" : "locked"}`}
-              aria-label="漢字マーカー"
-            >
-              <input
-                checked={showKanjiMarker}
-                disabled={!settings.showKanjiDisplay}
-                onChange={(event) => onChange({ showKanjiMarker: event.currentTarget.checked })}
-                type="checkbox"
-              />
-              <span aria-hidden="true" />
-              {!settings.showKanjiDisplay ? (
-                <b className="toggle-lock-icon" aria-label="漢字表示オフのためロック">
-                  <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
-                </b>
-              ) : null}
-            </label>
-          </section>
-
-          <section className="settings-row" aria-labelledby="furigana-marker-setting">
-            <div>
-              <h4 id="furigana-marker-setting">ふりがなマーカー</h4>
-              <p>入力中の位置をふりがな表示に下線で表示する</p>
-            </div>
-            <label
-              className={`toggle-control ${showFuriganaDisplay ? "" : "locked"}`}
-              aria-label="ふりがなマーカー"
-            >
-              <input
-                checked={showFuriganaMarker}
+          <section
+            className="settings-subcategory"
+            aria-labelledby="furigana-input-screen-settings"
+          >
+            <h4 className="settings-subcategory-title" id="furigana-input-screen-settings">
+              ふりがな
+            </h4>
+            <div className="settings-subcategory-list">
+              <section className="settings-row" aria-labelledby="furigana-display-setting">
+                <div>
+                  <h4 id="furigana-display-setting">ふりがな表示</h4>
+                  <p>漢字混じりの課題文の上にふりがなを表示する</p>
+                </div>
+                <label
+                  className={`toggle-control ${settings.showKanjiDisplay ? "" : "locked"}`}
+                  aria-label="ふりがな表示"
+                >
+                  <input
+                    checked={showFuriganaDisplay}
+                    disabled={!settings.showKanjiDisplay}
+                    onChange={(event) =>
+                      onChange({
+                        showFuriganaDisplay: event.currentTarget.checked,
+                        showFuriganaMarker: event.currentTarget.checked
+                          ? settings.showFuriganaMarker
+                          : false,
+                      })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                  {!settings.showKanjiDisplay ? (
+                    <b className="toggle-lock-icon" aria-label="漢字表示オフのためロック">
+                      <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
+                    </b>
+                  ) : null}
+                </label>
+              </section>
+              <FontScaleSettingRow
                 disabled={!showFuriganaDisplay}
-                onChange={(event) => onChange({ showFuriganaMarker: event.currentTarget.checked })}
-                type="checkbox"
+                onChange={updateFuriganaFontScale}
+                value={settings.furiganaFontScale}
               />
-              <span aria-hidden="true" />
-              {!showFuriganaDisplay ? (
-                <b className="toggle-lock-icon" aria-label="ふりがな表示オフのためロック">
-                  <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
-                </b>
-              ) : null}
-            </label>
+              <TextSpacingSettingRows
+                bottomSpacingAriaLabel="furigana bottom spacing"
+                bottomSpacingDefaultValue={initialSettings.furiganaMarginBottom}
+                bottomSpacingDescription="ふりがな側に追加する下余白"
+                bottomSpacingId="furigana-bottom-spacing-setting"
+                bottomSpacingKey="furiganaMarginBottom"
+                bottomSpacingLabel="ふりがなの下余白"
+                bottomSpacingValue={settings.furiganaMarginBottom}
+                lineHeightAriaLabel="furigana line height"
+                lineHeightDefaultValue={initialSettings.furiganaLineHeight}
+                lineHeightDescription="ふりがなの行間倍率"
+                lineHeightId="furigana-line-height-setting"
+                lineHeightKey="furiganaLineHeight"
+                lineHeightLabel="ふりがなの行間"
+                lineHeightValue={settings.furiganaLineHeight}
+                onBottomSpacingChange={updateMarginBottom}
+                onLineHeightChange={updateLineHeight}
+              />
+              <section className="settings-row" aria-labelledby="furigana-marker-setting">
+                <div>
+                  <h4 id="furigana-marker-setting">ふりがなマーカー</h4>
+                  <p>入力中の位置をふりがな表示に下線で表示する</p>
+                </div>
+                <label
+                  className={`toggle-control ${showFuriganaDisplay ? "" : "locked"}`}
+                  aria-label="ふりがなマーカー"
+                >
+                  <input
+                    checked={showFuriganaMarker}
+                    disabled={!showFuriganaDisplay}
+                    onChange={(event) =>
+                      onChange({ showFuriganaMarker: event.currentTarget.checked })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                  {!showFuriganaDisplay ? (
+                    <b className="toggle-lock-icon" aria-label="ふりがな表示オフのためロック">
+                      <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
+                    </b>
+                  ) : null}
+                </label>
+              </section>
+            </div>
           </section>
 
-          <section className="settings-row" aria-labelledby="hiragana-marker-setting">
-            <div>
-              <h4 id="hiragana-marker-setting">ひらがなマーカー</h4>
-              <p>入力中の位置をひらがな表示に下線で表示する</p>
-            </div>
-            <label
-              className={`toggle-control ${settings.showHiraganaDisplay ? "" : "locked"}`}
-              aria-label="ひらがなマーカー"
-            >
-              <input
-                checked={showHiraganaMarker}
-                disabled={!settings.showHiraganaDisplay}
-                onChange={(event) => onChange({ showHiraganaMarker: event.currentTarget.checked })}
-                type="checkbox"
+          <section
+            className="settings-subcategory"
+            aria-labelledby="hiragana-input-screen-settings"
+          >
+            <h4 className="settings-subcategory-title" id="hiragana-input-screen-settings">
+              ひらがな
+            </h4>
+            <div className="settings-subcategory-list">
+              <section className="settings-row" aria-labelledby="hiragana-display-setting">
+                <div>
+                  <h4 id="hiragana-display-setting">ひらがな表示</h4>
+                  <p>入力画面にひらがなの読みを表示する</p>
+                </div>
+                <label className="toggle-control" aria-label="ひらがな表示">
+                  <input
+                    checked={settings.showHiraganaDisplay}
+                    onChange={(event) =>
+                      onChange({
+                        showHiraganaDisplay: event.currentTarget.checked,
+                        showHiraganaMarker: event.currentTarget.checked
+                          ? settings.showHiraganaMarker
+                          : false,
+                      })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                </label>
+              </section>
+              <FontSizeSettingRow
+                ariaLabel="hiragana font size"
+                defaultValue={initialSettings.hiraganaFontSize}
+                description="ひらがなの読みの文字サイズ"
+                id="hiragana-font-size-setting"
+                label="ひらがなフォントサイズ"
+                onChange={updateFontSize}
+                settingKey="hiraganaFontSize"
+                value={settings.hiraganaFontSize}
               />
-              <span aria-hidden="true" />
-              {!settings.showHiraganaDisplay ? (
-                <b className="toggle-lock-icon" aria-label="ひらがな表示オフのためロック">
-                  <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
-                </b>
-              ) : null}
-            </label>
+              <TextSpacingSettingRows
+                bottomSpacingAriaLabel="hiragana bottom spacing"
+                bottomSpacingDefaultValue={initialSettings.hiraganaMarginBottom}
+                bottomSpacingDescription="ひらがな行の下に空ける余白"
+                bottomSpacingId="hiragana-bottom-spacing-setting"
+                bottomSpacingKey="hiraganaMarginBottom"
+                bottomSpacingLabel="ひらがなの下余白"
+                bottomSpacingValue={settings.hiraganaMarginBottom}
+                lineHeightAriaLabel="hiragana line height"
+                lineHeightDefaultValue={initialSettings.hiraganaLineHeight}
+                lineHeightDescription="ひらがな行の行間倍率"
+                lineHeightId="hiragana-line-height-setting"
+                lineHeightKey="hiraganaLineHeight"
+                lineHeightLabel="ひらがなの行間"
+                lineHeightValue={settings.hiraganaLineHeight}
+                onBottomSpacingChange={updateMarginBottom}
+                onLineHeightChange={updateLineHeight}
+              />
+              <section className="settings-row" aria-labelledby="hiragana-marker-setting">
+                <div>
+                  <h4 id="hiragana-marker-setting">ひらがなマーカー</h4>
+                  <p>入力中の位置をひらがな表示に下線で表示する</p>
+                </div>
+                <label
+                  className={`toggle-control ${settings.showHiraganaDisplay ? "" : "locked"}`}
+                  aria-label="ひらがなマーカー"
+                >
+                  <input
+                    checked={showHiraganaMarker}
+                    disabled={!settings.showHiraganaDisplay}
+                    onChange={(event) =>
+                      onChange({ showHiraganaMarker: event.currentTarget.checked })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                  {!settings.showHiraganaDisplay ? (
+                    <b className="toggle-lock-icon" aria-label="ひらがな表示オフのためロック">
+                      <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
+                    </b>
+                  ) : null}
+                </label>
+              </section>
+            </div>
           </section>
 
-          <section className="settings-row" aria-labelledby="romaji-marker-setting">
-            <div>
-              <h4 id="romaji-marker-setting">ローマ字マーカー</h4>
-              <p>入力中の位置をローマ字表示に下線で表示する。ON推奨</p>
-            </div>
-            <label className="toggle-control" aria-label="ローマ字マーカー">
-              <input
-                checked={settings.showRomajiMarker}
-                onChange={(event) => onChange({ showRomajiMarker: event.currentTarget.checked })}
-                type="checkbox"
+          <section className="settings-subcategory" aria-labelledby="romaji-input-screen-settings">
+            <h4 className="settings-subcategory-title" id="romaji-input-screen-settings">
+              ローマ字
+            </h4>
+            <div className="settings-subcategory-list">
+              <section className="settings-row" aria-labelledby="romaji-marker-setting">
+                <div>
+                  <h4 id="romaji-marker-setting">ローマ字マーカー</h4>
+                  <p>入力中の位置をローマ字表示に下線で表示する。ON推奨</p>
+                </div>
+                <label className="toggle-control" aria-label="ローマ字マーカー">
+                  <input
+                    checked={settings.showRomajiMarker}
+                    onChange={(event) =>
+                      onChange({ showRomajiMarker: event.currentTarget.checked })
+                    }
+                    type="checkbox"
+                  />
+                  <span aria-hidden="true" />
+                </label>
+              </section>
+              <FontSizeSettingRow
+                ariaLabel="romaji font size"
+                defaultValue={initialSettings.romajiFontSize}
+                description="ローマ字の課題文の文字サイズ"
+                id="romaji-font-size-setting"
+                label="ローマ字フォントサイズ"
+                onChange={updateFontSize}
+                settingKey="romajiFontSize"
+                value={settings.romajiFontSize}
               />
-              <span aria-hidden="true" />
-            </label>
+              <TextSpacingSettingRows
+                bottomSpacingAriaLabel="romaji bottom spacing"
+                bottomSpacingDefaultValue={initialSettings.romajiMarginBottom}
+                bottomSpacingDescription="ローマ字行の下に空ける余白"
+                bottomSpacingId="romaji-bottom-spacing-setting"
+                bottomSpacingKey="romajiMarginBottom"
+                bottomSpacingLabel="ローマ字の下余白"
+                bottomSpacingValue={settings.romajiMarginBottom}
+                lineHeightAriaLabel="romaji line height"
+                lineHeightDefaultValue={initialSettings.romajiLineHeight}
+                lineHeightDescription="ローマ字行の行間倍率"
+                lineHeightId="romaji-line-height-setting"
+                lineHeightKey="romajiLineHeight"
+                lineHeightLabel="ローマ字の行間"
+                lineHeightValue={settings.romajiLineHeight}
+                onBottomSpacingChange={updateMarginBottom}
+                onLineHeightChange={updateLineHeight}
+              />
+            </div>
           </section>
 
-          <section className="settings-row" aria-labelledby="strict-mistake-display-setting">
-            <div>
-              <h4 id="strict-mistake-display-setting">正確無比の誤入力表示</h4>
-              <p>誤入力した文字を課題文ローマ字上に表示する方法を選ぶ</p>
-            </div>
-            <div
-              className="romaji-preset-segmented"
-              role="group"
-              aria-label="正確無比の誤入力表示"
-            >
-              <button
-                aria-pressed={settings.strictMistakeDisplayMode === "overwrite"}
-                className={settings.strictMistakeDisplayMode === "overwrite" ? "selected" : ""}
-                onClick={() => onChange({ strictMistakeDisplayMode: "overwrite" })}
-                type="button"
-              >
-                上書き
-              </button>
-              <button
-                aria-pressed={settings.strictMistakeDisplayMode === "insert"}
-                className={settings.strictMistakeDisplayMode === "insert" ? "selected" : ""}
-                onClick={() => onChange({ strictMistakeDisplayMode: "insert" })}
-                type="button"
-              >
-                挿入
-              </button>
-              <button
-                aria-pressed={settings.strictMistakeDisplayMode === "none"}
-                className={settings.strictMistakeDisplayMode === "none" ? "selected" : ""}
-                onClick={() => onChange({ strictMistakeDisplayMode: "none" })}
-                type="button"
-              >
-                何もしない
-              </button>
+          <section className="settings-subcategory" aria-labelledby="other-input-screen-settings">
+            <h4 className="settings-subcategory-title" id="other-input-screen-settings">
+              その他の設定
+            </h4>
+            <div className="settings-subcategory-list">
+              <section className="settings-row" aria-labelledby="next-challenge-preview-mode-setting">
+                <div>
+                  <h4 id="next-challenge-preview-mode-setting">次の課題の表示方式</h4>
+                  <p>短文練習で次の課題をどう見せるかを選ぶ</p>
+                </div>
+                <div
+                  className="preview-mode-segmented"
+                  role="group"
+                  aria-label="次の課題の表示方式"
+                >
+                  {nextChallengePreviewModeOptions.map((option) => (
+                    <button
+                      aria-pressed={settings.nextChallengePreviewMode === option.id}
+                      className={settings.nextChallengePreviewMode === option.id ? "selected" : ""}
+                      key={option.id}
+                      onClick={() => onChange({ nextChallengePreviewMode: option.id })}
+                      title={option.description}
+                      type="button"
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </section>
+              <section className="settings-row" aria-labelledby="strict-mistake-display-setting">
+                <div>
+                  <h4 id="strict-mistake-display-setting">正確無比の誤入力表示</h4>
+                  <p>誤入力した文字を課題文ローマ字上に表示する方法を選ぶ</p>
+                </div>
+                <div
+                  className="romaji-preset-segmented"
+                  role="group"
+                  aria-label="正確無比の誤入力表示"
+                >
+                  <button
+                    aria-pressed={settings.strictMistakeDisplayMode === "overwrite"}
+                    className={settings.strictMistakeDisplayMode === "overwrite" ? "selected" : ""}
+                    onClick={() => onChange({ strictMistakeDisplayMode: "overwrite" })}
+                    type="button"
+                  >
+                    上書き
+                  </button>
+                  <button
+                    aria-pressed={settings.strictMistakeDisplayMode === "insert"}
+                    className={settings.strictMistakeDisplayMode === "insert" ? "selected" : ""}
+                    onClick={() => onChange({ strictMistakeDisplayMode: "insert" })}
+                    type="button"
+                  >
+                    挿入
+                  </button>
+                  <button
+                    aria-pressed={settings.strictMistakeDisplayMode === "none"}
+                    className={settings.strictMistakeDisplayMode === "none" ? "selected" : ""}
+                    onClick={() => onChange({ strictMistakeDisplayMode: "none" })}
+                    type="button"
+                  >
+                    何もしない
+                  </button>
+                </div>
+              </section>
             </div>
           </section>
         </div>

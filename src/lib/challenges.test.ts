@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  createJapaneseDirectChallenges,
   createJapaneseFuriganaParts,
   createJapaneseReadingGuideParts,
   directLongChallenges,
@@ -178,6 +179,17 @@ describe("direct short challenges", () => {
 });
 
 describe("direct Japanese challenge romaji", () => {
+  test("maps ヴァ行 katakana readings to va vi vu ve vo", () => {
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText("ヴァヴィヴヴェヴォ"),
+    );
+
+    expect(challenge?.reading).toBe("ゔぁゔぃゔゔぇゔぉ");
+    expect(challenge?.romajiSource).toBe("vavivuvevo");
+    expect(challenge?.guide).toBe("vavivuvevo");
+    expect(challenge?.input).toBe("vavivuvevo");
+  });
+
   test("maps づ to du instead of zu", () => {
     expect(directLongChallenges.some((challenge) => challenge.guide?.includes("tsudukereba"))).toBe(
       true,

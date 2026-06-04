@@ -31,6 +31,7 @@ function getCategoryMarkup(markup: string, categoryId: string) {
     "screen-settings",
     "sound-settings",
     "auto-retire-settings",
+    "other-settings",
     "danger-settings",
   ];
   const startIndex = markup.indexOf(`id="${categoryId}"`);
@@ -63,6 +64,7 @@ describe("SettingsScreen", () => {
       "画面",
       "サウンド",
       "自動リタイア",
+      "その他の設定",
       "危険な操作",
     ]);
   });
@@ -72,8 +74,6 @@ describe("SettingsScreen", () => {
 
     expect(getCategoryItemLabels(markup, "screen-settings")).toEqual([
       "テーマ",
-      "速度表示",
-      "日本語ガイドのスペース",
       "入力画面と入力方式",
     ]);
     expect(getCategoryItemLabels(markup, "sound-settings")).toEqual(["サウンド"]);
@@ -81,6 +81,9 @@ describe("SettingsScreen", () => {
       "無入力リタイア",
       "連続誤打鍵リタイア",
       "正誤率ボーダー",
+    ]);
+    expect(getCategoryItemLabels(markup, "other-settings")).toEqual([
+      "次の課題の表示文字数",
     ]);
     expect(getCategoryItemLabels(markup, "danger-settings")).toEqual([
       "ローカルデータをすべて削除",
@@ -103,14 +106,14 @@ describe("SettingsScreen", () => {
     expect(Array.from(soundMarkup.matchAll(/disabled=""/g))).toHaveLength(3);
   });
 
-  test("shows the speed display setting", () => {
+  test("does not show settings now handled by input screen settings", () => {
     const markup = renderSettingsScreen();
     const screenMarkup = getCategoryMarkup(markup, "screen-settings");
 
-    expect(screenMarkup).toContain("速度表示");
-    expect(screenMarkup).toContain("打鍵/秒");
-    expect(screenMarkup).toContain("打鍵/分");
-    expect(screenMarkup).toContain('aria-pressed="true"');
+    expect(screenMarkup).not.toContain("速度表示");
+    expect(screenMarkup).not.toContain("日本語ガイドのスペース");
+    expect(screenMarkup).not.toContain("打鍵/秒");
+    expect(screenMarkup).not.toContain("打鍵/分");
   });
 
   test("shows auto retire performance settings disabled by default", () => {
@@ -122,5 +125,15 @@ describe("SettingsScreen", () => {
     expect(autoRetireMarkup).toContain("正誤率ボーダー");
     expect(autoRetireMarkup).toContain('aria-label="正誤率ボーダー"');
     expect(autoRetireMarkup).toContain('value="0"');
+  });
+
+  test("shows the next challenge preview length setting under other settings", () => {
+    const markup = renderSettingsScreen();
+    const otherMarkup = getCategoryMarkup(markup, "other-settings");
+
+    expect(otherMarkup).toContain("次の課題の表示文字数");
+    expect(otherMarkup).toContain("短文練習モードで次に出る課題文の冒頭を表示する");
+    expect(otherMarkup).toContain('aria-label="次の課題の表示文字数"');
+    expect(otherMarkup).toContain('value="8"');
   });
 });

@@ -54,10 +54,9 @@ import {
   createOrderedIndexes,
   createShuffledIndexes,
   estimateImeKeystrokes,
-  formatChallengeReading,
   getDirectChallenges,
+  getNextOrderedChallengeIndex,
   getOrderedChallengeIndex,
-  removeRomajiVisualSpaces,
 } from "./challenge-utils";
 import type {
   AppSettings,
@@ -77,6 +76,13 @@ type KeyStabilityInput = {
   key: string;
   isCorrect: boolean;
   kind: "input" | "correction";
+};
+
+type PreviousDirectChallengeSnapshot = {
+  display: string;
+  furigana: DirectChallenge["furigana"];
+  guide: string;
+  reading: string;
 };
 
 export type UseTypingSessionOptions = {
@@ -213,17 +219,25 @@ export function useTypingSession({
   initialModeId = "practice-accuracy",
   initialScreen = "mode-select",
 }: UseTypingSessionOptions = {}) {
+  const initialPracticeChallengeOrder = createOrderedIndexes(
+    getDirectChallenges("ja", "practice").length,
+  );
   const [stored, setStored] = useState<StoredState>(getInitialStoredState);
   const [modeId, setModeId] = useState<ModeId>(initialModeId);
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [challengeLanguage, setChallengeLanguage] = useState<ChallengeLanguage>("ja");
   const [productionDuration, setProductionDuration] = useState<ProductionDuration>(300);
   const [challengeIndex, setChallengeIndex] = useState(0);
-  const [practiceChallengeOrder, setPracticeChallengeOrder] = useState(() =>
-    createOrderedIndexes(getDirectChallenges("ja", "practice").length),
+  const [practiceChallengeOrder, setPracticeChallengeOrder] = useState(
+    () => initialPracticeChallengeOrder,
+  );
+  const [nextPracticeChallengeOrder, setNextPracticeChallengeOrder] = useState(() =>
+    initialPracticeChallengeOrder,
   );
   const [input, setInput] = useState("");
   const [stats, setStats] = useState<RuntimeStats>(initialStats);
+  const [previousDirectChallenge, setPreviousDirectChallenge] =
+    useState<PreviousDirectChallengeSnapshot | null>(null);
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const [isFinished, setIsFinished] = useState(false);
@@ -253,23 +267,42 @@ export function useTypingSession({
       guide: "",
       input: "",
     } satisfies DirectChallenge);
+  const nextDirectChallengeIndex =
+    mode.group === "practice"
+      ? getNextOrderedChallengeIndex(
+          challengeIndex,
+          directChallenges.length,
+          practiceChallengeOrder,
+          nextPracticeChallengeOrder,
+        )
+      : getOrderedChallengeIndex(challengeIndex + 1, directChallenges.length, []);
+  const nextDirectChallenge = directChallenges[nextDirectChallengeIndex] ?? null;
   const imeChallenges = challengeLanguage === "ja" ? longChallenges : englishLongChallenges;
   const currentImeChallenge = imeChallenges[challengeIndex % imeChallenges.length] ?? "";
   const currentDirectGuideSource = currentDirectChallenge.guide ?? currentDirectChallenge.input;
   const currentDirectRomajiSource =
     currentDirectChallenge.romajiSource ?? currentDirectGuideSource;
-  const currentVisibleDirectRomajiSource =
-    challengeLanguage === "ja" &&
-    !mode.requiresIme &&
-    !stored.settings.showRomajiWordSpaces
-      ? removeRomajiVisualSpaces(currentDirectRomajiSource)
-      : currentDirectRomajiSource;
+  const nextDirectGuideSource =
+    nextDirectChallenge?.guide ?? nextDirectChallenge?.input ?? "";
+  const nextDirectRomajiSource =
+    nextDirectChallenge?.romajiSource ?? nextDirectGuideSource;
   const currentRomajiTarget =
     challengeLanguage === "ja" && !mode.requiresIme
-      ? createRomajiInputTarget(currentVisibleDirectRomajiSource, {
+      ? createRomajiInputTarget(currentDirectRomajiSource, {
           preset: stored.settings.romajiInputPreset,
           selections: stored.settings.romajiInputSelections,
           allowSplitYoon: stored.settings.allowSplitYoon,
+          allowSplitSpecialYoon: stored.settings.allowSplitSpecialYoon,
+          sokuon: stored.settings.sokuonInput,
+        })
+      : null;
+  const nextRomajiTarget =
+    challengeLanguage === "ja" && !mode.requiresIme && nextDirectChallenge
+      ? createRomajiInputTarget(nextDirectRomajiSource, {
+          preset: stored.settings.romajiInputPreset,
+          selections: stored.settings.romajiInputSelections,
+          allowSplitYoon: stored.settings.allowSplitYoon,
+          allowSplitSpecialYoon: stored.settings.allowSplitSpecialYoon,
           sokuon: stored.settings.sokuonInput,
         })
       : null;
@@ -288,10 +321,11 @@ export function useTypingSession({
         ? (longChallengeReadings[challengeIndex % longChallengeReadings.length] ?? "")
         : (currentDirectChallenge.reading ?? "")
       : "";
-  const currentReading = formatChallengeReading(
-    currentRawReading,
-    stored.settings.showRomajiWordSpaces,
-  );
+  const currentReading = currentRawReading;
+  const nextReading =
+    challengeLanguage === "ja" && !mode.requiresIme
+      ? (nextDirectChallenge?.reading ?? "")
+      : "";
   const currentInputTarget = mode.requiresIme
     ? currentImeChallenge
     : (currentRomajiTarget ?? currentDirectChallenge.input);
@@ -304,21 +338,41 @@ export function useTypingSession({
   const productionPlayable = PRODUCTION_MODE_PLAYABLE;
 
   function randomizePracticeChallengeOrder(language: ChallengeLanguage = challengeLanguage) {
-    setPracticeChallengeOrder(
-      createShuffledIndexes(getDirectChallenges(language, "practice").length),
+    const nextOrder = createShuffledIndexes(getDirectChallenges(language, "practice").length);
+
+    setPracticeChallengeOrder(nextOrder);
+    setNextPracticeChallengeOrder(
+      createShuffledIndexes(nextOrder.length, Math.random, nextOrder.at(-1)),
     );
   }
 
   function advanceChallenge() {
     const nextChallengeIndex = challengeIndex + 1;
 
+    setPreviousDirectChallenge(
+      !mode.requiresIme
+        ? {
+            display: currentDisplay,
+            furigana: currentFurigana,
+            guide: currentRomajiTarget?.guide ?? currentDirectGuideSource,
+            reading: currentReading,
+          }
+        : null,
+    );
+
     if (
       mode.group === "practice" &&
       directChallenges.length > 0 &&
       nextChallengeIndex % directChallenges.length === 0
     ) {
-      setPracticeChallengeOrder(
-        createShuffledIndexes(directChallenges.length, Math.random, directChallengeIndex),
+      const nextOrder =
+        nextPracticeChallengeOrder.length === directChallenges.length
+          ? nextPracticeChallengeOrder
+          : createShuffledIndexes(directChallenges.length, Math.random, directChallengeIndex);
+
+      setPracticeChallengeOrder(nextOrder);
+      setNextPracticeChallengeOrder(
+        createShuffledIndexes(directChallenges.length, Math.random, nextOrder.at(-1)),
       );
     }
 
@@ -358,6 +412,11 @@ export function useTypingSession({
     : ALPHA_PRODUCTION_LOCK_MESSAGE;
   const progress = Math.min(100, (elapsedSeconds / durationSeconds) * 100);
   const correctionDebt = !acceptsTextInput && mode.lockMistakes ? stats.mistakeDebt : 0;
+  const nextChallengePreview =
+    mode.group === "practice" &&
+    stored.settings.nextChallengePreviewMode !== "none"
+      ? (nextDirectChallenge?.display ?? "")
+      : "";
 
   useEffect(() => {
     const nextStored = readStoredState(window.localStorage);
@@ -457,6 +516,7 @@ export function useTypingSession({
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
+    setPreviousDirectChallenge(null);
     randomizePracticeChallengeOrder();
     setStartedAt(null);
     setNow(Date.now());
@@ -487,6 +547,7 @@ export function useTypingSession({
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
+    setPreviousDirectChallenge(null);
     randomizePracticeChallengeOrder(language);
     setStartedAt(null);
     setNow(Date.now());
@@ -838,6 +899,17 @@ export function useTypingSession({
       mistakeFlash: mistakeFlash?.input === input ? mistakeFlash : null,
       metrics,
       mode,
+      nextChallengeDisplay: nextDirectChallenge?.display ?? "",
+      nextChallengeFurigana: nextDirectChallenge?.furigana ?? [],
+      nextChallengeGuide: nextRomajiTarget?.guide ?? nextDirectGuideSource,
+      nextChallengePreview,
+      nextChallengePreviewMode: stored.settings.nextChallengePreviewMode,
+      nextChallengeReading: nextReading,
+      nextChallengeRomajiTarget: nextRomajiTarget,
+      previousChallengeDisplay: previousDirectChallenge?.display ?? "",
+      previousChallengeFurigana: previousDirectChallenge?.furigana ?? [],
+      previousChallengeGuide: previousDirectChallenge?.guide ?? "",
+      previousChallengeReading: previousDirectChallenge?.reading ?? "",
       progress,
       remainingSeconds,
       showFuriganaDisplay: stored.settings.showFuriganaDisplay,
@@ -847,8 +919,19 @@ export function useTypingSession({
       showKanjiDisplay: stored.settings.showKanjiDisplay,
       showKanjiMarker: stored.settings.showKanjiMarker,
       showRomajiMarker: stored.settings.showRomajiMarker,
+      kanjiFontSize: stored.settings.kanjiFontSize,
+      furiganaFontScale: stored.settings.furiganaFontScale,
+      hiraganaFontSize: stored.settings.hiraganaFontSize,
+      romajiFontSize: stored.settings.romajiFontSize,
+      kanjiLineHeight: stored.settings.kanjiLineHeight,
+      kanjiMarginBottom: stored.settings.kanjiMarginBottom,
+      furiganaLineHeight: stored.settings.furiganaLineHeight,
+      furiganaMarginBottom: stored.settings.furiganaMarginBottom,
+      hiraganaLineHeight: stored.settings.hiraganaLineHeight,
+      hiraganaMarginBottom: stored.settings.hiraganaMarginBottom,
+      romajiLineHeight: stored.settings.romajiLineHeight,
+      romajiMarginBottom: stored.settings.romajiMarginBottom,
       soundSettings: stored.settings,
-      speedDisplayUnit: stored.settings.speedDisplayUnit,
       startedAt,
       stats,
       strictMistakeDisplayMode: stored.settings.strictMistakeDisplayMode,

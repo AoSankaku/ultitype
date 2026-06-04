@@ -19,10 +19,6 @@ export function removeRomajiVisualSpaces(value: string) {
   return value.replace(/\s/g, "");
 }
 
-export function formatChallengeReading(reading: string, showWordSpaces: boolean) {
-  return showWordSpaces ? reading : removeRomajiVisualSpaces(reading);
-}
-
 export function estimateImeKeystrokes(target: string): number {
   const kanaLike = Array.from(target).filter((character) => !/\s/.test(character)).length;
   return Math.ceil(kanaLike * 1.15);
@@ -66,4 +62,20 @@ export function getOrderedChallengeIndex(position: number, challengeCount: numbe
   }
 
   return order[position % challengeCount] ?? position % challengeCount;
+}
+
+export function getNextOrderedChallengeIndex(
+  position: number,
+  challengeCount: number,
+  order: number[],
+  upcomingOrder: number[],
+) {
+  if (challengeCount <= 0) {
+    return 0;
+  }
+
+  const nextPosition = position + 1;
+  const nextOrder = nextPosition % challengeCount === 0 ? upcomingOrder : order;
+
+  return getOrderedChallengeIndex(nextPosition, challengeCount, nextOrder);
 }

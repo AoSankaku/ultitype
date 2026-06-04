@@ -8,8 +8,12 @@ import type {
 
 export type ChallengeLanguage = "ja" | "en";
 export type Theme = "dark" | "light";
-export type SpeedDisplayUnit = "keysPerSecond" | "keysPerMinute";
 export type StrictMistakeDisplayMode = "overwrite" | "insert" | "none";
+export type NextChallengePreviewMode =
+  | "none"
+  | "split-slide"
+  | "split-alternate"
+  | "center-scroll";
 export type TopDisplayMetricId =
   | "remainingTime"
   | "remainingPercent"
@@ -41,10 +45,22 @@ export type AppSettings = {
   showFuriganaMarker: boolean;
   showHiraganaMarker: boolean;
   showRomajiMarker: boolean;
-  showRomajiWordSpaces: boolean;
+  kanjiFontSize: number;
+  furiganaFontScale: number;
+  hiraganaFontSize: number;
+  romajiFontSize: number;
+  kanjiLineHeight: number;
+  kanjiMarginBottom: number;
+  furiganaLineHeight: number;
+  furiganaMarginBottom: number;
+  hiraganaLineHeight: number;
+  hiraganaMarginBottom: number;
+  romajiLineHeight: number;
+  romajiMarginBottom: number;
   romajiInputPreset: RomajiInputPreset;
   romajiInputSelections: Partial<Record<RomajiVariantId, RomajiVariantSelection>>;
   allowSplitYoon: boolean;
+  allowSplitSpecialYoon: boolean;
   sokuonInput: SokuonInputSelection;
   idleRetireSeconds: number;
   consecutiveMistypeRetireCount: number;
@@ -53,8 +69,9 @@ export type AppSettings = {
   soundVolume: number;
   typingSoundEnabled: boolean;
   uiSoundEnabled: boolean;
-  speedDisplayUnit: SpeedDisplayUnit;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
+  nextChallengePreviewLength: number;
+  nextChallengePreviewMode: NextChallengePreviewMode;
   topDisplayMetricIds: TopDisplayMetricId[];
 };
 

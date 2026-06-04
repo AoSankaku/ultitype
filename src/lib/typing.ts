@@ -149,6 +149,7 @@ export type RomajiInputConfig = {
   preset: RomajiInputPreset;
   selections: Partial<Record<RomajiVariantId, RomajiVariantSelection>>;
   allowSplitYoon?: boolean;
+  allowSplitSpecialYoon?: boolean;
   sokuon?: SokuonInputSelection;
 };
 
@@ -261,7 +262,7 @@ const romajiVariantPatterns = romajiVariantOptions
   )
   .sort((left, right) => right.pattern.length - left.pattern.length);
 
-const splitYoonPatterns = [
+const standardSplitYoonPatterns = [
   { pattern: "kya", splitPrefix: "ki" },
   { pattern: "kyu", splitPrefix: "ki" },
   { pattern: "kyo", splitPrefix: "ki" },
@@ -286,6 +287,21 @@ const splitYoonPatterns = [
   { pattern: "rya", splitPrefix: "ri" },
   { pattern: "ryu", splitPrefix: "ri" },
   { pattern: "ryo", splitPrefix: "ri" },
+].map(({ pattern, splitPrefix }) => ({
+  pattern,
+  splitAlternatives: [`${splitPrefix}l${pattern.at(-1)}`, `${splitPrefix}x${pattern.at(-1)}`],
+}));
+
+const specialSplitYoonPatterns = [
+  { pattern: "va", splitPrefix: "vu" },
+  { pattern: "vi", splitPrefix: "vu" },
+  { pattern: "ve", splitPrefix: "vu" },
+  { pattern: "vo", splitPrefix: "vu" },
+  { pattern: "tha", splitPrefix: "te" },
+  { pattern: "thi", splitPrefix: "te" },
+  { pattern: "thu", splitPrefix: "te" },
+  { pattern: "the", splitPrefix: "te" },
+  { pattern: "tho", splitPrefix: "te" },
 ].map(({ pattern, splitPrefix }) => ({
   pattern,
   splitAlternatives: [`${splitPrefix}l${pattern.at(-1)}`, `${splitPrefix}x${pattern.at(-1)}`],
@@ -670,19 +686,35 @@ function readSplitYoon(
   index: number,
   config: RomajiInputConfig,
 ): ReadRomajiTokenResult | null {
-  const match = splitYoonPatterns.find(({ pattern }) => source.startsWith(pattern, index));
-  if (!match) {
-    return null;
+  const standardMatch = standardSplitYoonPatterns.find(({ pattern }) =>
+    source.startsWith(pattern, index),
+  );
+  if (standardMatch) {
+    return {
+      accepted:
+        config.allowSplitYoon === false
+          ? [standardMatch.pattern]
+          : [standardMatch.pattern, ...standardMatch.splitAlternatives],
+      consumed: standardMatch.pattern.length,
+      preferred: standardMatch.pattern,
+    };
   }
 
-  return {
-    accepted:
-      config.allowSplitYoon === false
-        ? [match.pattern]
-        : [match.pattern, ...match.splitAlternatives],
-    consumed: match.pattern.length,
-    preferred: match.pattern,
-  };
+  const specialMatch = specialSplitYoonPatterns.find(({ pattern }) =>
+    source.startsWith(pattern, index),
+  );
+  if (specialMatch) {
+    return {
+      accepted:
+        config.allowSplitSpecialYoon === true
+          ? [specialMatch.pattern, ...specialMatch.splitAlternatives]
+          : [specialMatch.pattern],
+      consumed: specialMatch.pattern.length,
+      preferred: specialMatch.pattern,
+    };
+  }
+
+  return null;
 }
 
 function resolveSokuonSelection(config: RomajiInputConfig): SokuonInputSelection {

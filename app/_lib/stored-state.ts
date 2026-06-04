@@ -9,6 +9,10 @@ import type { AppSettings, StoredState } from "./types";
 
 let cachedStoredState: StoredState | null = null;
 
+type LegacyAppSettings = Partial<AppSettings> & {
+  furiganaFontSize?: number;
+};
+
 export function getInitialStoredState() {
   return cachedStoredState ?? initialStoredState;
 }
@@ -30,49 +34,194 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
     showKanjiMarker: settings.showKanjiDisplay && settings.showKanjiMarker,
     showFuriganaMarker: showFuriganaDisplay && settings.showFuriganaMarker,
     showHiraganaMarker: settings.showHiraganaDisplay && settings.showHiraganaMarker,
+    kanjiFontSize: normalizeFontSize(settings.kanjiFontSize, initialSettings.kanjiFontSize),
+    furiganaFontScale: normalizeFontScale(
+      settings.furiganaFontScale,
+      initialSettings.furiganaFontScale,
+    ),
+    hiraganaFontSize: normalizeFontSize(
+      settings.hiraganaFontSize,
+      initialSettings.hiraganaFontSize,
+    ),
+    romajiFontSize: normalizeFontSize(settings.romajiFontSize, initialSettings.romajiFontSize),
+    kanjiLineHeight: normalizeLineHeight(settings.kanjiLineHeight, initialSettings.kanjiLineHeight),
+    kanjiMarginBottom: normalizeSpacing(
+      settings.kanjiMarginBottom,
+      initialSettings.kanjiMarginBottom,
+    ),
+    furiganaLineHeight: normalizeLineHeight(
+      settings.furiganaLineHeight,
+      initialSettings.furiganaLineHeight,
+    ),
+    furiganaMarginBottom: normalizeSpacing(
+      settings.furiganaMarginBottom,
+      initialSettings.furiganaMarginBottom,
+    ),
+    hiraganaLineHeight: normalizeLineHeight(
+      settings.hiraganaLineHeight,
+      initialSettings.hiraganaLineHeight,
+    ),
+    hiraganaMarginBottom: normalizeSpacing(
+      settings.hiraganaMarginBottom,
+      initialSettings.hiraganaMarginBottom,
+    ),
+    romajiLineHeight: normalizeLineHeight(
+      settings.romajiLineHeight,
+      initialSettings.romajiLineHeight,
+    ),
+    romajiMarginBottom: normalizeSpacing(
+      settings.romajiMarginBottom,
+      initialSettings.romajiMarginBottom,
+    ),
+    nextChallengePreviewLength: normalizePreviewLength(
+      settings.nextChallengePreviewLength,
+      initialSettings.nextChallengePreviewLength,
+    ),
+    nextChallengePreviewMode: normalizeNextChallengePreviewMode(
+      settings.nextChallengePreviewMode,
+    ),
     topDisplayMetricIds: normalizeTopDisplayMetricIds(settings.topDisplayMetricIds),
   };
 }
 
 export function normalizeStoredState(storedState: Partial<StoredState> | null | undefined) {
+  const storedSettings = storedState?.settings as LegacyAppSettings | undefined;
+  const kanjiFontSize = storedSettings?.kanjiFontSize ?? initialSettings.kanjiFontSize;
+
   return {
     ...initialStoredState,
     ...storedState,
     settings: normalizeAppSettings({
       ...initialSettings,
-      ...storedState?.settings,
+      ...storedSettings,
       showKanjiDisplay:
-        storedState?.settings?.showKanjiDisplay ?? initialSettings.showKanjiDisplay,
+        storedSettings?.showKanjiDisplay ?? initialSettings.showKanjiDisplay,
       showFuriganaDisplay:
-        storedState?.settings?.showFuriganaDisplay ?? initialSettings.showFuriganaDisplay,
+        storedSettings?.showFuriganaDisplay ?? initialSettings.showFuriganaDisplay,
       showHiraganaDisplay:
-        storedState?.settings?.showHiraganaDisplay ?? initialSettings.showHiraganaDisplay,
+        storedSettings?.showHiraganaDisplay ?? initialSettings.showHiraganaDisplay,
       showKanjiMarker:
-        storedState?.settings?.showKanjiMarker ?? initialSettings.showKanjiMarker,
+        storedSettings?.showKanjiMarker ?? initialSettings.showKanjiMarker,
       showFuriganaMarker:
-        storedState?.settings?.showFuriganaMarker ?? initialSettings.showFuriganaMarker,
+        storedSettings?.showFuriganaMarker ?? initialSettings.showFuriganaMarker,
       showHiraganaMarker:
-        storedState?.settings?.showHiraganaMarker ?? initialSettings.showHiraganaMarker,
+        storedSettings?.showHiraganaMarker ?? initialSettings.showHiraganaMarker,
       showRomajiMarker:
-        storedState?.settings?.showRomajiMarker ?? initialSettings.showRomajiMarker,
-      speedDisplayUnit: storedState?.settings?.speedDisplayUnit ?? initialSettings.speedDisplayUnit,
+        storedSettings?.showRomajiMarker ?? initialSettings.showRomajiMarker,
+      kanjiFontSize,
+      furiganaFontScale:
+        storedSettings?.furiganaFontScale ??
+        getLegacyFuriganaFontScale(storedSettings, kanjiFontSize) ??
+        initialSettings.furiganaFontScale,
+      hiraganaFontSize:
+        storedSettings?.hiraganaFontSize ?? initialSettings.hiraganaFontSize,
+      romajiFontSize:
+        storedSettings?.romajiFontSize ?? initialSettings.romajiFontSize,
+      kanjiLineHeight:
+        storedSettings?.kanjiLineHeight ?? initialSettings.kanjiLineHeight,
+      kanjiMarginBottom:
+        storedSettings?.kanjiMarginBottom ?? initialSettings.kanjiMarginBottom,
+      furiganaLineHeight:
+        storedSettings?.furiganaLineHeight ?? initialSettings.furiganaLineHeight,
+      furiganaMarginBottom:
+        storedSettings?.furiganaMarginBottom ?? initialSettings.furiganaMarginBottom,
+      hiraganaLineHeight:
+        storedSettings?.hiraganaLineHeight ?? initialSettings.hiraganaLineHeight,
+      hiraganaMarginBottom:
+        storedSettings?.hiraganaMarginBottom ?? initialSettings.hiraganaMarginBottom,
+      romajiLineHeight:
+        storedSettings?.romajiLineHeight ?? initialSettings.romajiLineHeight,
+      romajiMarginBottom:
+        storedSettings?.romajiMarginBottom ?? initialSettings.romajiMarginBottom,
       strictMistakeDisplayMode:
-        storedState?.settings?.strictMistakeDisplayMode ??
+        storedSettings?.strictMistakeDisplayMode ??
         initialSettings.strictMistakeDisplayMode,
+      nextChallengePreviewLength:
+        storedSettings?.nextChallengePreviewLength ??
+        initialSettings.nextChallengePreviewLength,
+      nextChallengePreviewMode:
+        storedSettings?.nextChallengePreviewMode ??
+        initialSettings.nextChallengePreviewMode,
+      allowSplitSpecialYoon:
+        storedSettings?.allowSplitSpecialYoon ??
+        initialSettings.allowSplitSpecialYoon,
       topDisplayMetricIds:
-        storedState?.settings?.topDisplayMetricIds ?? [...defaultTopDisplayMetricIds],
+        storedSettings?.topDisplayMetricIds ?? [...defaultTopDisplayMetricIds],
       consecutiveMistypeRetireCount:
-        storedState?.settings?.consecutiveMistypeRetireCount ??
+        storedSettings?.consecutiveMistypeRetireCount ??
         initialSettings.consecutiveMistypeRetireCount,
       accuracyRetireBorderPercent:
-        storedState?.settings?.accuracyRetireBorderPercent ??
+        storedSettings?.accuracyRetireBorderPercent ??
         initialSettings.accuracyRetireBorderPercent,
       sokuonInput: {
         ...initialSettings.sokuonInput,
-        ...storedState?.settings?.sokuonInput,
+        ...storedSettings?.sokuonInput,
       },
     }),
   };
+}
+
+function normalizeFontSize(value: number, fallback: number) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(48, Math.max(10, Math.round(value)));
+}
+
+function normalizeFontScale(value: number, fallback: number) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(1, Math.max(0.2, Math.round(value * 100) / 100));
+}
+
+function normalizeLineHeight(value: number, fallback: number) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(2.5, Math.max(0.8, Math.round(value * 100) / 100));
+}
+
+function normalizeSpacing(value: number, fallback: number) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(48, Math.max(0, Math.round(value)));
+}
+
+function normalizePreviewLength(value: number, fallback: number) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return Math.min(40, Math.max(0, Math.round(value)));
+}
+
+function normalizeNextChallengePreviewMode(value: AppSettings["nextChallengePreviewMode"]) {
+  if (
+    value === "none" ||
+    value === "split-slide" ||
+    value === "split-alternate" ||
+    value === "center-scroll"
+  ) {
+    return value;
+  }
+
+  return initialSettings.nextChallengePreviewMode;
+}
+
+function getLegacyFuriganaFontScale(settings: LegacyAppSettings | undefined, kanjiFontSize: number) {
+  const legacyFontSize = settings?.furiganaFontSize;
+
+  if (!Number.isFinite(legacyFontSize) || legacyFontSize === undefined || kanjiFontSize <= 0) {
+    return null;
+  }
+
+  return legacyFontSize / kanjiFontSize;
 }
 
 function normalizeTopDisplayMetricIds(value: AppSettings["topDisplayMetricIds"]) {

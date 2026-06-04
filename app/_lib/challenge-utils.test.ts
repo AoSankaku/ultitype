@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   createOrderedIndexes,
   createShuffledIndexes,
-  formatChallengeReading,
+  getNextOrderedChallengeIndex,
   getOrderedChallengeIndex,
 } from "./challenge-utils";
 
@@ -35,18 +35,12 @@ describe("practice challenge order", () => {
     expect(getOrderedChallengeIndex(0, 3, order)).toBe(2);
     expect(getOrderedChallengeIndex(4, 3, order)).toBe(0);
   });
-});
 
-describe("challenge reading display", () => {
-  test("keeps hiragana word spaces when guide spaces are enabled", () => {
-    expect(formatChallengeReading("こうそくな たいぴんぐ では", true)).toBe(
-      "こうそくな たいぴんぐ では",
-    );
-  });
+  test("resolves the next challenge from the upcoming order at cycle boundaries", () => {
+    const currentOrder = [2, 0, 1];
+    const upcomingOrder = [0, 2, 1];
 
-  test("removes hiragana word spaces when guide spaces are disabled", () => {
-    expect(formatChallengeReading("こうそくな たいぴんぐ では", false)).toBe(
-      "こうそくなたいぴんぐでは",
-    );
+    expect(getNextOrderedChallengeIndex(0, 3, currentOrder, upcomingOrder)).toBe(0);
+    expect(getNextOrderedChallengeIndex(2, 3, currentOrder, upcomingOrder)).toBe(0);
   });
 });

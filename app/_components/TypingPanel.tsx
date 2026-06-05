@@ -45,6 +45,7 @@ import type {
   KeyStabilitySample,
   MistakeFlash,
   NextChallengePreviewMode,
+  RankCalculationMode,
   RuntimeStats,
   StrictMistakeDisplayMode,
   TopDisplayMetricId,
@@ -114,6 +115,7 @@ type TypingPanelProps = {
   soundSettings: SoundSettings;
   startedAt: number | null;
   stats: RuntimeStats;
+  rankCalculationMode: RankCalculationMode;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
   sessionModeIcon?: LucideIcon | null;
@@ -208,6 +210,7 @@ export function TypingPanel({
   soundSettings,
   startedAt,
   stats,
+  rankCalculationMode,
   strictMistakeDisplayMode,
   strictMistakeInput,
   sessionModeIcon,
@@ -225,6 +228,7 @@ export function TypingPanel({
 }: TypingPanelProps) {
   const playTypingSound = useTypingSounds(soundSettings);
   const visibleRank = getVisibleSessionRank({
+    concealOpeningRank: rankCalculationMode === "projected",
     elapsedSeconds,
     rankLabel: currentRank.label,
   });
@@ -238,6 +242,9 @@ export function TypingPanel({
   const SessionModeIcon = sessionModeIcon === undefined ? getSessionModeIcon(mode) : sessionModeIcon;
   const visibleModeLabel = sessionModeLabel ?? mode.label;
   const PrepareActionIcon = prepareActionIcon ?? Play;
+  const scorePrefix =
+    rankCalculationMode === "projected" && !isFinished && remainingSeconds > 0 ? "\u2248 " : "";
+  const scoreLabel = `${scorePrefix}${Math.round(metrics.score).toLocaleString()} pts`;
   const visiblePrepareActionTitle = prepareActionTitle ?? "開始";
   const showDisplayText = challengeLanguage !== "ja" || showKanjiDisplay;
   const targetViewStyle = {
@@ -330,7 +337,7 @@ export function TypingPanel({
             >
               {visibleRank.label}
             </span>
-            <span>{Math.round(metrics.score).toLocaleString()} pts</span>
+            <span>{scoreLabel}</span>
           </h2>
         </div>
         <div className="actions">
@@ -480,7 +487,7 @@ export function TypingPanel({
           <span>
             {finishReason === "retired"
               ? "無入力が続いたためリタイアしました"
-              : `セッション終了: ${currentRank.label} / ${Math.round(metrics.score).toLocaleString()} pts`}
+              : `セッション終了: ${currentRank.label} / ${scoreLabel}`}
           </span>
         </div>
       ) : null}

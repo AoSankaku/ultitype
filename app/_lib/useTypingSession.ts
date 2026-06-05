@@ -420,9 +420,18 @@ export function useTypingSession({
         mistakes: stats.mistakes,
         intervals: stats.intervals,
         accuracyExponent: mode.accuracyExponent,
+        scoreDurationSeconds:
+          stored.settings.rankCalculationMode === "actual" ? durationSeconds : undefined,
         useFlowMultiplier: mode.id === "practice-flow",
       }),
-    [elapsedSeconds, mode.accuracyExponent, mode.id, stats],
+    [
+      durationSeconds,
+      elapsedSeconds,
+      mode.accuracyExponent,
+      mode.id,
+      stats,
+      stored.settings.rankCalculationMode,
+    ],
   );
 
   const currentRank = getRank(metrics.score);
@@ -958,6 +967,7 @@ export function useTypingSession({
       productionLongTextLineCount: stored.settings.productionLongTextLineCount,
       soundSettings: stored.settings,
       startedAt,
+      rankCalculationMode: stored.settings.rankCalculationMode,
       stats,
       strictMistakeDisplayMode: stored.settings.strictMistakeDisplayMode,
       strictMistakeInput: stats.mistakeInput,

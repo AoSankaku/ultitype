@@ -88,6 +88,22 @@ describe("calculateMetrics", () => {
 
     expect(metrics.consistency).toBeLessThan(0.5);
   });
+
+  test("can score rank from fixed mode duration while preserving displayed keys per second", () => {
+    const metrics = calculateMetrics({
+      elapsedSeconds: 10,
+      scoreDurationSeconds: 120,
+      keystrokes: 60,
+      characterAttempts: 60,
+      correctCharacters: 60,
+      mistakes: 0,
+      intervals: [],
+      accuracyExponent: 3,
+    });
+
+    expect(metrics.keysPerSecond).toBeCloseTo(6);
+    expect(metrics.score).toBeCloseTo(500);
+  });
 });
 
 describe("rank", () => {

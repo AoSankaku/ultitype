@@ -340,6 +340,7 @@ export function InputScreenSettingsScreen({
               productionLongTextLineCount={settings.productionLongTextLineCount}
               soundSettings={settings}
               startedAt={Date.now() - 16000}
+              rankCalculationMode={settings.rankCalculationMode}
               sessionModeIcon={Wrench}
               sessionModeLabel="入力画面設定"
               prepareActionIcon={isMockPaused ? Play : Pause}

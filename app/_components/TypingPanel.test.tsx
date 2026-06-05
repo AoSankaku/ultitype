@@ -76,6 +76,7 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     soundSettings: initialSettings,
     startedAt: null,
     stats: initialStats,
+    rankCalculationMode: initialSettings.rankCalculationMode,
     strictMistakeDisplayMode: "overwrite",
     strictMistakeInput: "",
     topDisplayMetricIds: initialSettings.topDisplayMetricIds,
@@ -168,6 +169,78 @@ describe("TypingPanel", () => {
     expect(markup).not.toContain("session-mode-symbol");
   });
 
+
+  test("marks projected in-progress score as approximate", () => {
+    const markup = renderTypingPanel({
+      currentRank: getRank(1234),
+      elapsedSeconds: 30,
+      metrics: {
+        accuracy: 1,
+        consistency: 1,
+        keysPerSecond: 5,
+        paceMs: 200,
+        score: 1234,
+      },
+      rankCalculationMode: "projected",
+      remainingSeconds: 90,
+    });
+
+    expect(markup).toContain("\u2248 1,234 pts");
+  });
+
+  test("does not mark actual or finished scores as approximate", () => {
+    const actualMarkup = renderTypingPanel({
+      currentRank: getRank(1234),
+      elapsedSeconds: 30,
+      metrics: {
+        accuracy: 1,
+        consistency: 1,
+        keysPerSecond: 5,
+        paceMs: 200,
+        score: 1234,
+      },
+      rankCalculationMode: "actual",
+      remainingSeconds: 90,
+    });
+    const finishedMarkup = renderTypingPanel({
+      currentRank: getRank(1234),
+      elapsedSeconds: 120,
+      isFinished: true,
+      metrics: {
+        accuracy: 1,
+        consistency: 1,
+        keysPerSecond: 5,
+        paceMs: 200,
+        score: 1234,
+      },
+      rankCalculationMode: "projected",
+      remainingSeconds: 0,
+    });
+
+    expect(actualMarkup).toContain(">1,234 pts</span>");
+    expect(finishedMarkup).toContain(">1,234 pts</span>");
+    expect(actualMarkup).not.toContain("\u2248 1,234 pts");
+    expect(finishedMarkup).not.toContain("\u2248 1,234 pts");
+  });
+
+  test("shows the full in-progress rank in actual calculation mode", () => {
+    const actualMarkup = renderTypingPanel({
+      currentRank: getRank(4280),
+      elapsedSeconds: 12,
+      rankCalculationMode: "actual",
+      remainingSeconds: 108,
+    });
+    const projectedMarkup = renderTypingPanel({
+      currentRank: getRank(4280),
+      elapsedSeconds: 12,
+      rankCalculationMode: "projected",
+      remainingSeconds: 108,
+    });
+
+    expect(actualMarkup).toContain('<span class="session-rank-value ">A0</span>');
+    expect(actualMarkup).not.toContain("concealed");
+    expect(projectedMarkup).toContain(">A?</span>");
+  });
   test("renders a direct-mode keyboard capture field that asks browsers not to use IME", () => {
     const markup = renderTypingPanel({
       acceptsTextInput: false,

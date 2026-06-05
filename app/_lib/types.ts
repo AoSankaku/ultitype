@@ -14,6 +14,7 @@ export type NextChallengePreviewMode =
   | "split-slide"
   | "split-alternate"
   | "center-scroll";
+export type RankCalculationMode = "projected" | "actual";
 export type TopDisplayMetricId =
   | "remainingTime"
   | "remainingPercent"
@@ -70,6 +71,7 @@ export type AppSettings = {
   soundVolume: number;
   typingSoundEnabled: boolean;
   uiSoundEnabled: boolean;
+  rankCalculationMode: RankCalculationMode;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   nextChallengePreviewLength: number;
   nextChallengePreviewMode: NextChallengePreviewMode;

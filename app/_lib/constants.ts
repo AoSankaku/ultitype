@@ -112,6 +112,7 @@ export const initialSettings: AppSettings = {
   soundVolume: 0.7,
   typingSoundEnabled: true,
   uiSoundEnabled: true,
+  rankCalculationMode: "projected",
   strictMistakeDisplayMode: "overwrite",
   nextChallengePreviewLength: 8,
   nextChallengePreviewMode: "split-slide",

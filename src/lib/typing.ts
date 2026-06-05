@@ -83,6 +83,7 @@ export function shouldAcceptTextInput(mode: TypingMode): boolean {
 
 export type MetricsInput = {
   elapsedSeconds: number;
+  scoreDurationSeconds?: number;
   keystrokes: number;
   characterAttempts: number;
   correctCharacters: number;
@@ -832,6 +833,8 @@ function uniqueStrings<T extends string>(values: T[]): T[] {
 export function calculateMetrics(input: MetricsInput): Metrics {
   const elapsed = Math.max(input.elapsedSeconds, 0.001);
   const keysPerSecond = input.keystrokes / elapsed;
+  const scoreElapsed = Math.max(input.scoreDurationSeconds ?? input.elapsedSeconds, 0.001);
+  const scoreKeysPerSecond = input.keystrokes / scoreElapsed;
   const accuracy =
     input.characterAttempts === 0
       ? 1
@@ -840,7 +843,7 @@ export function calculateMetrics(input: MetricsInput): Metrics {
   const consistency = calculateConsistency(input.intervals);
   const flowMultiplier = input.useFlowMultiplier ? consistency : 1;
   const score =
-    keysPerSecond * 1000 * Math.pow(accuracy, input.accuracyExponent) * flowMultiplier;
+    scoreKeysPerSecond * 1000 * Math.pow(accuracy, input.accuracyExponent) * flowMultiplier;
 
   return {
     keysPerSecond,

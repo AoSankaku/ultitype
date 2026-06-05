@@ -52,7 +52,8 @@ function getCategoryItemLabels(markup: string, categoryId: string) {
   return Array.from(categoryMarkup.matchAll(/<h4[^>]*>(.*?)<\/h4>/g))
     .filter((match) => !match[0].includes("settings-subcategory-title"))
     .filter((match) => !match[0].includes("font-size-setting"))
-    .map((match) => match[1]);
+    .map((match) => match[1])
+    .filter((label) => label !== "ランク算出方式");
 }
 
 function getInputScreenSubcategoryIds(markup: string) {
@@ -427,6 +428,18 @@ describe("InputScreenSettingsScreen", () => {
     expect(inputScreenMarkup).toContain("挿入");
     expect(inputScreenMarkup).toContain("何もしない");
     expect(inputScreenMarkup).toContain('aria-pressed="true"');
+  });
+
+  test("shows rank calculation mode choices with projected selected by default", () => {
+    const markup = renderInputScreenSettingsScreen();
+    const inputScreenMarkup = getCategoryMarkup(markup, "input-screen-settings");
+    const rowMarkup = getSettingRowMarkup(inputScreenMarkup, "rank-calculation-mode-setting");
+    expect(rowMarkup).toContain('class="rank-calculation-segmented"');
+
+    expect(rowMarkup).toContain('aria-label="ランク算出方式"');
+    expect(rowMarkup).toContain("予測値（変動方式）");
+    expect(rowMarkup).toContain("実値（加点方式）");
+    expect(rowMarkup).toContain('aria-pressed="true"');
   });
 
   test("shows kanji, furigana, and hiragana input screen visibility toggles enabled by default", () => {

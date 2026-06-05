@@ -1071,6 +1071,34 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   </button>
                 </div>
               </section>
+              <section className="settings-row" aria-labelledby="rank-calculation-mode-setting">
+                <div>
+                  <h4 id="rank-calculation-mode-setting">ランク算出方式</h4>
+                  <p>タイピング中のランク表示に使うスコアの算出方式を選びます。</p>
+                </div>
+                <div
+                  className="rank-calculation-segmented"
+                  role="group"
+                  aria-label="ランク算出方式"
+                >
+                  <button
+                    aria-pressed={settings.rankCalculationMode === "projected"}
+                    className={settings.rankCalculationMode === "projected" ? "selected" : ""}
+                    onClick={() => onChange({ rankCalculationMode: "projected" })}
+                    type="button"
+                  >
+                    予測値（変動方式）
+                  </button>
+                  <button
+                    aria-pressed={settings.rankCalculationMode === "actual"}
+                    className={settings.rankCalculationMode === "actual" ? "selected" : ""}
+                    onClick={() => onChange({ rankCalculationMode: "actual" })}
+                    type="button"
+                  >
+                    実値（加点方式）
+                  </button>
+                </div>
+              </section>
             </div>
           </section>
         </div>

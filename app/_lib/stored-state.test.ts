@@ -59,6 +59,28 @@ describe("stored state persistence", () => {
     expect(stored.settings.strictMistakeDisplayMode).toBe("overwrite");
   });
 
+  test("fills the rank calculation mode when loading older stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        rankCalculationMode: undefined,
+      },
+    });
+
+    expect(stored.settings.rankCalculationMode).toBe("projected");
+  });
+
+  test("keeps the actual rank calculation mode from stored state", () => {
+    const stored = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        rankCalculationMode: "actual",
+      },
+    });
+
+    expect(stored.settings.rankCalculationMode).toBe("actual");
+  });
+
   test("fills top display metrics when loading older stored state", () => {
     const stored = normalizeStoredState({
       settings: {

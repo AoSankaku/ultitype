@@ -1403,6 +1403,28 @@ h2 span {
   color: var(--accent);
 }
 
+.rank-calculation-segmented {
+  display: grid;
+  min-width: 360px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.rank-calculation-segmented button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 10px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rank-calculation-segmented button.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .romaji-custom-list {
   display: grid;
   max-height: 420px;
@@ -2827,12 +2849,14 @@ dd {
 
   .romaji-preset-segmented,
   .preview-mode-segmented,
+  .rank-calculation-segmented,
   .romaji-custom-item {
     grid-template-columns: 1fr;
   }
 
   .theme-segmented,
-  .preview-mode-segmented {
+  .preview-mode-segmented,
+  .rank-calculation-segmented {
     min-width: 0;
   }
 

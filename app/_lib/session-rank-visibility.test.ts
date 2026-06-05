@@ -28,6 +28,19 @@ describe("session rank visibility", () => {
     });
   });
 
+  test("can reveal the full rank during the opening window", () => {
+    expect(
+      getVisibleSessionRank({
+        concealOpeningRank: false,
+        elapsedSeconds: 12,
+        rankLabel: "A3",
+      }),
+    ).toEqual({
+      isConcealed: false,
+      label: "A3",
+    });
+  });
+
   test("keeps the rank concealed before the session starts", () => {
     expect(getVisibleSessionRank({ elapsedSeconds: null, rankLabel: "G0" })).toEqual({
       isConcealed: true,

@@ -1,13 +1,17 @@
 const concealedOpeningSeconds = 30;
 
 export function getVisibleSessionRank({
+  concealOpeningRank = true,
   elapsedSeconds,
   rankLabel,
 }: {
+  concealOpeningRank?: boolean;
   elapsedSeconds: number | null;
   rankLabel: string;
 }) {
-  const isConcealed = elapsedSeconds === null || elapsedSeconds < concealedOpeningSeconds;
+  const isConcealed =
+    concealOpeningRank &&
+    (elapsedSeconds === null || elapsedSeconds < concealedOpeningSeconds);
 
   return {
     isConcealed,

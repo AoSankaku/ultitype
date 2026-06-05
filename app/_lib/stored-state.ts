@@ -84,6 +84,7 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
     nextChallengePreviewMode: normalizeNextChallengePreviewMode(
       settings.nextChallengePreviewMode,
     ),
+    rankCalculationMode: normalizeRankCalculationMode(settings.rankCalculationMode),
     topDisplayMetricIds: normalizeTopDisplayMetricIds(settings.topDisplayMetricIds),
   };
 }
@@ -149,6 +150,8 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
       nextChallengePreviewMode:
         storedSettings?.nextChallengePreviewMode ??
         initialSettings.nextChallengePreviewMode,
+      rankCalculationMode:
+        storedSettings?.rankCalculationMode ?? initialSettings.rankCalculationMode,
       allowSplitSpecialYoon:
         storedSettings?.allowSplitSpecialYoon ??
         initialSettings.allowSplitSpecialYoon,
@@ -227,6 +230,12 @@ function normalizeNextChallengePreviewMode(value: AppSettings["nextChallengePrev
   }
 
   return initialSettings.nextChallengePreviewMode;
+}
+
+function normalizeRankCalculationMode(value: AppSettings["rankCalculationMode"]) {
+  return value === "actual" || value === "projected"
+    ? value
+    : initialSettings.rankCalculationMode;
 }
 
 function getLegacyFuriganaFontScale(settings: LegacyAppSettings | undefined, kanjiFontSize: number) {

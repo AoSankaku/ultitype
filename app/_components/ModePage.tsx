@@ -18,7 +18,6 @@ export function ModePage({ modeId }: ModePageProps) {
         <TypingPanel
           {...session.typingPanelProps}
           onBackToModeSelect={() => {
-            session.typingPanelProps.onBackToModeSelect();
             router.push("/");
           }}
         />

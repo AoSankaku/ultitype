@@ -2318,60 +2318,112 @@ function renderCenterDisplayText(
 
   createJapaneseFuriganaParts(display, furigana).forEach((part, index) => {
     const partTokenStart = tokenStart;
-    const tokenCount = countJapaneseReadingTokens(part.ruby ?? part.text);
-    const tokenEnd = tokenStart + tokenCount;
-    const isCurrentPart = partTokenStart <= currentTokenIndex && currentTokenIndex < tokenEnd;
-    tokenStart = tokenEnd;
 
-    if (!insertedMarker && isCurrentPart) {
-      content.push(<CenterScrollCurrentMarker key="center-display-marker" />);
-      insertedMarker = true;
-    }
+    if (part.ruby) {
+      const tokenCount = countJapaneseReadingTokens(part.ruby);
+      const tokenEnd = tokenStart + tokenCount;
+      const isCurrent = partTokenStart <= currentTokenIndex && currentTokenIndex < tokenEnd;
+      tokenStart = tokenEnd;
 
-    if (part.ruby && showFurigana) {
-      const rubyClassName = getDisplayMarkerClassName(
-        "display-ruby",
-        showKanjiMarker,
-        { completedTokens: currentTokenIndex, currentTokenIndex },
-        partTokenStart,
-        tokenEnd,
-      );
-      const rubyText = showFuriganaMarker
-        ? renderFuriganaMarkerCharacters(
-          part.ruby,
+      if (!insertedMarker && isCurrent) {
+        content.push(<CenterScrollCurrentMarker key="center-display-marker" />);
+        insertedMarker = true;
+      }
+
+      if (showFurigana) {
+        const rubyClassName = getDisplayMarkerClassName(
+          "display-ruby",
+          showKanjiMarker,
+          { completedTokens: currentTokenIndex, currentTokenIndex },
           partTokenStart,
-          currentTokenIndex,
-          currentTokenIndex,
-        )
-        : part.ruby;
+          tokenEnd,
+        );
+        const rubyText = showFuriganaMarker
+          ? renderFuriganaMarkerCharacters(
+            part.ruby,
+            partTokenStart,
+            currentTokenIndex,
+            currentTokenIndex,
+          )
+          : part.ruby;
+
+        content.push(
+          <ruby className={rubyClassName} key={`center-display-ruby-${part.text}-${index}`}>
+            {part.text}
+            <rt>{rubyText}</rt>
+          </ruby>,
+        );
+        return;
+      }
+
+      if (showKanjiMarker) {
+        content.push(
+          ...renderDisplayMarkerCharacters(
+            part.text,
+            partTokenStart,
+            currentTokenIndex,
+            currentTokenIndex,
+            `center-display-${index}`,
+          ),
+        );
+        return;
+      }
 
       content.push(
-        <ruby className={rubyClassName} key={`center-display-ruby-${part.text}-${index}`}>
+        <span className={css(styles, "display-plain")} key={`center-display-plain-${part.text}-${index}`}>
           {part.text}
-          <rt>{rubyText}</rt>
-        </ruby>,
+        </span>,
       );
       return;
     }
 
-    if (showKanjiMarker) {
-      content.push(
-        ...renderDisplayMarkerCharacters(
-          part.text,
-          partTokenStart,
-          currentTokenIndex,
-          currentTokenIndex,
-          `center-display-${index}`,
-        ),
-      );
-      return;
-    }
+    const normalizedReading = normalizeKana(part.text);
+    const readingGuideParts = createJapaneseReadingGuideParts(normalizedReading);
+    const displayChars = Array.from(part.text);
+    let displayCharIndex = 0;
 
-    content.push(
-      <span className={css(styles, "display-plain")} key={`center-display-plain-${part.text}-${index}`}>
-        {part.text}
-      </span>,
-    );
+    for (const guidePart of readingGuideParts) {
+      if (guidePart.kind !== "reading") {
+        content.push(
+          <span key={`center-display-plain-${index}-v-${displayCharIndex}`} className={css(styles, "display-plain")}>
+            {guidePart.text}
+          </span>,
+        );
+        displayCharIndex += Array.from(guidePart.text).length;
+        continue;
+      }
+
+      const unitTokenEnd = tokenStart + (guidePart.tokenEnd - guidePart.tokenStart);
+
+      if (!insertedMarker && tokenStart <= currentTokenIndex && currentTokenIndex < unitTokenEnd) {
+        content.push(<CenterScrollCurrentMarker key={`center-display-marker-${index}`} />);
+        insertedMarker = true;
+      }
+
+      const unitCharCount = Array.from(guidePart.text).length;
+      const unitDisplayChars = displayChars.slice(displayCharIndex, displayCharIndex + unitCharCount).join("");
+
+      if (showKanjiMarker) {
+        content.push(
+          ...renderDisplayMarkerCharacters(
+            unitDisplayChars,
+            tokenStart,
+            currentTokenIndex,
+            currentTokenIndex,
+            `center-display-${index}-${displayCharIndex}`,
+          ),
+        );
+      } else {
+        content.push(
+          <span key={`center-display-plain-${index}-${displayCharIndex}`} className={css(styles, "display-plain")}>
+            {unitDisplayChars}
+          </span>,
+        );
+      }
+
+      displayCharIndex += unitCharCount;
+      tokenStart = unitTokenEnd;
+    }
   });
 
   if (!insertedMarker) {
@@ -2751,6 +2803,17 @@ function countJapaneseReadingTokens(reading: string) {
     (tokenCount, part) => (part.kind === "reading" ? Math.max(tokenCount, part.tokenEnd) : tokenCount),
     0,
   );
+}
+
+function normalizeKana(value: string): string {
+  return Array.from(value)
+    .map((character) => {
+      const codePoint = character.codePointAt(0) ?? 0;
+      return codePoint >= 0x30a1 && codePoint <= 0x30f6
+        ? String.fromCodePoint(codePoint - 0x60)
+        : character;
+    })
+    .join("");
 }
 
 function renderReadingGuideCharacters(

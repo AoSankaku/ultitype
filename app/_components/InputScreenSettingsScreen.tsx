@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, MonitorCog, Pause, Play, Wrench } from "lucide-react";
+import { ArrowLeft, FastForward, MonitorCog, Pause, Play, Wrench } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import mockJapaneseText from "@/src/lib/challenge-data/_mock/ja-mock.txt" with { type: "text" };
 import {
@@ -144,7 +144,10 @@ export function InputScreenSettingsScreen({
   const mockElapsedMsRef = useRef(initialMockElapsedMs);
   const mockTickAtRef = useRef<number | null>(null);
   const [mockElapsedMs, setMockElapsedMs] = useState(initialMockElapsedMs);
-  const [isMockPaused, setIsMockPaused] = useState(false);
+  const [mockPlaybackMode, setMockPlaybackMode] = useState<"slow" | "fast" | "paused">("slow");
+  const isMockPaused = mockPlaybackMode === "paused";
+  const currentKeysPerSecond = mockPlaybackMode === "fast" ? 10 : 5;
+  const mockSpeedMultiplier = mockPlaybackMode === "fast" ? 2 : 1;
   const [stickyPreviewLayout, setStickyPreviewLayout] = useState<StickyPreviewLayout>({
     height: null,
     scale: 1,
@@ -192,13 +195,17 @@ export function InputScreenSettingsScreen({
   }
 
   function handleToggleMockPlayback() {
-    setIsMockPaused((current) => !current);
+    setMockPlaybackMode((current) => {
+      if (current === "slow") return "fast";
+      if (current === "fast") return "paused";
+      return "slow";
+    });
   }
 
   function handleResetMockPlayback() {
     updateMockElapsedMs(initialMockElapsedMs);
     mockTickAtRef.current = Date.now();
-    setIsMockPaused(false);
+    setMockPlaybackMode("slow");
   }
 
   useEffect(() => {
@@ -212,11 +219,11 @@ export function InputScreenSettingsScreen({
       const tickedAt = Date.now();
       const previousTickAt = mockTickAtRef.current ?? tickedAt;
       mockTickAtRef.current = tickedAt;
-      updateMockElapsedMs(mockElapsedMsRef.current + tickedAt - previousTickAt);
+      updateMockElapsedMs(mockElapsedMsRef.current + (tickedAt - previousTickAt) * mockSpeedMultiplier);
     }, 100);
 
     return () => window.clearInterval(timer);
-  }, [isMockPaused]);
+  }, [mockPlaybackMode]);
 
   useEffect(() => {
     const previewContent = previewContentRef.current;
@@ -303,7 +310,7 @@ export function InputScreenSettingsScreen({
               metrics={{
                 accuracy: 1,
                 consistency: 1,
-                keysPerSecond: mockInputCharactersPerSecond,
+                keysPerSecond: currentKeysPerSecond,
                 paceMs: 200,
                 score: 500,
               }}
@@ -348,8 +355,8 @@ export function InputScreenSettingsScreen({
               rankCalculationMode={settings.rankCalculationMode}
               sessionModeIcon={Wrench}
               sessionModeLabel="入力画面設定"
-              prepareActionIcon={isMockPaused ? Play : Pause}
-              prepareActionTitle={isMockPaused ? "再開" : "一時停止"}
+              prepareActionIcon={isMockPaused ? Pause : mockPlaybackMode === "fast" ? FastForward : Play}
+              prepareActionTitle={isMockPaused ? "一時停止" : mockPlaybackMode === "fast" ? "10.0打鍵/秒プレビュー" : "5.0打鍵/秒プレビュー"}
               stats={{
                 ...initialStats,
                 characterAttempts: visibleMockInput.length,

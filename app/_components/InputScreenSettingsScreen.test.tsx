@@ -153,14 +153,14 @@ describe("InputScreenSettingsScreen", () => {
     expect(previewMarkup).not.toContain('<p class="mode-label">正確無比</p>');
   });
 
-  test("uses the mock primary action as a pause control", () => {
+  test("starts the mock preview in 5.0 keys-per-second playback mode", () => {
     const markup = renderInputScreenSettingsScreen();
     const previewMarkup = getPreviewMarkup(markup);
 
-    expect(previewMarkup).toContain('title="一時停止"');
-    expect(previewMarkup).toContain("lucide-pause");
+    expect(previewMarkup).toContain('title="5.0打鍵/秒プレビュー"');
+    expect(previewMarkup).toContain("lucide-play");
     expect(previewMarkup).toContain('title="リセット"');
-    expect(previewMarkup).not.toContain('title="開始"');
+    expect(previewMarkup).not.toContain('title="一時停止"');
   });
 
   test("treats the input screen mock as two alternating sentences", () => {

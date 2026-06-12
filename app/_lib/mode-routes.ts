@@ -1,4 +1,5 @@
 import type { ModeId, ModeGroup } from "@/src/lib/typing";
+import type { ChallengeLanguage } from "./types";
 
 type ModeRoute = {
   group: ModeGroup;
@@ -40,8 +41,14 @@ export const modeRoutes = [
   },
 ] as const satisfies readonly ModeRoute[];
 
-export function getModePath(modeId: ModeId): string {
-  return modeRoutes.find((route) => route.modeId === modeId)?.path ?? "/";
+export function getModePath(modeId: ModeId, language: ChallengeLanguage = "ja"): string {
+  const path = modeRoutes.find((route) => route.modeId === modeId)?.path ?? "/";
+
+  return language === "en" && path !== "/" ? `/en${path}` : path;
+}
+
+export function getModeSelectPath(language: ChallengeLanguage = "ja"): string {
+  return language === "en" ? "/en" : "/";
 }
 
 export function getRouteModeId(group: string, mode: string): ModeId | null {

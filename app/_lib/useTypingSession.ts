@@ -87,6 +87,7 @@ type PreviousDirectChallengeSnapshot = {
 };
 
 export type UseTypingSessionOptions = {
+  initialChallengeLanguage?: ChallengeLanguage;
   initialModeId?: ModeId;
   initialScreen?: Screen;
 };
@@ -217,19 +218,21 @@ export function applyAutoRetireScorePenalty(score: number) {
 }
 
 export function useTypingSession({
+  initialChallengeLanguage = "ja",
   initialModeId = "practice-accuracy",
   initialScreen = "mode-select",
 }: UseTypingSessionOptions = {}) {
   const initialPracticeChallengeOrder = createOrderedIndexes(
-    getDirectChallenges("ja", "practice").length,
+    getDirectChallenges(initialChallengeLanguage, "practice").length,
   );
   const initialProductionChallengeOrder = createOrderedIndexes(
-    getDirectChallenges("ja", "production").length,
+    getDirectChallenges(initialChallengeLanguage, "production").length,
   );
   const [stored, setStored] = useState<StoredState>(getInitialStoredState);
   const [modeId, setModeId] = useState<ModeId>(initialModeId);
   const [screen, setScreen] = useState<Screen>(initialScreen);
-  const [challengeLanguage, setChallengeLanguage] = useState<ChallengeLanguage>("ja");
+  const [challengeLanguage, setChallengeLanguage] =
+    useState<ChallengeLanguage>(initialChallengeLanguage);
   const [productionDuration, setProductionDuration] = useState<ProductionDuration>(300);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [practiceChallengeOrder, setPracticeChallengeOrder] = useState(

@@ -5,12 +5,14 @@ import type { ProductionModePlayability } from "../_lib/release-gates";
 import { ModeSelectScreen } from "./ModeSelectScreen";
 
 function renderModeSelectScreen({
+  challengeLanguage = "ja",
   productionPlayableModes = {
     "production-ime-off": true,
     "production-ime-on": true,
   },
   productionUnlocked = true,
 }: {
+  challengeLanguage?: "ja" | "en";
   productionPlayableModes?: Partial<ProductionModePlayability>;
   productionUnlocked?: boolean;
 } = {}) {
@@ -22,7 +24,7 @@ function renderModeSelectScreen({
 
   return renderToStaticMarkup(
     <ModeSelectScreen
-      challengeLanguage="ja"
+      challengeLanguage={challengeLanguage}
       productionDuration={300}
       productionDurations={productionDurations}
       productionPlayableModes={playableModes}
@@ -79,9 +81,26 @@ describe("ModeSelectScreen", () => {
     expect(markup).toContain('href="/production/ime-on"');
   });
 
+  test("links English challenges to their separate mode URLs", () => {
+    const markup = renderModeSelectScreen({
+      challengeLanguage: "en",
+      productionUnlocked: true,
+    });
+
+    expect(markup).toContain('href="/en/practice/accuracy"');
+    expect(markup).toContain('href="/en/production/ime-off"');
+  });
+
   test("places the challenge language selector above the modes heading", () => {
     const markup = renderModeSelectScreen();
 
     expect(markup.indexOf('class="language-switch"')).toBeLessThan(markup.indexOf("Modes"));
+  });
+
+  test("links challenge language choices to their mode select paths", () => {
+    const markup = renderModeSelectScreen({ challengeLanguage: "en" });
+
+    expect(markup).toContain('href="/"');
+    expect(markup).toContain('href="/en"');
   });
 });

@@ -1,24 +1,7 @@
 "use client";
 
-import { AppShell } from "./_components/AppShell";
-import { ModeSelectScreen } from "./_components/ModeSelectScreen";
-import { productionDurations } from "./_lib/constants";
+import { ModeSelectPage } from "./_components/ModeSelectPage";
 
 export default function Home() {
-  return (
-    <AppShell>
-      {(session) => (
-        <ModeSelectScreen
-          challengeLanguage={session.challengeLanguage}
-          productionDuration={session.productionDuration}
-          productionDurations={productionDurations}
-          productionPlayableModes={session.productionPlayableModes}
-          productionUnlocked={session.productionUnlocked}
-          soundSettings={session.settings}
-          onChangeChallengeLanguage={session.changeChallengeLanguage}
-          onProductionDurationChange={session.setProductionDuration}
-        />
-      )}
-    </AppShell>
-  );
+  return <ModeSelectPage />;
 }

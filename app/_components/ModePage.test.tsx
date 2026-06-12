@@ -6,10 +6,11 @@ describe("ModePage", () => {
     const source = readFileSync("app/_components/ModePage.tsx", "utf8");
     const backHandler = source.slice(
       source.indexOf("onBackToModeSelect={() => {"),
-      source.indexOf('router.push("/");') + 'router.push("/");'.length,
+      source.indexOf("router.push(getModeSelectPath(challengeLanguage));") +
+        "router.push(getModeSelectPath(challengeLanguage));".length,
     );
 
-    expect(backHandler).toContain('router.push("/");');
+    expect(backHandler).toContain("router.push(getModeSelectPath(challengeLanguage));");
     expect(backHandler).not.toContain("session.typingPanelProps.onBackToModeSelect();");
   });
 });

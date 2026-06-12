@@ -5,7 +5,7 @@ import Link from "next/link";
 import { modes, type ModeId, type TypingMode } from "@/src/lib/typing";
 import { challengeLanguages } from "../_lib/constants";
 import { css } from "../_lib/css-module";
-import { getModePath } from "../_lib/mode-routes";
+import { getModePath, getModeSelectPath } from "../_lib/mode-routes";
 import {
   ALPHA_PRODUCTION_LOCK_MESSAGE,
   type ProductionModeId,
@@ -75,16 +75,17 @@ export function ModeSelectScreen({
         <span className={css(styles, "language-switch-label")}>Text</span>
         <div className={css(styles, "language-switch")} aria-label="challenge language">
           {challengeLanguages.map((language) => (
-            <button
+            <Link
               aria-pressed={challengeLanguage === language.id}
               className={challengeLanguage === language.id ? css(styles, "selected") : ""}
+              href={getModeSelectPath(language.id)}
               key={language.id}
               onClick={() => handleLanguageChange(language.id)}
-              type="button"
+              role="button"
             >
               <img className={css(styles, "flag-icon")} src={language.flagSrc} alt="" aria-hidden="true" />
               {language.label}
-            </button>
+            </Link>
           ))}
         </div>
       </div>
@@ -112,6 +113,7 @@ export function ModeSelectScreen({
                   key={item.id}
                   locked={false}
                   mode={item}
+                  challengeLanguage={challengeLanguage}
                   onSelect={() => handleSelectMode(item.id)}
                 />
               ))}
@@ -157,6 +159,7 @@ export function ModeSelectScreen({
                   }
                   locked={!productionPlayable || !productionUnlocked}
                   mode={item}
+                  challengeLanguage={challengeLanguage}
                   onSelect={() => handleSelectMode(item.id)}
                 />
               );
@@ -169,12 +172,14 @@ export function ModeSelectScreen({
 }
 
 function ModeSelectCard({
+  challengeLanguage,
   lockLabel,
   lockReason,
   locked,
   mode,
   onSelect,
 }: {
+  challengeLanguage: ChallengeLanguage;
   lockLabel?: string;
   lockReason?: string;
   locked: boolean;
@@ -207,7 +212,7 @@ function ModeSelectCard({
     return (
       <Link
         className={css(styles, "mode-select-card")}
-        href={getModePath(mode.id)}
+        href={getModePath(mode.id, challengeLanguage)}
         onClick={onSelect}
         title={mode.description}
       >

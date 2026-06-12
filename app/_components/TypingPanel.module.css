@@ -50,6 +50,10 @@
   display: none;
 }
 
+.previewPanel .challengeTip {
+  display: none;
+}
+
 .modeLabel {
   margin: 0 0 6px;
   color: var(--accent);
@@ -576,6 +580,18 @@
   }
 }
 
+@keyframes challenge-tip-fade-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
 .typingInput {
   display: block;
   width: 100%;
@@ -589,6 +605,38 @@
   padding: 16px;
   font-size: 18px;
   line-height: 1.7;
+}
+
+.challengeTip {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 0;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.challengeTip strong {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.challengeTip span {
+  min-width: 0;
+}
+
+.challengeTip.exiting {
+  animation: challenge-tip-fade-out 260ms ease forwards;
+  pointer-events: none;
 }
 
 .challengeAnalysis {
@@ -843,5 +891,11 @@
 
   .sessionHead {
       display: grid;
+    }
+
+  .challengeTip {
+      align-items: start;
+      flex-direction: column;
+      gap: 4px;
     }
 }

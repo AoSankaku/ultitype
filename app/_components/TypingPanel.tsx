@@ -22,7 +22,7 @@ import type {
   RefObject,
   CSSProperties,
 } from "react";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   formatTimer,
   getRomajiInputProgress,
@@ -38,6 +38,12 @@ import {
   type JapaneseReadingGuidePart,
 } from "@/src/lib/challenges";
 import { css, cx } from "../_lib/css-module";
+import {
+  getRandomPostSessionTip,
+  getRandomPreSessionTip,
+  postSessionTips,
+  preSessionTips,
+} from "../_lib/challenge-tips";
 import { topDisplayMetricOptions } from "../_lib/constants";
 import { getVisibleSessionRank } from "../_lib/session-rank-visibility";
 import { type SoundSettings, useTypingSounds } from "../_lib/typing-sounds";
@@ -152,6 +158,8 @@ function cssSelector(...classNames: string[]) {
     .map((className) => `.${className}`)
     .join("");
 }
+
+const challengeTipFadeMs = 260;
 
 export function getDirectInputFocusRetryDelays({
   acceptsTextInput,
@@ -445,6 +453,12 @@ export function TypingPanel({
             )}
           </div>
 
+          <ChallengeTip
+            completedPrompts={stats.completedPrompts}
+            isFinished={isFinished}
+            startedAt={startedAt}
+          />
+
           <CorrectionDebtIndicator debt={correctionDebt} />
 
           <ChallengeAnalysis
@@ -509,6 +523,74 @@ export function TypingPanel({
         </div>
       ) : null}
     </section>
+  );
+}
+
+function ChallengeTip({
+  completedPrompts,
+  isFinished,
+  startedAt,
+}: {
+  completedPrompts: number;
+  isFinished: boolean;
+  startedAt: number | null;
+}) {
+  const phase = isFinished ? "post" : startedAt === null ? "pre" : "running";
+  const fallbackTip =
+    phase === "post"
+      ? postSessionTips[completedPrompts % postSessionTips.length]
+      : preSessionTips[completedPrompts % preSessionTips.length];
+  const [tipState, setTipState] = useState<{
+    isExiting: boolean;
+    phase: "pre" | "post";
+    text: string;
+  } | null>(
+    phase === "running"
+      ? null
+      : {
+          isExiting: false,
+          phase,
+          text: fallbackTip,
+        },
+  );
+
+  useEffect(() => {
+    if (phase === "pre") {
+      setTipState({
+        isExiting: false,
+        phase: "pre",
+        text: getRandomPreSessionTip(),
+      });
+      return;
+    }
+
+    if (phase === "post") {
+      setTipState({
+        isExiting: false,
+        phase: "post",
+        text: getRandomPostSessionTip(),
+      });
+      return;
+    }
+
+    setTipState((previous) => previous && { ...previous, isExiting: true });
+    const fadeTimer = window.setTimeout(() => setTipState(null), challengeTipFadeMs);
+
+    return () => window.clearTimeout(fadeTimer);
+  }, [phase]);
+
+  if (!tipState) {
+    return null;
+  }
+
+  return (
+    <p
+      className={css(styles, "challenge-tip", tipState.isExiting ? "exiting" : "")}
+      aria-label={tipState.phase === "pre" ? "pre-session tip" : "post-session tip"}
+    >
+      <strong>Tips</strong>
+      <span>{tipState.text}</span>
+    </p>
   );
 }
 

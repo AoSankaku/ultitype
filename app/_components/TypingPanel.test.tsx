@@ -1044,6 +1044,47 @@ describe("TypingPanel", () => {
     );
   });
 
+  test("shows a pre-session specification tip below the challenge target before the session starts", () => {
+    const markup = renderTypingPanel({
+      currentDisplay: "abc",
+      currentGuide: "abc",
+    });
+    const targetEnd = markup.indexOf("</div>", markup.indexOf('class="target-view"'));
+    const tipsStart = markup.indexOf('class="challenge-tip"');
+    const analysisStart = markup.indexOf('class="challenge-analysis"');
+
+    expect(markup).toContain('class="challenge-tip" aria-label="pre-session tip"');
+    expect(markup).toContain("<strong>Tips</strong>");
+    expect(markup).toContain("本番モードは開始後の入力だけを採点します。");
+    expect(targetEnd).toBeLessThan(tipsStart);
+    expect(tipsStart).toBeLessThan(analysisStart);
+  });
+
+  test("hides tips while the session is running", () => {
+    const markup = renderTypingPanel({
+      currentDisplay: "abc",
+      currentGuide: "abc",
+      startedAt: 1000,
+    });
+
+    expect(markup).not.toContain('class="challenge-tip"');
+    expect(markup).not.toContain('aria-label="pre-session tip"');
+    expect(markup).not.toContain('aria-label="post-session tip"');
+  });
+
+  test("shows a post-session typing advice tip after the session finishes", () => {
+    const markup = renderTypingPanel({
+      currentDisplay: "abc",
+      currentGuide: "abc",
+      isFinished: true,
+      startedAt: 1000,
+    });
+
+    expect(markup).toContain('class="challenge-tip" aria-label="post-session tip"');
+    expect(markup).toContain("肩と手首の力を抜き");
+    expect(markup).not.toContain("本番モードは開始後の入力だけを採点します。");
+  });
+
   test("shows furigana above the Japanese display text by default", () => {
     const romajiTarget = createRomajiInputTarget("kaisekikekka", {
       allowSplitYoon: true,

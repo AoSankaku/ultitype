@@ -271,6 +271,11 @@ export function TypingPanel({
   const scoreLabel = `${scorePrefix}${Math.round(metrics.score).toLocaleString()} pts`;
   const visiblePrepareActionTitle = prepareActionTitle ?? "開始";
   const showDisplayText = challengeLanguage !== "ja" || showKanjiDisplay;
+  const targetViewClassName = css(
+    styles,
+    "target-view",
+    challengeLanguage !== "ja" ? "english-target-view" : "",
+  );
   const targetViewStyle = {
     "--target-kanji-font-size": `${kanjiFontSize}px`,
     "--target-furigana-font-scale": `${furiganaFontScale}em`,
@@ -399,7 +404,7 @@ export function TypingPanel({
         </div>
       ) : (
         <>
-          <div className={css(styles, "target-view")} aria-label="current challenge" style={targetViewStyle}>
+          <div className={targetViewClassName} aria-label="current challenge" style={targetViewStyle}>
             {mode.requiresIme ? (
               <>
                 {showDisplayText ? (

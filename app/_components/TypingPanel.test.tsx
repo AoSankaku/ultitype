@@ -338,6 +338,25 @@ describe("TypingPanel", () => {
     expect(markup).toContain("--target-romaji-margin-bottom:3px");
   });
 
+  test("marks only English challenge targets as compact", () => {
+    const englishMarkup = renderTypingPanel({
+      challengeLanguage: "en",
+      currentDisplay: "short text",
+      currentGuide: "short text",
+    });
+    const japaneseMarkup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "短文",
+      currentGuide: "tanbun",
+      currentReading: "たんぶん",
+      currentRomajiTarget: createTestRomajiTarget("tanbun"),
+    });
+
+    expect(englishMarkup).toContain('class="target-view english-target-view"');
+    expect(japaneseMarkup).toContain('class="target-view"');
+    expect(japaneseMarkup).not.toContain("english-target-view");
+  });
+
   test("shows split slide next challenge with the same text stack in the lower lane", () => {
     const nextRomajiTarget = createTestRomajiTarget("tsugi");
     const markup = renderTypingPanel({

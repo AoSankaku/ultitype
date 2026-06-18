@@ -985,6 +985,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   <span aria-hidden="true" />
                 </label>
               </section>
+              {settings.showKanjiDisplay ? (
+                <>
               <FontSizeSettingRow
                 ariaLabel="kanji font size"
                 defaultValue={initialSettings.kanjiFontSize}
@@ -1038,6 +1040,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   ) : null}
                 </label>
               </section>
+                </>
+              ) : null}
             </div>
           </section>
 
@@ -1079,6 +1083,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   ) : null}
                 </label>
               </section>
+              {showFuriganaDisplay ? (
+                <>
               <FontScaleSettingRow
                 disabled={!showFuriganaDisplay}
                 onChange={updateFuriganaFontScale}
@@ -1127,6 +1133,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   ) : null}
                 </label>
               </section>
+                </>
+              ) : null}
             </div>
           </section>
 
@@ -1159,6 +1167,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   <span aria-hidden="true" />
                 </label>
               </section>
+              {settings.showHiraganaDisplay ? (
+                <>
               <FontSizeSettingRow
                 ariaLabel="hiragana font size"
                 defaultValue={initialSettings.hiraganaFontSize}
@@ -1212,6 +1222,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   ) : null}
                 </label>
               </section>
+                </>
+              ) : null}
             </div>
           </section>
 

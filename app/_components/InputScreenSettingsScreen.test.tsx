@@ -65,6 +65,19 @@ function getInputScreenSubcategoryIds(markup: string) {
   );
 }
 
+function getInputScreenSubcategoryMarkup(markup: string, subcategoryId: string) {
+  const categoryMarkup = getCategoryMarkup(markup, "input-screen-settings");
+  const titleIndex = categoryMarkup.indexOf(`id="${subcategoryId}"`);
+  const sectionStartIndex = categoryMarkup.lastIndexOf("<section", titleIndex);
+  const nextSectionIndex = categoryMarkup.indexOf(
+    '<section class="settings-subcategory"',
+    titleIndex + 1,
+  );
+  const endIndex = nextSectionIndex >= 0 ? nextSectionIndex : categoryMarkup.length;
+
+  return sectionStartIndex >= 0 ? categoryMarkup.slice(sectionStartIndex, endIndex) : "";
+}
+
 function getCategoryOptionLabels(markup: string, categoryId: string) {
   const categoryMarkup = getCategoryMarkup(markup, categoryId);
 
@@ -441,7 +454,7 @@ describe("InputScreenSettingsScreen", () => {
     expect(previewModeMarkup).toContain('aria-pressed="true"');
   });
 
-  test("locks the furigana font scale while furigana is hidden", () => {
+  test("hides the furigana font scale while furigana is hidden", () => {
     const markup = renderInputScreenSettingsScreen({
       ...initialSettings,
       showFuriganaDisplay: false,
@@ -452,13 +465,8 @@ describe("InputScreenSettingsScreen", () => {
       "furigana-font-scale-setting",
     );
 
-    expect(furiganaScaleMarkup).toContain('aria-label="furigana font scale"');
-    expect(furiganaScaleMarkup).toContain('disabled=""');
-    expect(furiganaScaleMarkup).toContain('class="number-lock-icon"');
-    expect(furiganaScaleMarkup).toContain('aria-label="furigana font scale を増やす" disabled=""');
-    expect(furiganaScaleMarkup).toContain('aria-label="furigana font scale を減らす" disabled=""');
-    expect(furiganaScaleMarkup).toContain('aria-label="furigana font scale を初期値に戻す"');
-    expect(furiganaScaleMarkup).toContain('class="number-reset-button" disabled=""');
+    expect(inputScreenMarkup).toContain("ふりがな表示");
+    expect(furiganaScaleMarkup).toBe("");
   });
 
   test("shows all top display metric choices without requiring remaining time", () => {
@@ -549,6 +557,46 @@ describe("InputScreenSettingsScreen", () => {
     );
   });
 
+  test("hides kanji, furigana, and hiragana detail settings when their display is off", () => {
+    const markup = renderInputScreenSettingsScreen({
+      ...initialSettings,
+      showFuriganaDisplay: false,
+      showHiraganaDisplay: false,
+      showKanjiDisplay: false,
+    });
+    const kanjiMarkup = getInputScreenSubcategoryMarkup(markup, "kanji-input-screen-settings");
+    const furiganaMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "furigana-input-screen-settings",
+    );
+    const hiraganaMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "hiragana-input-screen-settings",
+    );
+
+    expect(kanjiMarkup).toContain("settings-subcategory");
+    expect(kanjiMarkup).toContain('aria-label="漢字表示"');
+    expect(kanjiMarkup).toContain("漢字表示</h4>");
+    expect(kanjiMarkup).not.toContain("漢字マーカー");
+    expect(kanjiMarkup).not.toContain("漢字フォントサイズ");
+    expect(kanjiMarkup).not.toContain("漢字の行間");
+    expect(kanjiMarkup).not.toContain("漢字の下余白");
+    expect(furiganaMarkup).toContain("settings-subcategory");
+    expect(furiganaMarkup).toContain('aria-label="ふりがな表示"');
+    expect(furiganaMarkup).toContain("ふりがな表示</h4>");
+    expect(furiganaMarkup).not.toContain("ふりがなマーカー");
+    expect(furiganaMarkup).not.toContain("ふりがなフォント倍率");
+    expect(furiganaMarkup).not.toContain("ふりがなの行間");
+    expect(furiganaMarkup).not.toContain("ふりがなの下余白");
+    expect(hiraganaMarkup).toContain("settings-subcategory");
+    expect(hiraganaMarkup).toContain('aria-label="ひらがな表示"');
+    expect(hiraganaMarkup).toContain("ひらがな表示</h4>");
+    expect(hiraganaMarkup).not.toContain("ひらがなマーカー");
+    expect(hiraganaMarkup).not.toContain("ひらがなフォントサイズ");
+    expect(hiraganaMarkup).not.toContain("ひらがなの行間");
+    expect(hiraganaMarkup).not.toContain("ひらがなの下余白");
+  });
+
   test("shows romaji marker mode choices under the romaji input screen group", () => {
     const markup = renderInputScreenSettingsScreen();
     const inputScreenMarkup = getCategoryMarkup(markup, "input-screen-settings");
@@ -565,7 +613,7 @@ describe("InputScreenSettingsScreen", () => {
     expect(rowMarkup).toContain('aria-pressed="true"');
   });
 
-  test("locks marker toggles when matching display targets are hidden", () => {
+  test("hides marker toggles when matching display targets are hidden", () => {
     const markup = renderInputScreenSettingsScreen({
       ...initialSettings,
       showFuriganaDisplay: true,
@@ -588,15 +636,9 @@ describe("InputScreenSettingsScreen", () => {
     );
     const romajiMarkerMarkup = getSettingRowMarkup(inputScreenMarkup, "romaji-marker-setting");
 
-    expect(kanjiMarkerMarkup).toContain('disabled=""');
-    expect(kanjiMarkerMarkup).toContain('class="toggle-lock-icon"');
-    expect(kanjiMarkerMarkup).not.toContain('checked=""');
-    expect(furiganaMarkerMarkup).toContain('disabled=""');
-    expect(furiganaMarkerMarkup).toContain('class="toggle-lock-icon"');
-    expect(furiganaMarkerMarkup).not.toContain('checked=""');
-    expect(hiraganaMarkerMarkup).toContain('disabled=""');
-    expect(hiraganaMarkerMarkup).toContain('class="toggle-lock-icon"');
-    expect(hiraganaMarkerMarkup).not.toContain('checked=""');
+    expect(kanjiMarkerMarkup).toBe("");
+    expect(furiganaMarkerMarkup).toBe("");
+    expect(hiraganaMarkerMarkup).toBe("");
     expect(romajiMarkerMarkup).not.toContain('disabled=""');
     expect(romajiMarkerMarkup).not.toContain('class="toggle-lock-icon"');
     expect(romajiMarkerMarkup).toContain('checked=""');

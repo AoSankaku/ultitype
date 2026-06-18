@@ -964,6 +964,8 @@ export function useTypingSession({
       showKanjiMarker: stored.settings.showKanjiMarker,
       showRomajiMarker: stored.settings.showRomajiMarker,
       romajiMarkerMode: stored.settings.romajiMarkerMode,
+      japaneseFontFamily: stored.settings.japaneseFontFamily,
+      englishFontFamily: stored.settings.englishFontFamily,
       kanjiFontSize: stored.settings.kanjiFontSize,
       furiganaFontScale: stored.settings.furiganaFontScale,
       hiraganaFontSize: stored.settings.hiraganaFontSize,

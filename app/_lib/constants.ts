@@ -1,6 +1,8 @@
 import type {
   AppSettings,
   ChallengeLanguage,
+  EnglishFontFamily,
+  JapaneseFontFamily,
   ProductionDuration,
   RuntimeStats,
   StoredState,
@@ -59,6 +61,82 @@ export const defaultTopDisplayMetricIds = [
   "completedPrompts",
 ] as const satisfies readonly TopDisplayMetricId[];
 
+export const japaneseFontFamilyOptions = [
+  {
+    id: "noto-sans-jp",
+    label: "Noto Sans JP",
+    cssFamily: '"Noto Sans JP"',
+  },
+  {
+    id: "biz-udp-gothic",
+    label: "BIZ UDPGothic",
+    cssFamily: '"BIZ UDPGothic"',
+  },
+  {
+    id: "m-plus-1",
+    label: "M PLUS 1",
+    cssFamily: '"M PLUS 1"',
+  },
+  {
+    id: "noto-serif-jp",
+    label: "Noto Serif JP",
+    cssFamily: '"Noto Serif JP"',
+  },
+] as const satisfies readonly {
+  id: JapaneseFontFamily;
+  label: string;
+  cssFamily: string;
+}[];
+
+export const englishFontFamilyOptions = [
+  {
+    id: "inter",
+    label: "Inter",
+    cssFamily: '"Inter"',
+  },
+  {
+    id: "roboto",
+    label: "Roboto",
+    cssFamily: '"Roboto"',
+  },
+  {
+    id: "noto-sans",
+    label: "Noto Sans",
+    cssFamily: '"Noto Sans"',
+  },
+  {
+    id: "source-code-pro",
+    label: "Source Code Pro",
+    cssFamily: '"Source Code Pro"',
+  },
+] as const satisfies readonly {
+  id: EnglishFontFamily;
+  label: string;
+  cssFamily: string;
+}[];
+
+export function isJapaneseFontFamily(value: unknown): value is JapaneseFontFamily {
+  return japaneseFontFamilyOptions.some((option) => option.id === value);
+}
+
+export function isEnglishFontFamily(value: unknown): value is EnglishFontFamily {
+  return englishFontFamilyOptions.some((option) => option.id === value);
+}
+
+export function getJapaneseFontFamilyCss(value: JapaneseFontFamily) {
+  return (
+    japaneseFontFamilyOptions.find((option) => option.id === value)?.cssFamily ??
+    japaneseFontFamilyOptions[0].cssFamily
+  );
+}
+
+export function getEnglishFontFamilyCss(value: EnglishFontFamily) {
+  return (
+    englishFontFamilyOptions.find((option) => option.id === value)?.cssFamily ??
+    englishFontFamilyOptions[0].cssFamily
+  );
+}
+
 export const initialStats: RuntimeStats = {
   keystrokes: 0,
   scoredInputLength: 0,
@@ -84,6 +162,8 @@ export const initialSettings: AppSettings = {
   showHiraganaMarker: true,
   showRomajiMarker: true,
   romajiMarkerMode: "character",
+  japaneseFontFamily: "noto-sans-jp",
+  englishFontFamily: "inter",
   kanjiFontSize: 32,
   furiganaFontScale: 0.42,
   hiraganaFontSize: 24,

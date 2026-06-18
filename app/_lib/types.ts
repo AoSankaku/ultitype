@@ -12,6 +12,16 @@ export type ChallengeLanguage = "ja" | "en";
 export type Theme = "dark" | "light";
 export type StrictMistakeDisplayMode = "overwrite" | "insert" | "none";
 export type RomajiMarkerMode = "character" | "token";
+export type JapaneseFontFamily =
+  | "noto-sans-jp"
+  | "biz-udp-gothic"
+  | "m-plus-1"
+  | "noto-serif-jp";
+export type EnglishFontFamily =
+  | "inter"
+  | "roboto"
+  | "noto-sans"
+  | "source-code-pro";
 export type NextChallengePreviewMode =
   | "none"
   | "split-slide"
@@ -50,6 +60,8 @@ export type AppSettings = {
   showHiraganaMarker: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
+  japaneseFontFamily: JapaneseFontFamily;
+  englishFontFamily: EnglishFontFamily;
   kanjiFontSize: number;
   furiganaFontScale: number;
   hiraganaFontSize: number;

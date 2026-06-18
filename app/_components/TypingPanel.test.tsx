@@ -7,6 +7,8 @@ import { postSessionTips, preSessionTips } from "../_lib/challenge-tips";
 import {
   TypingPanel,
   calculateProductionLongScrollLines,
+  calculateScaledCenterScrollTranslate,
+  createCenterScrollMeasurementKey,
   getDirectInputFocusRetryDelays,
 } from "./TypingPanel";
 
@@ -62,6 +64,8 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     showKanjiMarker: false,
     showRomajiMarker: true,
     romajiMarkerMode: "character",
+    englishFontFamily: initialSettings.englishFontFamily,
+    japaneseFontFamily: initialSettings.japaneseFontFamily,
     kanjiFontSize: initialSettings.kanjiFontSize,
     furiganaFontScale: initialSettings.furiganaFontScale,
     hiraganaFontSize: initialSettings.hiraganaFontSize,
@@ -339,6 +343,16 @@ describe("TypingPanel", () => {
     expect(markup).toContain("--target-romaji-margin-bottom:3px");
   });
 
+  test("applies configured input screen font families to the target view", () => {
+    const markup = renderTypingPanel({
+      englishFontFamily: "source-code-pro",
+      japaneseFontFamily: "noto-serif-jp",
+    });
+
+    expect(markup).toContain("--target-japanese-font-family:&quot;Noto Serif JP&quot;");
+    expect(markup).toContain("--target-english-font-family:&quot;Source Code Pro&quot;");
+  });
+
   test("marks only English challenge targets as compact", () => {
     const englishMarkup = renderTypingPanel({
       challengeLanguage: "en",
@@ -610,10 +624,37 @@ describe("TypingPanel", () => {
       nextChallengeRomajiTarget: createTestRomajiTarget("asu"),
     });
 
-    expect(markup).toContain('<ruby class="display-ruby">今<rt>きょ</rt></ruby>');
-    expect(markup).toContain('<ruby class="display-ruby">日<rt>う</rt></ruby>');
+    expect(markup).toContain('<ruby class="display-ruby"><span class="display-ruby-base">今</span><rt>きょ</rt></ruby>');
+    expect(markup).toContain('<ruby class="display-ruby"><span class="display-ruby-base">日</span><rt>う</rt></ruby>');
     expect(markup).toContain(
       '<span aria-hidden="true" class="center-scroll-current-marker"></span><ruby',
+    );
+  });
+
+  test("wraps center scroll ruby base text so kanji alignment ignores wide furigana", () => {
+    const currentRomajiTarget = createTestRomajiTarget("washi");
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "儂",
+      currentFurigana: [{ text: "儂", ruby: "わし" }],
+      currentGuide: currentRomajiTarget.guide,
+      currentReading: "わし",
+      currentRomajiTarget,
+      input: "wa",
+      nextChallengeDisplay: "次",
+      nextChallengeGuide: "tsugi",
+      nextChallengePreview: "次",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "つぎ",
+      nextChallengeRomajiTarget: createTestRomajiTarget("tsugi"),
+      stats: {
+        ...initialStats,
+        completedPrompts: 1,
+      },
+    });
+
+    expect(markup).toContain(
+      '<ruby class="display-ruby"><span class="display-ruby-base">儂</span><rt>わし</rt></ruby>',
     );
   });
 
@@ -870,6 +911,43 @@ describe("TypingPanel", () => {
 
     expect(markup).toContain("--center-marker-position:10ch");
     expect(markup.match(/--center-marker-position:10ch/g)?.length).toBe(3);
+  });
+
+  test("remeasures center scroll alignment when the configured fonts change", () => {
+    const baseKey = createCenterScrollMeasurementKey({
+      englishFontFamily: "inter",
+      input: "abc",
+      japaneseFontFamily: "noto-sans-jp",
+      markerPosition: 3,
+    });
+
+    expect(
+      createCenterScrollMeasurementKey({
+        englishFontFamily: "inter",
+        input: "abc",
+        japaneseFontFamily: "noto-serif-jp",
+        markerPosition: 3,
+      }),
+    ).not.toBe(baseKey);
+    expect(
+      createCenterScrollMeasurementKey({
+        englishFontFamily: "source-code-pro",
+        input: "abc",
+        japaneseFontFamily: "noto-sans-jp",
+        markerPosition: 3,
+      }),
+    ).not.toBe(baseKey);
+  });
+
+  test("converts measured center scroll movement into the viewport local scale", () => {
+    expect(
+      calculateScaledCenterScrollTranslate({
+        scaleX: 0.5,
+        startsAtLeft: false,
+        targetCenter: 600,
+        viewportCenter: 400,
+      }),
+    ).toBe(-400);
   });
 
   test("does not animate center scroll text on each typed key", () => {

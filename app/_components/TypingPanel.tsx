@@ -44,12 +44,18 @@ import {
   postSessionTips,
   preSessionTips,
 } from "../_lib/challenge-tips";
-import { topDisplayMetricOptions } from "../_lib/constants";
+import {
+  getEnglishFontFamilyCss,
+  getJapaneseFontFamilyCss,
+  topDisplayMetricOptions,
+} from "../_lib/constants";
 import { getVisibleSessionRank } from "../_lib/session-rank-visibility";
 import { type SoundSettings, useTypingSounds } from "../_lib/typing-sounds";
 import type {
   ChallengeLanguage,
+  EnglishFontFamily,
   FinishReason,
+  JapaneseFontFamily,
   KeyStabilitySample,
   MistakeFlash,
   NextChallengePreviewMode,
@@ -110,6 +116,8 @@ type TypingPanelProps = {
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
+  japaneseFontFamily: JapaneseFontFamily;
+  englishFontFamily: EnglishFontFamily;
   kanjiFontSize: number;
   furiganaFontScale: number;
   hiraganaFontSize: number;
@@ -217,6 +225,8 @@ export function TypingPanel({
   showKanjiMarker,
   showRomajiMarker,
   romajiMarkerMode,
+  japaneseFontFamily,
+  englishFontFamily,
   kanjiFontSize,
   furiganaFontScale,
   hiraganaFontSize,
@@ -277,6 +287,8 @@ export function TypingPanel({
     challengeLanguage !== "ja" ? "english-target-view" : "",
   );
   const targetViewStyle = {
+    "--target-japanese-font-family": getJapaneseFontFamilyCss(japaneseFontFamily),
+    "--target-english-font-family": getEnglishFontFamilyCss(englishFontFamily),
     "--target-kanji-font-size": `${kanjiFontSize}px`,
     "--target-furigana-font-scale": `${furiganaFontScale}em`,
     "--target-hiragana-font-size": `${hiraganaFontSize}px`,
@@ -424,9 +436,11 @@ export function TypingPanel({
             ) : (
               <DirectChallengeView
                 display={currentDisplay}
+                englishFontFamily={englishFontFamily}
                 furigana={currentFurigana}
                 guide={currentGuide}
                 input={input}
+                japaneseFontFamily={japaneseFontFamily}
                 mistakeFlash={mistakeFlash}
                 nextChallengeDisplay={nextChallengeDisplay}
                 nextChallengeFurigana={nextChallengeFurigana}
@@ -951,9 +965,11 @@ function MetricSplitValue({ left, right }: { left: number; right: number }) {
 
 function DirectChallengeView({
   display,
+  englishFontFamily,
   furigana,
   guide,
   input,
+  japaneseFontFamily,
   mistakeFlash,
   nextChallengeDisplay,
   nextChallengeFurigana,
@@ -983,9 +999,11 @@ function DirectChallengeView({
   strictMistakeInput,
 }: {
   display: string;
+  englishFontFamily: EnglishFontFamily;
   furigana: JapaneseFuriganaEntry[];
   guide: string;
   input: string;
+  japaneseFontFamily: JapaneseFontFamily;
   mistakeFlash: MistakeFlash | null;
   nextChallengeDisplay: string;
   nextChallengeFurigana: JapaneseFuriganaEntry[];
@@ -1063,9 +1081,11 @@ function DirectChallengeView({
     return (
       <ProductionDirectChallengeView
         display={display}
+        englishFontFamily={englishFontFamily}
         furigana={furigana}
         guide={guide}
         input={input}
+        japaneseFontFamily={japaneseFontFamily}
         mistakeFlash={mistakeFlash}
         nextChallengeDisplay={nextChallengeDisplay}
         nextChallengeFurigana={nextChallengeFurigana}
@@ -1101,9 +1121,11 @@ function DirectChallengeView({
       <div className={css(styles, "challenge-preview-layout center-scroll")}>
         <ContinuousChallengeTextStack
           display={display}
+          englishFontFamily={englishFontFamily}
           furigana={furigana}
           guide={guide}
           input={input}
+          japaneseFontFamily={japaneseFontFamily}
           mistakeFlash={mistakeFlash}
           nextChallengeDisplay={nextChallengeDisplay}
           nextChallengeFurigana={nextChallengeFurigana}
@@ -1181,9 +1203,11 @@ function NextChallengePreviewLane({
 
 function ProductionDirectChallengeView({
   display,
+  englishFontFamily,
   furigana,
   guide,
   input,
+  japaneseFontFamily,
   mistakeFlash,
   nextChallengeDisplay,
   nextChallengeFurigana,
@@ -1208,9 +1232,11 @@ function ProductionDirectChallengeView({
   strictMistakeInput,
 }: {
   display: string;
+  englishFontFamily: EnglishFontFamily;
   furigana: JapaneseFuriganaEntry[];
   guide: string;
   input: string;
+  japaneseFontFamily: JapaneseFontFamily;
   mistakeFlash: MistakeFlash | null;
   nextChallengeDisplay: string;
   nextChallengeFurigana: JapaneseFuriganaEntry[];
@@ -1253,9 +1279,11 @@ function ProductionDirectChallengeView({
         <div className={css(styles, "challenge-preview-layout center-scroll production-direct-inputs")}>
           <ContinuousChallengeTextStack
             display=""
+            englishFontFamily={englishFontFamily}
             furigana={[]}
             guide={guide}
             input={input}
+            japaneseFontFamily={japaneseFontFamily}
             mistakeFlash={mistakeFlash}
             nextChallengeDisplay=""
             nextChallengeFurigana={[]}
@@ -2115,9 +2143,11 @@ function renderRomajiGuideSegmentCharacters(
 
 function ContinuousChallengeTextStack({
   display,
+  englishFontFamily,
   furigana,
   guide,
   input,
+  japaneseFontFamily,
   mistakeFlash,
   nextChallengeDisplay,
   nextChallengeFurigana,
@@ -2142,9 +2172,11 @@ function ContinuousChallengeTextStack({
   strictMistakeInput,
 }: {
   display: string;
+  englishFontFamily: EnglishFontFamily;
   furigana: JapaneseFuriganaEntry[];
   guide: string;
   input: string;
+  japaneseFontFamily: JapaneseFontFamily;
   mistakeFlash: MistakeFlash | null;
   nextChallengeDisplay: string;
   nextChallengeFurigana: JapaneseFuriganaEntry[];
@@ -2170,7 +2202,12 @@ function ContinuousChallengeTextStack({
 }) {
   const hasSeparateDisplay = display !== guide;
   const centerMarkerPosition = getCenterMarkerPosition(romajiTarget, input);
-  const centerMarkerKey = `${centerMarkerPosition}-${input}`;
+  const centerMarkerKey = createCenterScrollMeasurementKey({
+    englishFontFamily,
+    input,
+    japaneseFontFamily,
+    markerPosition: centerMarkerPosition,
+  });
 
   return (
     <div className={css(styles, "center-continuous-stack")}>
@@ -2307,63 +2344,59 @@ function CenterScrollViewport({
       return;
     }
 
-    const line = viewport.querySelector<HTMLElement>(cssSelector("center-continuous-line"));
-    const marker = viewport.querySelector<HTMLElement>(
-      [
-        cssSelector("center-scroll-current-marker"),
-        cssSelector("furigana-marker-current"),
-        cssSelector("kanji-marker-current"),
-        `${cssSelector("char", "current")}:not(${cssSelector("correct")})`,
-        cssSelector("char", "current"),
-      ].join(", "),
-    );
-    if (!marker) {
-      setMarkerTranslatePx(null);
-      return;
-    }
+    let isCancelled = false;
+    let animationFrameId: number | null = null;
 
-    const previousLineTransition = line?.style.transition ?? "";
-    const previousLineTransform = line?.style.transform ?? "";
-    if (line) {
-      line.style.transition = "none";
-      line.style.transform = "none";
-    }
+    const updateTranslate = () => {
+      if (isCancelled) {
+        return;
+      }
 
-    const viewportRect = viewport.getBoundingClientRect();
-    const markerRect = marker.getBoundingClientRect();
-    let targetCenter = markerRect.left - viewportRect.left + markerRect.width / 2;
+      setMarkerTranslatePx(measureCenterScrollTranslate(viewport, kind, startsAtLeft));
+    };
 
-    // The display (kanji) and reading (kana) lines anchor on a zero-width marker
-    // placed right before the unit currently being typed. Centering that marker
-    // would put the unit's LEFT EDGE on the center line, leaving the glyph half a
-    // character to the right and breaking vertical alignment with the romaji line
-    // (which centers the current character's midpoint). Instead, center the unit
-    // itself (the element right after the marker) by its measured midpoint, so the
-    // current kanji / current kana / current romaji char all stack in one column.
-    // Measuring here (vs a fixed CSS offset) also keeps the first challenge flush
-    // left under startsAtLeft instead of bleeding off the left edge.
-    if (kind === "display" || kind === "reading") {
-      const unit = marker.nextElementSibling as HTMLElement | null;
-      const isNextChallengeText =
-        unit?.classList.contains(css(styles, "center-scroll-next-text")) ?? false;
-      if (unit && !isNextChallengeText) {
-        const unitRect = unit.getBoundingClientRect();
-        if (unitRect.width > 0) {
-          targetCenter = unitRect.left - viewportRect.left + unitRect.width / 2;
-        }
+    const scheduleUpdate = () => {
+      if (isCancelled || animationFrameId !== null) {
+        return;
+      }
+
+      animationFrameId = requestAnimationFrame(() => {
+        animationFrameId = null;
+        updateTranslate();
+      });
+    };
+
+    updateTranslate();
+    scheduleUpdate();
+
+    const fontSet = document.fonts;
+    void fontSet?.ready.then(scheduleUpdate);
+    fontSet?.addEventListener?.("loadingdone", scheduleUpdate);
+
+    const resizeObserver =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(scheduleUpdate);
+    if (resizeObserver) {
+      resizeObserver.observe(viewport);
+
+      const line = viewport.querySelector<HTMLElement>(cssSelector("center-continuous-line"));
+      if (line) {
+        resizeObserver.observe(line);
+      }
+
+      const marker = viewport.querySelector<HTMLElement>(centerScrollMarkerSelector);
+      if (marker) {
+        resizeObserver.observe(marker);
       }
     }
 
-    const viewportCenter = viewportRect.width / 2;
-    const nextTranslate =
-      startsAtLeft && targetCenter <= viewportCenter ? 0 : viewportCenter - targetCenter;
-
-    if (line) {
-      line.style.transition = previousLineTransition;
-      line.style.transform = previousLineTransform;
-    }
-
-    setMarkerTranslatePx(Math.round(nextTranslate * 10) / 10);
+    return () => {
+      isCancelled = true;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      fontSet?.removeEventListener?.("loadingdone", scheduleUpdate);
+      resizeObserver?.disconnect();
+    };
   }, [kind, markerKey, markerPosition, startsAtLeft]);
 
   const style = {
@@ -2387,6 +2420,98 @@ function CenterScrollViewport({
   );
 }
 
+const centerScrollMarkerSelector = [
+  cssSelector("center-scroll-current-marker"),
+  cssSelector("furigana-marker-current"),
+  cssSelector("kanji-marker-current"),
+  `${cssSelector("char", "current")}:not(${cssSelector("correct")})`,
+  cssSelector("char", "current"),
+].join(", ");
+
+function measureCenterScrollTranslate(
+  viewport: HTMLElement,
+  kind: "display" | "reading" | "input",
+  startsAtLeft: boolean,
+) {
+  const line = viewport.querySelector<HTMLElement>(cssSelector("center-continuous-line"));
+  const marker = viewport.querySelector<HTMLElement>(centerScrollMarkerSelector);
+  if (!marker) {
+    return null;
+  }
+
+  const previousLineTransition = line?.style.transition ?? "";
+  const previousLineTransform = line?.style.transform ?? "";
+  if (line) {
+    line.style.transition = "none";
+    line.style.transform = "none";
+  }
+
+  const viewportRect = viewport.getBoundingClientRect();
+  const markerRect = marker.getBoundingClientRect();
+  let targetCenter = markerRect.left - viewportRect.left + markerRect.width / 2;
+
+  // The display (kanji) and reading (kana) lines anchor on a zero-width marker
+  // placed right before the unit currently being typed. Centering that marker
+  // would put the unit's LEFT EDGE on the center line, leaving the glyph half a
+  // character to the right and breaking vertical alignment with the romaji line
+  // (which centers the current character's midpoint). Instead, center the unit
+  // itself (the element right after the marker) by its measured midpoint, so the
+  // current kanji / current kana / current romaji char all stack in one column.
+  // Measuring here (vs a fixed CSS offset) also keeps the first challenge flush
+  // left under startsAtLeft instead of bleeding off the left edge.
+  if (kind === "display" || kind === "reading") {
+    const unit = marker.nextElementSibling as HTMLElement | null;
+    const isNextChallengeText =
+      unit?.classList.contains(css(styles, "center-scroll-next-text")) ?? false;
+    if (unit && !isNextChallengeText) {
+      const alignmentUnit =
+        kind === "display"
+          ? (unit.querySelector<HTMLElement>(cssSelector("display-ruby-base")) ?? unit)
+          : unit;
+      const unitRect = alignmentUnit.getBoundingClientRect();
+      if (unitRect.width > 0) {
+        targetCenter = unitRect.left - viewportRect.left + unitRect.width / 2;
+      }
+    }
+  }
+
+  const viewportCenter = viewportRect.width / 2;
+  const nextTranslate = calculateScaledCenterScrollTranslate({
+    scaleX: getElementScaleX(viewport, viewportRect),
+    startsAtLeft,
+    targetCenter,
+    viewportCenter,
+  });
+
+  if (line) {
+    line.style.transition = previousLineTransition;
+    line.style.transform = previousLineTransform;
+  }
+
+  return nextTranslate;
+}
+
+export function calculateScaledCenterScrollTranslate({
+  scaleX,
+  startsAtLeft,
+  targetCenter,
+  viewportCenter,
+}: {
+  scaleX: number;
+  startsAtLeft: boolean;
+  targetCenter: number;
+  viewportCenter: number;
+}) {
+  const visualTranslate = startsAtLeft && targetCenter <= viewportCenter ? 0 : viewportCenter - targetCenter;
+  const localScaleX = Number.isFinite(scaleX) && scaleX > 0 ? scaleX : 1;
+
+  return Math.round((visualTranslate / localScaleX) * 10) / 10;
+}
+
+function getElementScaleX(element: HTMLElement, rect = element.getBoundingClientRect()) {
+  return element.offsetWidth > 0 ? rect.width / element.offsetWidth : 1;
+}
+
 function getCompletedGuideInput(guide: string) {
   return Array.from(guide)
     .filter((character) => !/\s/.test(character))
@@ -2399,6 +2524,20 @@ function getCenterMarkerPosition(target: RomajiInputTarget | null, input: string
   }
 
   return getRomajiInputProgress(target, input).currentTokenIndex;
+}
+
+export function createCenterScrollMeasurementKey({
+  englishFontFamily,
+  input,
+  japaneseFontFamily,
+  markerPosition,
+}: {
+  englishFontFamily: EnglishFontFamily;
+  input: string;
+  japaneseFontFamily: JapaneseFontFamily;
+  markerPosition: number;
+}) {
+  return `${markerPosition}-${input}-${japaneseFontFamily}-${englishFontFamily}`;
 }
 
 type SplitRubyPart = {
@@ -2677,7 +2816,7 @@ function renderCenterDisplayText(
 
           content.push(
             <ruby className={rubyClassName} key={`center-display-ruby-${part.text}-${index}-${subIndex}`}>
-              {subRuby.kanji}
+              <span className={css(styles, "display-ruby-base")}>{subRuby.kanji}</span>
               <rt>{rubyText}</rt>
             </ruby>,
           );

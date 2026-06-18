@@ -223,7 +223,7 @@ describe("InputScreenSettingsScreen", () => {
       "ひらがなマーカー",
       "ローマ字マーカー",
       "次の課題の表示方式",
-      "正確無比の誤入力表示",
+      "正確無比モードの誤入力表示",
     ]);
   });
 
@@ -263,6 +263,7 @@ describe("InputScreenSettingsScreen", () => {
     const markup = renderInputScreenSettingsScreen();
 
     expect(getInputScreenSubcategoryIds(markup)).toEqual([
+      "font-family-input-screen-settings",
       "kanji-input-screen-settings",
       "furigana-input-screen-settings",
       "hiragana-input-screen-settings",
@@ -286,6 +287,35 @@ describe("InputScreenSettingsScreen", () => {
     );
     expect(inputScreenMarkup).toContain('value="24"');
     expect(inputScreenMarkup).toContain('value="20"');
+  });
+
+  test("shows Japanese and English font family choices", () => {
+    const markup = renderInputScreenSettingsScreen({
+      ...initialSettings,
+      englishFontFamily: "roboto",
+      japaneseFontFamily: "biz-udp-gothic",
+    });
+    const inputScreenMarkup = getCategoryMarkup(markup, "input-screen-settings");
+    const japaneseFontMarkup = getSettingRowMarkup(
+      inputScreenMarkup,
+      "japanese-font-family-setting",
+    );
+    const englishFontMarkup = getSettingRowMarkup(
+      inputScreenMarkup,
+      "english-font-family-setting",
+    );
+
+    expect(japaneseFontMarkup).toContain('aria-label="Japanese font family"');
+    expect(japaneseFontMarkup).toContain('value="noto-sans-jp"');
+    expect(japaneseFontMarkup).toContain('value="biz-udp-gothic" selected=""');
+    expect(japaneseFontMarkup).toContain('value="m-plus-1"');
+    expect(japaneseFontMarkup).toContain('value="noto-serif-jp"');
+    expect(japaneseFontMarkup).not.toContain("Kosugi Maru");
+    expect(englishFontMarkup).toContain('aria-label="English font family"');
+    expect(englishFontMarkup).toContain('value="inter"');
+    expect(englishFontMarkup).toContain('value="roboto" selected=""');
+    expect(englishFontMarkup).toContain('value="noto-sans"');
+    expect(englishFontMarkup).toContain('value="source-code-pro"');
   });
 
   test("shows line height and bottom spacing controls for each input screen text group", () => {

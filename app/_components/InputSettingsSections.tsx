@@ -8,7 +8,12 @@ import {
   type SokuonInputId,
 } from "@/src/lib/typing";
 import { css } from "../_lib/css-module";
-import { initialSettings, topDisplayMetricOptions } from "../_lib/constants";
+import {
+  englishFontFamilyOptions,
+  initialSettings,
+  japaneseFontFamilyOptions,
+  topDisplayMetricOptions,
+} from "../_lib/constants";
 import { clampInteger } from "../_lib/challenge-utils";
 import type { AppSettings, NextChallengePreviewMode } from "../_lib/types";
 import styles from "./SettingsScreen.module.css";
@@ -43,27 +48,27 @@ const nextChallengePreviewModeOptions: Array<{
   label: string;
   description: string;
 }> = [
-  {
-    id: "split-slide",
-    label: "スライド",
-    description: "上下に分け、次の課題が上へ移る",
-  },
-  {
-    id: "split-alternate",
-    label: "交代",
-    description: "上下の入力位置を交互に切り替える",
-  },
-  {
-    id: "center-scroll",
-    label: "中央揃え",
-    description: "入力位置を中心に置く連続表示",
-  },
-  {
-    id: "none",
-    label: "非表示",
-    description: "次の課題を表示しない",
-  },
-];
+    {
+      id: "split-slide",
+      label: "スライド",
+      description: "上下に分け、次の課題が上へ移る",
+    },
+    {
+      id: "split-alternate",
+      label: "交代",
+      description: "上下の入力位置を交互に切り替える",
+    },
+    {
+      id: "center-scroll",
+      label: "中央揃え・連結",
+      description: "入力位置を中心に置く連続表示",
+    },
+    {
+      id: "none",
+      label: "非表示",
+      description: "次の課題を表示しない",
+    },
+  ];
 
 type NumericSettingRowProps = {
   ariaLabel: string;
@@ -396,6 +401,54 @@ function FontScaleSettingRow({ disabled, value, onChange }: FontScaleSettingRowP
       unit="倍"
       value={value}
     />
+  );
+}
+
+type FontFamilyOption =
+  | (typeof japaneseFontFamilyOptions)[number]
+  | (typeof englishFontFamilyOptions)[number];
+
+type FontFamilySettingRowProps = {
+  ariaLabel: string;
+  description: string;
+  id: string;
+  label: string;
+  options: readonly FontFamilyOption[];
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function FontFamilySettingRow({
+  ariaLabel,
+  description,
+  id,
+  label,
+  options,
+  value,
+  onChange,
+}: FontFamilySettingRowProps) {
+  return (
+    <section className={css(styles, "settings-row")} aria-labelledby={id}>
+      <div>
+        <h4 className={css(styles, "font-size-setting")} id={id}>
+          {label}
+        </h4>
+        <p>{description}</p>
+      </div>
+      <label className={css(styles, "font-family-select")}>
+        <select
+          aria-label={ariaLabel}
+          onChange={(event) => onChange(event.currentTarget.value)}
+          value={value}
+        >
+          {options.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    </section>
   );
 }
 
@@ -860,6 +913,46 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
           入力画面
         </h3>
         <div className={css(styles, "settings-category-list input-screen-category-list")}>
+          <section
+            className={css(styles, "settings-subcategory")}
+            aria-labelledby="font-family-input-screen-settings"
+          >
+            <h4
+              className={css(styles, "settings-subcategory-title")}
+              id="font-family-input-screen-settings"
+            >
+              フォント
+            </h4>
+            <div className={css(styles, "settings-subcategory-list")}>
+              <FontFamilySettingRow
+                ariaLabel="Japanese font family"
+                description="漢字・ふりがな・ひらがな表示に使うGoogle Fonts"
+                id="japanese-font-family-setting"
+                label="日本語フォント"
+                onChange={(value) =>
+                  onChange({
+                    japaneseFontFamily: value as AppSettings["japaneseFontFamily"],
+                  })
+                }
+                options={japaneseFontFamilyOptions}
+                value={settings.japaneseFontFamily}
+              />
+              <FontFamilySettingRow
+                ariaLabel="English font family"
+                description="ローマ字・英語課題文に使うGoogle Fonts"
+                id="english-font-family-setting"
+                label="英語フォント"
+                onChange={(value) =>
+                  onChange({
+                    englishFontFamily: value as AppSettings["englishFontFamily"],
+                  })
+                }
+                options={englishFontFamilyOptions}
+                value={settings.englishFontFamily}
+              />
+            </div>
+          </section>
+
           <section className={css(styles, "settings-subcategory")} aria-labelledby="kanji-input-screen-settings">
             <h4 className={css(styles, "settings-subcategory-title")} id="kanji-input-screen-settings">
               漢字
@@ -1254,7 +1347,7 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                 <div
                   className={css(styles, "romaji-preset-segmented")}
                   role="group"
-                  aria-label="正確無比の誤入力表示"
+                  aria-label="正確無比モードの誤入力表示"
                 >
                   <button
                     aria-pressed={settings.strictMistakeDisplayMode === "overwrite"}

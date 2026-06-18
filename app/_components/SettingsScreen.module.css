@@ -328,6 +328,28 @@
   opacity: 0.45;
 }
 
+.fontFamilySelect {
+  min-width: 220px;
+}
+
+.fontFamilySelect select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 12px;
+  font: inherit;
+  font-weight: 900;
+}
+
+.fontFamilySelect select:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .themeSegmented {
   display: grid;
   min-width: 220px;
@@ -687,6 +709,11 @@
 
   .soundSettingsControls {
       width: 100%;
+    }
+
+  .fontFamilySelect {
+      width: 100%;
+      min-width: 0;
     }
 
   .soundToggleList {

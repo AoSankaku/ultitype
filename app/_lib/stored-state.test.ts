@@ -209,6 +209,44 @@ describe("stored state persistence", () => {
     expect(stored.settings.romajiFontSize).toBe(20);
   });
 
+  test("fills and validates input screen font families when loading stored state", () => {
+    const migrated = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        englishFontFamily: undefined,
+        japaneseFontFamily: undefined,
+      },
+    });
+    const valid = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        englishFontFamily: "source-code-pro",
+        japaneseFontFamily: "noto-serif-jp",
+      },
+    });
+    const invalid = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        englishFontFamily: "comic-sans",
+        japaneseFontFamily: "invalid-font",
+      },
+    });
+    const legacyKosugi = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        japaneseFontFamily: "kosugi-maru",
+      },
+    });
+
+    expect(migrated.settings.japaneseFontFamily).toBe("noto-sans-jp");
+    expect(migrated.settings.englishFontFamily).toBe("inter");
+    expect(valid.settings.japaneseFontFamily).toBe("noto-serif-jp");
+    expect(valid.settings.englishFontFamily).toBe("source-code-pro");
+    expect(invalid.settings.japaneseFontFamily).toBe("noto-sans-jp");
+    expect(invalid.settings.englishFontFamily).toBe("inter");
+    expect(legacyKosugi.settings.japaneseFontFamily).toBe("noto-serif-jp");
+  });
+
   test("migrates legacy furigana pixel font size into a kanji-relative scale", () => {
     const stored = normalizeStoredState({
       settings: {

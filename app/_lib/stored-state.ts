@@ -2,6 +2,8 @@ import {
   defaultTopDisplayMetricIds,
   initialSettings,
   initialStoredState,
+  isEnglishFontFamily,
+  isJapaneseFontFamily,
   storageKey,
   topDisplayMetricOptions,
 } from "./constants";
@@ -35,6 +37,8 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
     showFuriganaMarker: showFuriganaDisplay && settings.showFuriganaMarker,
     showHiraganaMarker: settings.showHiraganaDisplay && settings.showHiraganaMarker,
     romajiMarkerMode: normalizeRomajiMarkerMode(settings.romajiMarkerMode),
+    japaneseFontFamily: normalizeJapaneseFontFamily(settings.japaneseFontFamily),
+    englishFontFamily: normalizeEnglishFontFamily(settings.englishFontFamily),
     kanjiFontSize: normalizeFontSize(settings.kanjiFontSize, initialSettings.kanjiFontSize),
     furiganaFontScale: normalizeFontScale(
       settings.furiganaFontScale,
@@ -119,6 +123,10 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
         storedSettings?.showRomajiMarker ?? initialSettings.showRomajiMarker,
       romajiMarkerMode:
         storedSettings?.romajiMarkerMode ?? initialSettings.romajiMarkerMode,
+      japaneseFontFamily:
+        storedSettings?.japaneseFontFamily ?? initialSettings.japaneseFontFamily,
+      englishFontFamily:
+        storedSettings?.englishFontFamily ?? initialSettings.englishFontFamily,
       kanjiFontSize,
       furiganaFontScale:
         storedSettings?.furiganaFontScale ??
@@ -254,6 +262,18 @@ function normalizeRomajiMarkerMode(value: AppSettings["romajiMarkerMode"]) {
   return value === "token" || value === "character"
     ? value
     : initialSettings.romajiMarkerMode;
+}
+
+function normalizeJapaneseFontFamily(value: unknown) {
+  if (value === "kosugi-maru") {
+    return "noto-serif-jp";
+  }
+
+  return isJapaneseFontFamily(value) ? value : initialSettings.japaneseFontFamily;
+}
+
+function normalizeEnglishFontFamily(value: unknown) {
+  return isEnglishFontFamily(value) ? value : initialSettings.englishFontFamily;
 }
 
 function normalizeSpecialRomajiInputPreset(value: AppSettings["specialRomajiInputPreset"]) {

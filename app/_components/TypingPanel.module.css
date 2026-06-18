@@ -278,8 +278,21 @@
 
 .targetView p {
   margin: 0;
+  font-family:
+    var(--target-japanese-font-family, "Noto Sans JP"),
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    Meiryo,
+    sans-serif;
   font-size: var(--target-kanji-font-size, 32px);
   line-height: var(--target-kanji-line-height, 1.45);
+}
+
+.targetView.englishTargetView p {
+  font-family:
+    var(--target-english-font-family, "Inter"),
+    Arial,
+    sans-serif;
 }
 
 .targetView .displayText {
@@ -288,6 +301,10 @@
 
 .targetView .displayRuby {
   ruby-position: over;
+}
+
+.targetView .displayRubyBase {
+  display: inline;
 }
 
 .targetView .displayRuby rt {
@@ -337,7 +354,7 @@
 .targetView .inputTarget {
   color: var(--soft);
   font-family:
-    "Segoe UI",
+    var(--target-english-font-family, "Inter"),
     Arial,
     sans-serif;
   font-size: var(--target-romaji-font-size, 20px);
@@ -491,6 +508,10 @@
   gap: 8px;
   margin-top: 8px;
   color: var(--muted);
+  font-family:
+    var(--target-english-font-family, "Inter"),
+    Arial,
+    sans-serif;
   font-size: var(--target-romaji-font-size, 20px);
   line-height: var(--target-romaji-line-height, 1.45);
 }

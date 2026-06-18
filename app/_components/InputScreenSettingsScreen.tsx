@@ -337,6 +337,8 @@ export function InputScreenSettingsScreen({
               showKanjiMarker={settings.showKanjiMarker}
               showRomajiMarker={settings.showRomajiMarker}
               romajiMarkerMode={settings.romajiMarkerMode}
+              japaneseFontFamily={settings.japaneseFontFamily}
+              englishFontFamily={settings.englishFontFamily}
               kanjiFontSize={settings.kanjiFontSize}
               furiganaFontScale={settings.furiganaFontScale}
               hiraganaFontSize={settings.hiraganaFontSize}

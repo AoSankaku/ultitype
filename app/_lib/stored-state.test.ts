@@ -110,6 +110,42 @@ describe("stored state persistence", () => {
     expect(stored.settings.topDisplayMetricIds).toEqual([]);
   });
 
+  test("fills and validates the target display order when loading stored state", () => {
+    const migrated = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        targetDisplayOrder: undefined,
+      },
+    });
+    const normalized = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        targetDisplayOrder: [
+          "romaji",
+          "kanji",
+          "romaji",
+          "unknown",
+          "hiraganaInputProgress",
+        ] as typeof initialStoredState.settings.targetDisplayOrder,
+      },
+    });
+
+    expect(migrated.settings.targetDisplayOrder).toEqual([
+      "kanji",
+      "kanjiInputProgress",
+      "hiragana",
+      "hiraganaInputProgress",
+      "romaji",
+    ]);
+    expect(normalized.settings.targetDisplayOrder).toEqual([
+      "romaji",
+      "kanji",
+      "hiraganaInputProgress",
+      "kanjiInputProgress",
+      "hiragana",
+    ]);
+  });
+
   test("fills input screen visibility settings when loading older stored state", () => {
     const stored = normalizeStoredState({
       settings: {
@@ -133,6 +169,8 @@ describe("stored state persistence", () => {
         showFuriganaMarker: undefined,
         showHiraganaMarker: undefined,
         showRomajiMarker: undefined,
+        showKanjiInputProgress: undefined,
+        showHiraganaInputProgress: undefined,
       },
     });
 
@@ -140,6 +178,8 @@ describe("stored state persistence", () => {
     expect(stored.settings.showFuriganaMarker).toBe(false);
     expect(stored.settings.showHiraganaMarker).toBe(true);
     expect(stored.settings.showRomajiMarker).toBe(true);
+    expect(stored.settings.showKanjiInputProgress).toBe(false);
+    expect(stored.settings.showHiraganaInputProgress).toBe(false);
   });
 
   test("fills the romaji marker mode when loading older stored state", () => {
@@ -197,15 +237,19 @@ describe("stored state persistence", () => {
       settings: {
         ...initialStoredState.settings,
         kanjiFontSize: undefined,
+        kanjiInputProgressFontSize: undefined,
         furiganaFontScale: undefined,
         hiraganaFontSize: undefined,
+        hiraganaInputProgressFontSize: undefined,
         romajiFontSize: undefined,
       },
     });
 
     expect(stored.settings.kanjiFontSize).toBe(32);
+    expect(stored.settings.kanjiInputProgressFontSize).toBe(24);
     expect(stored.settings.furiganaFontScale).toBe(0.42);
     expect(stored.settings.hiraganaFontSize).toBe(24);
+    expect(stored.settings.hiraganaInputProgressFontSize).toBe(20);
     expect(stored.settings.romajiFontSize).toBe(20);
   });
 
@@ -266,10 +310,14 @@ describe("stored state persistence", () => {
         ...initialStoredState.settings,
         kanjiLineHeight: undefined,
         kanjiMarginBottom: undefined,
+        kanjiInputProgressLineHeight: undefined,
+        kanjiInputProgressMarginBottom: undefined,
         furiganaLineHeight: undefined,
         furiganaMarginBottom: undefined,
         hiraganaLineHeight: undefined,
         hiraganaMarginBottom: undefined,
+        hiraganaInputProgressLineHeight: undefined,
+        hiraganaInputProgressMarginBottom: undefined,
         romajiLineHeight: undefined,
         romajiMarginBottom: undefined,
       },
@@ -277,10 +325,14 @@ describe("stored state persistence", () => {
 
     expect(stored.settings.kanjiLineHeight).toBe(1.45);
     expect(stored.settings.kanjiMarginBottom).toBe(6);
+    expect(stored.settings.kanjiInputProgressLineHeight).toBe(1.3);
+    expect(stored.settings.kanjiInputProgressMarginBottom).toBe(0);
     expect(stored.settings.furiganaLineHeight).toBe(1.1);
     expect(stored.settings.furiganaMarginBottom).toBe(0);
     expect(stored.settings.hiraganaLineHeight).toBe(1.4);
     expect(stored.settings.hiraganaMarginBottom).toBe(10);
+    expect(stored.settings.hiraganaInputProgressLineHeight).toBe(1.3);
+    expect(stored.settings.hiraganaInputProgressMarginBottom).toBe(0);
     expect(stored.settings.romajiLineHeight).toBe(1.45);
     expect(stored.settings.romajiMarginBottom).toBe(0);
   });
@@ -331,8 +383,10 @@ describe("stored state persistence", () => {
         showFuriganaMarker: true,
         showHiraganaDisplay: false,
         showHiraganaMarker: true,
+        showHiraganaInputProgress: true,
         showKanjiDisplay: false,
         showKanjiMarker: true,
+        showKanjiInputProgress: true,
         showRomajiMarker: true,
       },
     });
@@ -340,6 +394,8 @@ describe("stored state persistence", () => {
     expect(stored.settings.showKanjiMarker).toBe(false);
     expect(stored.settings.showFuriganaMarker).toBe(false);
     expect(stored.settings.showHiraganaMarker).toBe(false);
+    expect(stored.settings.showKanjiInputProgress).toBe(false);
+    expect(stored.settings.showHiraganaInputProgress).toBe(false);
     expect(stored.settings.showRomajiMarker).toBe(true);
   });
 

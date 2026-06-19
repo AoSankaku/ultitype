@@ -1,4 +1,5 @@
 import {
+  defaultTargetDisplayOrder,
   defaultTopDisplayMetricIds,
   initialSettings,
   initialStoredState,
@@ -36,10 +37,17 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
     showKanjiMarker: settings.showKanjiDisplay && settings.showKanjiMarker,
     showFuriganaMarker: showFuriganaDisplay && settings.showFuriganaMarker,
     showHiraganaMarker: settings.showHiraganaDisplay && settings.showHiraganaMarker,
+    showKanjiInputProgress: settings.showKanjiDisplay && settings.showKanjiInputProgress,
+    showHiraganaInputProgress:
+      settings.showHiraganaDisplay && settings.showHiraganaInputProgress,
     romajiMarkerMode: normalizeRomajiMarkerMode(settings.romajiMarkerMode),
     japaneseFontFamily: normalizeJapaneseFontFamily(settings.japaneseFontFamily),
     englishFontFamily: normalizeEnglishFontFamily(settings.englishFontFamily),
     kanjiFontSize: normalizeFontSize(settings.kanjiFontSize, initialSettings.kanjiFontSize),
+    kanjiInputProgressFontSize: normalizeFontSize(
+      settings.kanjiInputProgressFontSize,
+      initialSettings.kanjiInputProgressFontSize,
+    ),
     furiganaFontScale: normalizeFontScale(
       settings.furiganaFontScale,
       initialSettings.furiganaFontScale,
@@ -48,11 +56,23 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
       settings.hiraganaFontSize,
       initialSettings.hiraganaFontSize,
     ),
+    hiraganaInputProgressFontSize: normalizeFontSize(
+      settings.hiraganaInputProgressFontSize,
+      initialSettings.hiraganaInputProgressFontSize,
+    ),
     romajiFontSize: normalizeFontSize(settings.romajiFontSize, initialSettings.romajiFontSize),
     kanjiLineHeight: normalizeLineHeight(settings.kanjiLineHeight, initialSettings.kanjiLineHeight),
     kanjiMarginBottom: normalizeSpacing(
       settings.kanjiMarginBottom,
       initialSettings.kanjiMarginBottom,
+    ),
+    kanjiInputProgressLineHeight: normalizeLineHeight(
+      settings.kanjiInputProgressLineHeight,
+      initialSettings.kanjiInputProgressLineHeight,
+    ),
+    kanjiInputProgressMarginBottom: normalizeSpacing(
+      settings.kanjiInputProgressMarginBottom,
+      initialSettings.kanjiInputProgressMarginBottom,
     ),
     furiganaLineHeight: normalizeLineHeight(
       settings.furiganaLineHeight,
@@ -69,6 +89,14 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
     hiraganaMarginBottom: normalizeSpacing(
       settings.hiraganaMarginBottom,
       initialSettings.hiraganaMarginBottom,
+    ),
+    hiraganaInputProgressLineHeight: normalizeLineHeight(
+      settings.hiraganaInputProgressLineHeight,
+      initialSettings.hiraganaInputProgressLineHeight,
+    ),
+    hiraganaInputProgressMarginBottom: normalizeSpacing(
+      settings.hiraganaInputProgressMarginBottom,
+      initialSettings.hiraganaInputProgressMarginBottom,
     ),
     romajiLineHeight: normalizeLineHeight(
       settings.romajiLineHeight,
@@ -94,6 +122,7 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
       settings.specialRomajiInputPreset,
     ),
     topDisplayMetricIds: normalizeTopDisplayMetricIds(settings.topDisplayMetricIds),
+    targetDisplayOrder: normalizeTargetDisplayOrder(settings.targetDisplayOrder),
   };
 }
 
@@ -119,6 +148,10 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
         storedSettings?.showFuriganaMarker ?? initialSettings.showFuriganaMarker,
       showHiraganaMarker:
         storedSettings?.showHiraganaMarker ?? initialSettings.showHiraganaMarker,
+      showKanjiInputProgress:
+        storedSettings?.showKanjiInputProgress ?? initialSettings.showKanjiInputProgress,
+      showHiraganaInputProgress:
+        storedSettings?.showHiraganaInputProgress ?? initialSettings.showHiraganaInputProgress,
       showRomajiMarker:
         storedSettings?.showRomajiMarker ?? initialSettings.showRomajiMarker,
       romajiMarkerMode:
@@ -128,18 +161,29 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
       englishFontFamily:
         storedSettings?.englishFontFamily ?? initialSettings.englishFontFamily,
       kanjiFontSize,
+      kanjiInputProgressFontSize:
+        storedSettings?.kanjiInputProgressFontSize ?? initialSettings.kanjiInputProgressFontSize,
       furiganaFontScale:
         storedSettings?.furiganaFontScale ??
         getLegacyFuriganaFontScale(storedSettings, kanjiFontSize) ??
         initialSettings.furiganaFontScale,
       hiraganaFontSize:
         storedSettings?.hiraganaFontSize ?? initialSettings.hiraganaFontSize,
+      hiraganaInputProgressFontSize:
+        storedSettings?.hiraganaInputProgressFontSize ??
+        initialSettings.hiraganaInputProgressFontSize,
       romajiFontSize:
         storedSettings?.romajiFontSize ?? initialSettings.romajiFontSize,
       kanjiLineHeight:
         storedSettings?.kanjiLineHeight ?? initialSettings.kanjiLineHeight,
       kanjiMarginBottom:
         storedSettings?.kanjiMarginBottom ?? initialSettings.kanjiMarginBottom,
+      kanjiInputProgressLineHeight:
+        storedSettings?.kanjiInputProgressLineHeight ??
+        initialSettings.kanjiInputProgressLineHeight,
+      kanjiInputProgressMarginBottom:
+        storedSettings?.kanjiInputProgressMarginBottom ??
+        initialSettings.kanjiInputProgressMarginBottom,
       furiganaLineHeight:
         storedSettings?.furiganaLineHeight ?? initialSettings.furiganaLineHeight,
       furiganaMarginBottom:
@@ -148,6 +192,12 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
         storedSettings?.hiraganaLineHeight ?? initialSettings.hiraganaLineHeight,
       hiraganaMarginBottom:
         storedSettings?.hiraganaMarginBottom ?? initialSettings.hiraganaMarginBottom,
+      hiraganaInputProgressLineHeight:
+        storedSettings?.hiraganaInputProgressLineHeight ??
+        initialSettings.hiraganaInputProgressLineHeight,
+      hiraganaInputProgressMarginBottom:
+        storedSettings?.hiraganaInputProgressMarginBottom ??
+        initialSettings.hiraganaInputProgressMarginBottom,
       romajiLineHeight:
         storedSettings?.romajiLineHeight ?? initialSettings.romajiLineHeight,
       romajiMarginBottom:
@@ -177,6 +227,8 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
         initialSettings.specialRomajiInputSelections,
       topDisplayMetricIds:
         storedSettings?.topDisplayMetricIds ?? [...defaultTopDisplayMetricIds],
+      targetDisplayOrder:
+        storedSettings?.targetDisplayOrder ?? [...defaultTargetDisplayOrder],
       consecutiveMistypeRetireCount:
         storedSettings?.consecutiveMistypeRetireCount ??
         initialSettings.consecutiveMistypeRetireCount,
@@ -299,6 +351,22 @@ function normalizeTopDisplayMetricIds(value: AppSettings["topDisplayMetricIds"])
 
   const validIds = new Set(topDisplayMetricOptions.map((option) => option.id));
   return value.filter((id) => validIds.has(id));
+}
+
+function normalizeTargetDisplayOrder(value: AppSettings["targetDisplayOrder"]) {
+  if (!Array.isArray(value)) {
+    return [...defaultTargetDisplayOrder];
+  }
+
+  const validIds = new Set(defaultTargetDisplayOrder);
+  const orderedIds = value.filter(
+    (id, index, order) => validIds.has(id) && order.indexOf(id) === index,
+  );
+
+  return [
+    ...orderedIds,
+    ...defaultTargetDisplayOrder.filter((id) => !orderedIds.includes(id)),
+  ];
 }
 
 export function readStoredState(

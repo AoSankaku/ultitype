@@ -6,6 +6,7 @@ import type {
   ProductionDuration,
   RuntimeStats,
   StoredState,
+  TargetDisplayElementId,
   TopDisplayMetricId,
 } from "./types";
 
@@ -60,6 +61,25 @@ export const defaultTopDisplayMetricIds = [
   "physicalKeystrokes",
   "completedPrompts",
 ] as const satisfies readonly TopDisplayMetricId[];
+
+export const defaultTargetDisplayOrder = [
+  "kanji",
+  "kanjiInputProgress",
+  "hiragana",
+  "hiraganaInputProgress",
+  "romaji",
+] as const satisfies readonly TargetDisplayElementId[];
+
+export const targetDisplayElementOptions = [
+  { id: "kanji", label: "漢字" },
+  { id: "kanjiInputProgress", label: "入力途中経過（漢字）" },
+  { id: "hiragana", label: "ひらがな" },
+  { id: "hiraganaInputProgress", label: "入力途中経過（ひらがな）" },
+  { id: "romaji", label: "ローマ字" },
+] as const satisfies readonly {
+  id: TargetDisplayElementId;
+  label: string;
+}[];
 
 export const japaneseFontFamilyOptions = [
   {
@@ -160,20 +180,28 @@ export const initialSettings: AppSettings = {
   showKanjiMarker: false,
   showFuriganaMarker: false,
   showHiraganaMarker: true,
+  showKanjiInputProgress: false,
+  showHiraganaInputProgress: false,
   showRomajiMarker: true,
   romajiMarkerMode: "character",
   japaneseFontFamily: "noto-sans-jp",
   englishFontFamily: "inter",
   kanjiFontSize: 32,
+  kanjiInputProgressFontSize: 24,
   furiganaFontScale: 0.42,
   hiraganaFontSize: 24,
+  hiraganaInputProgressFontSize: 20,
   romajiFontSize: 20,
   kanjiLineHeight: 1.45,
   kanjiMarginBottom: 6,
+  kanjiInputProgressLineHeight: 1.3,
+  kanjiInputProgressMarginBottom: 0,
   furiganaLineHeight: 1.1,
   furiganaMarginBottom: 0,
   hiraganaLineHeight: 1.4,
   hiraganaMarginBottom: 10,
+  hiraganaInputProgressLineHeight: 1.3,
+  hiraganaInputProgressMarginBottom: 0,
   romajiLineHeight: 1.45,
   romajiMarginBottom: 0,
   productionLongTextLineCount: 5,
@@ -200,6 +228,7 @@ export const initialSettings: AppSettings = {
   nextChallengePreviewLength: 8,
   nextChallengePreviewMode: "split-slide",
   topDisplayMetricIds: [...defaultTopDisplayMetricIds],
+  targetDisplayOrder: [...defaultTargetDisplayOrder],
 };
 
 export const initialStoredState: StoredState = {

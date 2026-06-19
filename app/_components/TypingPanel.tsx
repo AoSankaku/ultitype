@@ -63,6 +63,7 @@ import type {
   RomajiMarkerMode,
   RuntimeStats,
   StrictMistakeDisplayMode,
+  TargetDisplayElementId,
   TopDisplayMetricId,
 } from "../_lib/types";
 import styles from "./TypingPanel.module.css";
@@ -114,20 +115,28 @@ type TypingPanelProps = {
   showHiraganaMarker: boolean;
   showKanjiDisplay: boolean;
   showKanjiMarker: boolean;
+  showKanjiInputProgress: boolean;
+  showHiraganaInputProgress: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
   japaneseFontFamily: JapaneseFontFamily;
   englishFontFamily: EnglishFontFamily;
   kanjiFontSize: number;
+  kanjiInputProgressFontSize: number;
   furiganaFontScale: number;
   hiraganaFontSize: number;
+  hiraganaInputProgressFontSize: number;
   romajiFontSize: number;
   kanjiLineHeight: number;
   kanjiMarginBottom: number;
+  kanjiInputProgressLineHeight: number;
+  kanjiInputProgressMarginBottom: number;
   furiganaLineHeight: number;
   furiganaMarginBottom: number;
   hiraganaLineHeight: number;
   hiraganaMarginBottom: number;
+  hiraganaInputProgressLineHeight: number;
+  hiraganaInputProgressMarginBottom: number;
   romajiLineHeight: number;
   romajiMarginBottom: number;
   productionLongTextLineCount: number;
@@ -144,12 +153,18 @@ type TypingPanelProps = {
   autoFocusDirectInput?: boolean;
   isPreview?: boolean;
   topDisplayMetricIds: TopDisplayMetricId[];
+  targetDisplayOrder: TargetDisplayElementId[];
   onBackToModeSelect: () => void;
   onImeInput: (input: string) => void;
   onImeKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   onPrepareSession: () => void;
   onPreventDirectTextInput: (event: BlockableTextEvent) => void;
   onResetSession: () => void;
+};
+
+type InputProgress = {
+  hiragana: string;
+  kanji: string;
 };
 
 type DirectInputFocusRetryInput = {
@@ -223,20 +238,28 @@ export function TypingPanel({
   showHiraganaMarker,
   showKanjiDisplay,
   showKanjiMarker,
+  showKanjiInputProgress,
+  showHiraganaInputProgress,
   showRomajiMarker,
   romajiMarkerMode,
   japaneseFontFamily,
   englishFontFamily,
   kanjiFontSize,
+  kanjiInputProgressFontSize,
   furiganaFontScale,
   hiraganaFontSize,
+  hiraganaInputProgressFontSize,
   romajiFontSize,
   kanjiLineHeight,
   kanjiMarginBottom,
+  kanjiInputProgressLineHeight,
+  kanjiInputProgressMarginBottom,
   furiganaLineHeight,
   furiganaMarginBottom,
   hiraganaLineHeight,
   hiraganaMarginBottom,
+  hiraganaInputProgressLineHeight,
+  hiraganaInputProgressMarginBottom,
   romajiLineHeight,
   romajiMarginBottom,
   productionLongTextLineCount,
@@ -253,6 +276,7 @@ export function TypingPanel({
   autoFocusDirectInput = true,
   isPreview = false,
   topDisplayMetricIds,
+  targetDisplayOrder,
   onBackToModeSelect,
   onImeInput,
   onImeKeyDown,
@@ -281,6 +305,57 @@ export function TypingPanel({
   const scoreLabel = `${scorePrefix}${Math.round(metrics.score).toLocaleString()} pts`;
   const visiblePrepareActionTitle = prepareActionTitle ?? "開始";
   const showDisplayText = challengeLanguage !== "ja" || showKanjiDisplay;
+  const inputProgress = createInputProgress({
+    acceptsTextInput,
+    display: currentDisplay,
+    furigana: currentFurigana,
+    input,
+    reading: currentReading,
+    romajiTarget: currentRomajiTarget,
+  });
+  const previousInputProgress = createCompletedInputProgress({
+    display: previousChallengeDisplay,
+    reading: previousChallengeReading,
+  });
+  const imeTargetElements: Partial<Record<TargetDisplayElementId, ReactNode>> = {
+    kanji: showDisplayText ? (
+      <DisplayText
+        display={currentDisplay}
+        furigana={currentFurigana}
+        key="kanji"
+        markerProgress={null}
+        showFurigana={showFuriganaDisplay}
+        showFuriganaMarker={showFuriganaMarker}
+        showKanjiMarker={showKanjiMarker}
+      />
+    ) : null,
+    kanjiInputProgress:
+      showKanjiDisplay && showKanjiInputProgress && inputProgress.kanji ? (
+        <p
+          className={css(styles, "input-progress-text", "kanji-input-progress-text")}
+          aria-label="kanji input progress"
+          key="kanjiInputProgress"
+        >
+          {inputProgress.kanji}
+        </p>
+      ) : null,
+    hiragana:
+      showHiraganaDisplay && currentReading ? (
+        <p className={css(styles, "reading-text")} key="hiragana">
+          {currentReading}
+        </p>
+      ) : null,
+    hiraganaInputProgress:
+      showHiraganaDisplay && showHiraganaInputProgress && inputProgress.hiragana ? (
+        <p
+          className={css(styles, "input-progress-text", "hiragana-input-progress-text")}
+          aria-label="hiragana input progress"
+          key="hiraganaInputProgress"
+        >
+          {inputProgress.hiragana}
+        </p>
+      ) : null,
+  };
   const targetViewClassName = css(
     styles,
     "target-view",
@@ -290,15 +365,21 @@ export function TypingPanel({
     "--target-japanese-font-family": getJapaneseFontFamilyCss(japaneseFontFamily),
     "--target-english-font-family": getEnglishFontFamilyCss(englishFontFamily),
     "--target-kanji-font-size": `${kanjiFontSize}px`,
+    "--target-kanji-input-progress-font-size": `${kanjiInputProgressFontSize}px`,
     "--target-furigana-font-scale": `${furiganaFontScale}em`,
     "--target-hiragana-font-size": `${hiraganaFontSize}px`,
+    "--target-hiragana-input-progress-font-size": `${hiraganaInputProgressFontSize}px`,
     "--target-romaji-font-size": `${romajiFontSize}px`,
     "--target-kanji-line-height": `${kanjiLineHeight}`,
     "--target-kanji-margin-bottom": `${kanjiMarginBottom}px`,
+    "--target-kanji-input-progress-line-height": `${kanjiInputProgressLineHeight}`,
+    "--target-kanji-input-progress-margin-bottom": `${kanjiInputProgressMarginBottom}px`,
     "--target-furigana-line-height": `${furiganaLineHeight}`,
     "--target-furigana-margin-bottom": `${furiganaMarginBottom}px`,
     "--target-hiragana-line-height": `${hiraganaLineHeight}`,
     "--target-hiragana-margin-bottom": `${hiraganaMarginBottom}px`,
+    "--target-hiragana-input-progress-line-height": `${hiraganaInputProgressLineHeight}`,
+    "--target-hiragana-input-progress-margin-bottom": `${hiraganaInputProgressMarginBottom}px`,
     "--target-romaji-line-height": `${romajiLineHeight}`,
     "--target-romaji-margin-bottom": `${romajiMarginBottom}px`,
     "--target-production-long-lines": `${productionLongTextLineCount}`,
@@ -419,19 +500,7 @@ export function TypingPanel({
           <div className={targetViewClassName} aria-label="current challenge" style={targetViewStyle}>
             {mode.requiresIme ? (
               <>
-                {showDisplayText ? (
-                  <DisplayText
-                    display={currentDisplay}
-                    furigana={currentFurigana}
-                    markerProgress={null}
-                    showFurigana={showFuriganaDisplay}
-                    showFuriganaMarker={showFuriganaMarker}
-                    showKanjiMarker={showKanjiMarker}
-                  />
-                ) : null}
-                {showHiraganaDisplay && currentReading ? (
-                  <p className={css(styles, "reading-text")}>{currentReading}</p>
-                ) : null}
+                {targetDisplayOrder.map((id) => imeTargetElements[id] ?? null)}
               </>
             ) : (
               <DirectChallengeView
@@ -453,6 +522,8 @@ export function TypingPanel({
                 previousChallengeFurigana={previousChallengeFurigana}
                 previousChallengeGuide={previousChallengeGuide}
                 previousChallengeReading={previousChallengeReading}
+                inputProgress={inputProgress}
+                previousInputProgress={previousInputProgress}
                 reading={currentReading}
                 romajiTarget={currentRomajiTarget}
                 showFuriganaDisplay={showFuriganaDisplay}
@@ -460,8 +531,11 @@ export function TypingPanel({
                 showHiraganaDisplay={showHiraganaDisplay}
                 showHiraganaMarker={showHiraganaMarker}
                 showKanjiMarker={showKanjiMarker}
+                showKanjiInputProgress={showKanjiInputProgress}
+                showHiraganaInputProgress={showHiraganaInputProgress}
                 showRomajiMarker={showRomajiMarker}
                 romajiMarkerMode={romajiMarkerMode}
+                targetDisplayOrder={targetDisplayOrder}
                 showDisplayText={showDisplayText}
                 isProductionDirect={mode.group === "production"}
                 currentChallengeLane={stats.completedPrompts % 2 === 0 ? "top" : "bottom"}
@@ -982,6 +1056,8 @@ function DirectChallengeView({
   previousChallengeFurigana,
   previousChallengeGuide,
   previousChallengeReading,
+  inputProgress,
+  previousInputProgress,
   reading,
   romajiTarget,
   showFuriganaDisplay,
@@ -989,12 +1065,15 @@ function DirectChallengeView({
   showHiraganaDisplay,
   showHiraganaMarker,
   showDisplayText,
+  showKanjiInputProgress,
+  showHiraganaInputProgress,
   isProductionDirect,
   currentChallengeLane,
   completedPrompts,
   showKanjiMarker,
   showRomajiMarker,
   romajiMarkerMode,
+  targetDisplayOrder,
   strictMistakeDisplayMode,
   strictMistakeInput,
 }: {
@@ -1016,6 +1095,8 @@ function DirectChallengeView({
   previousChallengeFurigana: JapaneseFuriganaEntry[];
   previousChallengeGuide: string;
   previousChallengeReading: string;
+  inputProgress: InputProgress;
+  previousInputProgress: InputProgress;
   reading: string;
   romajiTarget: RomajiInputTarget | null;
   showFuriganaDisplay: boolean;
@@ -1023,12 +1104,15 @@ function DirectChallengeView({
   showHiraganaDisplay: boolean;
   showHiraganaMarker: boolean;
   showDisplayText: boolean;
+  showKanjiInputProgress: boolean;
+  showHiraganaInputProgress: boolean;
   isProductionDirect: boolean;
   currentChallengeLane: "top" | "bottom";
   completedPrompts: number;
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
+  targetDisplayOrder: TargetDisplayElementId[];
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
 }) {
@@ -1042,14 +1126,18 @@ function DirectChallengeView({
       reading={reading}
       renderMarkers={true}
       romajiTarget={romajiTarget}
+      inputProgress={inputProgress}
       showDisplayText={showDisplayText}
       showFuriganaDisplay={showFuriganaDisplay}
       showFuriganaMarker={showFuriganaMarker}
       showHiraganaDisplay={showHiraganaDisplay}
       showHiraganaMarker={showHiraganaMarker}
+      showKanjiInputProgress={showKanjiInputProgress}
+      showHiraganaInputProgress={showHiraganaInputProgress}
       showKanjiMarker={showKanjiMarker}
       showRomajiMarker={showRomajiMarker}
       romajiMarkerMode={romajiMarkerMode}
+      targetDisplayOrder={targetDisplayOrder}
       strictMistakeDisplayMode={strictMistakeDisplayMode}
       strictMistakeInput={strictMistakeInput}
     />
@@ -1064,14 +1152,18 @@ function DirectChallengeView({
       reading={nextChallengeReading}
       renderMarkers={false}
       romajiTarget={nextChallengeRomajiTarget}
+      inputProgress={{ hiragana: "", kanji: "" }}
       showDisplayText={showDisplayText}
       showFuriganaDisplay={showFuriganaDisplay}
       showFuriganaMarker={false}
       showHiraganaDisplay={showHiraganaDisplay}
       showHiraganaMarker={false}
+      showKanjiInputProgress={false}
+      showHiraganaInputProgress={false}
       showKanjiMarker={false}
       showRomajiMarker={false}
       romajiMarkerMode={romajiMarkerMode}
+      targetDisplayOrder={targetDisplayOrder}
       strictMistakeDisplayMode="none"
       strictMistakeInput=""
     />
@@ -1096,6 +1188,8 @@ function DirectChallengeView({
         completedPrompts={completedPrompts}
         previousChallengeGuide={previousChallengeGuide}
         previousChallengeReading={previousChallengeReading}
+        inputProgress={inputProgress}
+        previousInputProgress={previousInputProgress}
         reading={reading}
         romajiTarget={romajiTarget}
         showDisplayText={showDisplayText}
@@ -1103,9 +1197,12 @@ function DirectChallengeView({
         showFuriganaMarker={showFuriganaMarker}
         showHiraganaDisplay={showHiraganaDisplay}
         showHiraganaMarker={showHiraganaMarker}
+        showKanjiInputProgress={showKanjiInputProgress}
+        showHiraganaInputProgress={showHiraganaInputProgress}
         showKanjiMarker={showKanjiMarker}
         showRomajiMarker={showRomajiMarker}
         romajiMarkerMode={romajiMarkerMode}
+        targetDisplayOrder={targetDisplayOrder}
         strictMistakeDisplayMode={strictMistakeDisplayMode}
         strictMistakeInput={strictMistakeInput}
       />
@@ -1135,6 +1232,8 @@ function DirectChallengeView({
           previousChallengeFurigana={previousChallengeFurigana}
           previousChallengeGuide={previousChallengeGuide}
           previousChallengeReading={previousChallengeReading}
+          inputProgress={inputProgress}
+          previousInputProgress={previousInputProgress}
           reading={reading}
           romajiTarget={romajiTarget}
           showDisplayText={showDisplayText}
@@ -1142,9 +1241,12 @@ function DirectChallengeView({
           showFuriganaMarker={showFuriganaMarker}
           showHiraganaDisplay={showHiraganaDisplay}
           showHiraganaMarker={showHiraganaMarker}
+          showKanjiInputProgress={showKanjiInputProgress}
+          showHiraganaInputProgress={showHiraganaInputProgress}
           showKanjiMarker={showKanjiMarker}
           showRomajiMarker={showRomajiMarker}
           romajiMarkerMode={romajiMarkerMode}
+          targetDisplayOrder={targetDisplayOrder}
           startsAtLeft={completedPrompts === 0}
           strictMistakeDisplayMode={strictMistakeDisplayMode}
           strictMistakeInput={strictMistakeInput}
@@ -1218,6 +1320,8 @@ function ProductionDirectChallengeView({
   completedPrompts,
   previousChallengeGuide,
   previousChallengeReading,
+  inputProgress,
+  previousInputProgress,
   reading,
   romajiTarget,
   showDisplayText,
@@ -1225,9 +1329,12 @@ function ProductionDirectChallengeView({
   showFuriganaMarker,
   showHiraganaDisplay,
   showHiraganaMarker,
+  showKanjiInputProgress,
+  showHiraganaInputProgress,
   showKanjiMarker,
   showRomajiMarker,
   romajiMarkerMode,
+  targetDisplayOrder,
   strictMistakeDisplayMode,
   strictMistakeInput,
 }: {
@@ -1247,6 +1354,8 @@ function ProductionDirectChallengeView({
   completedPrompts: number;
   previousChallengeGuide: string;
   previousChallengeReading: string;
+  inputProgress: InputProgress;
+  previousInputProgress: InputProgress;
   reading: string;
   romajiTarget: RomajiInputTarget | null;
   showDisplayText: boolean;
@@ -1254,9 +1363,12 @@ function ProductionDirectChallengeView({
   showFuriganaMarker: boolean;
   showHiraganaDisplay: boolean;
   showHiraganaMarker: boolean;
+  showKanjiInputProgress: boolean;
+  showHiraganaInputProgress: boolean;
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
+  targetDisplayOrder: TargetDisplayElementId[];
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
 }) {
@@ -1293,6 +1405,8 @@ function ProductionDirectChallengeView({
             previousChallengeFurigana={[]}
             previousChallengeGuide={previousChallengeGuide}
             previousChallengeReading={previousChallengeReading}
+            inputProgress={inputProgress}
+            previousInputProgress={previousInputProgress}
             reading={reading}
             romajiTarget={romajiTarget}
             showDisplayText={false}
@@ -1300,9 +1414,12 @@ function ProductionDirectChallengeView({
             showFuriganaMarker={false}
             showHiraganaDisplay={showHiraganaDisplay}
             showHiraganaMarker={showHiraganaMarker}
+            showKanjiInputProgress={showKanjiInputProgress}
+            showHiraganaInputProgress={showHiraganaInputProgress}
             showKanjiMarker={false}
             showRomajiMarker={showRomajiMarker}
             romajiMarkerMode={romajiMarkerMode}
+            targetDisplayOrder={targetDisplayOrder}
             startsAtLeft={completedPrompts === 0}
             strictMistakeDisplayMode={strictMistakeDisplayMode}
             strictMistakeInput={strictMistakeInput}
@@ -2157,6 +2274,8 @@ function ContinuousChallengeTextStack({
   previousChallengeFurigana,
   previousChallengeGuide,
   previousChallengeReading,
+  inputProgress,
+  previousInputProgress,
   reading,
   romajiTarget,
   showDisplayText,
@@ -2164,9 +2283,12 @@ function ContinuousChallengeTextStack({
   showFuriganaMarker,
   showHiraganaDisplay,
   showHiraganaMarker,
+  showKanjiInputProgress,
+  showHiraganaInputProgress,
   showKanjiMarker,
   showRomajiMarker,
   romajiMarkerMode,
+  targetDisplayOrder,
   startsAtLeft,
   strictMistakeDisplayMode,
   strictMistakeInput,
@@ -2186,6 +2308,8 @@ function ContinuousChallengeTextStack({
   previousChallengeFurigana: JapaneseFuriganaEntry[];
   previousChallengeGuide: string;
   previousChallengeReading: string;
+  inputProgress: InputProgress;
+  previousInputProgress: InputProgress;
   reading: string;
   romajiTarget: RomajiInputTarget | null;
   showDisplayText: boolean;
@@ -2193,9 +2317,12 @@ function ContinuousChallengeTextStack({
   showFuriganaMarker: boolean;
   showHiraganaDisplay: boolean;
   showHiraganaMarker: boolean;
+  showKanjiInputProgress: boolean;
+  showHiraganaInputProgress: boolean;
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
+  targetDisplayOrder: TargetDisplayElementId[];
   startsAtLeft: boolean;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
@@ -2208,12 +2335,12 @@ function ContinuousChallengeTextStack({
     japaneseFontFamily,
     markerPosition: centerMarkerPosition,
   });
-
-  return (
-    <div className={css(styles, "center-continuous-stack")}>
-      {showDisplayText && hasSeparateDisplay ? (
+  const rows: Partial<Record<TargetDisplayElementId, ReactNode>> = {
+    kanji:
+      showDisplayText && hasSeparateDisplay ? (
         <CenterScrollViewport
           kind="display"
+          key="kanji"
           markerKey={centerMarkerKey}
           markerPosition={centerMarkerPosition}
           startsAtLeft={startsAtLeft}
@@ -2241,10 +2368,48 @@ function ContinuousChallengeTextStack({
             )}
           </p>
         </CenterScrollViewport>
-      ) : null}
-      {showHiraganaDisplay && (reading || nextChallengeReading) ? (
+      ) : null,
+    kanjiInputProgress:
+      showDisplayText && showKanjiInputProgress && (previousInputProgress.kanji || inputProgress.kanji) ? (
+        <CenterScrollViewport
+          kind="kanji-progress"
+          key="kanjiInputProgress"
+          markerKey={centerMarkerKey}
+          markerPosition={centerMarkerPosition}
+          startsAtLeft={startsAtLeft}
+        >
+          <p
+            className={css(styles, "input-progress-text kanji-input-progress-text center-continuous-line")}
+            aria-label="kanji input progress"
+          >
+            {renderCenterInputProgressText(inputProgress.kanji, previousInputProgress.kanji)}
+          </p>
+        </CenterScrollViewport>
+      ) : null,
+    hiraganaInputProgress:
+      showHiraganaDisplay &&
+      showHiraganaInputProgress &&
+      (previousInputProgress.hiragana || inputProgress.hiragana) ? (
+        <CenterScrollViewport
+          kind="hiragana-progress"
+          key="hiraganaInputProgress"
+          markerKey={centerMarkerKey}
+          markerPosition={centerMarkerPosition}
+          startsAtLeft={startsAtLeft}
+        >
+          <p
+            className={css(styles, "input-progress-text hiragana-input-progress-text center-continuous-line")}
+            aria-label="hiragana input progress"
+          >
+            {renderCenterInputProgressText(inputProgress.hiragana, previousInputProgress.hiragana)}
+          </p>
+        </CenterScrollViewport>
+      ) : null,
+    hiragana:
+      showHiraganaDisplay && (reading || nextChallengeReading) ? (
         <CenterScrollViewport
           kind="reading"
+          key="hiragana"
           markerKey={centerMarkerKey}
           markerPosition={centerMarkerPosition}
           startsAtLeft={startsAtLeft}
@@ -2272,9 +2437,11 @@ function ContinuousChallengeTextStack({
             <span className={css(styles, "center-scroll-next-text")}>{nextChallengeReading}</span>
           </p>
         </CenterScrollViewport>
-      ) : null}
+      ) : null,
+    romaji: (
       <CenterScrollViewport
         kind="input"
+        key="romaji"
         markerKey={centerMarkerKey}
         markerPosition={centerMarkerPosition}
         startsAtLeft={startsAtLeft}
@@ -2318,9 +2485,22 @@ function ContinuousChallengeTextStack({
           </span>
         </p>
       </CenterScrollViewport>
+    ),
+  };
+
+  return (
+    <div className={css(styles, "center-continuous-stack")}>
+      {targetDisplayOrder.map((id) => rows[id] ?? null)}
     </div>
   );
 }
+
+type CenterScrollViewportKind =
+  | "display"
+  | "kanji-progress"
+  | "hiragana-progress"
+  | "reading"
+  | "input";
 
 function CenterScrollViewport({
   children,
@@ -2330,7 +2510,7 @@ function CenterScrollViewport({
   startsAtLeft,
 }: {
   children: ReactNode;
-  kind: "display" | "reading" | "input";
+  kind: CenterScrollViewportKind;
   markerKey: string;
   markerPosition: number;
   startsAtLeft: boolean;
@@ -2421,6 +2601,7 @@ function CenterScrollViewport({
 }
 
 const centerScrollMarkerSelector = [
+  cssSelector("center-scroll-current-display"),
   cssSelector("center-scroll-current-marker"),
   cssSelector("furigana-marker-current"),
   cssSelector("kanji-marker-current"),
@@ -2430,7 +2611,7 @@ const centerScrollMarkerSelector = [
 
 function measureCenterScrollTranslate(
   viewport: HTMLElement,
-  kind: "display" | "reading" | "input",
+  kind: CenterScrollViewportKind,
   startsAtLeft: boolean,
 ) {
   const line = viewport.querySelector<HTMLElement>(cssSelector("center-continuous-line"));
@@ -2459,7 +2640,10 @@ function measureCenterScrollTranslate(
   // current kanji / current kana / current romaji char all stack in one column.
   // Measuring here (vs a fixed CSS offset) also keeps the first challenge flush
   // left under startsAtLeft instead of bleeding off the left edge.
-  if (kind === "display" || kind === "reading") {
+  if (
+    (kind === "display" || kind === "reading") &&
+    marker.classList.contains(css(styles, "center-scroll-current-marker"))
+  ) {
     const unit = marker.nextElementSibling as HTMLElement | null;
     const isNextChallengeText =
       unit?.classList.contains(css(styles, "center-scroll-next-text")) ?? false;
@@ -2774,6 +2958,7 @@ function renderCenterDisplayText(
       currentTokenIndex,
       nextText,
       css(styles, "center-scroll-next-text", showKanjiMarker ? "" : "seamless"),
+      css(styles, "center-scroll-current-display"),
     );
   }
 
@@ -2816,7 +3001,9 @@ function renderCenterDisplayText(
 
           content.push(
             <ruby className={rubyClassName} key={`center-display-ruby-${part.text}-${index}-${subIndex}`}>
-              <span className={css(styles, "display-ruby-base")}>{subRuby.kanji}</span>
+              <span className={css(styles, "display-ruby-base", isCurrent && "center-scroll-current-display")}>
+                {subRuby.kanji}
+              </span>
               <rt>{rubyText}</rt>
             </ruby>,
           );
@@ -2832,7 +3019,10 @@ function renderCenterDisplayText(
           );
         } else {
           content.push(
-            <span className={css(styles, "display-plain")} key={`center-display-plain-${part.text}-${index}-${subIndex}`}>
+            <span
+              className={css(styles, "display-plain", isCurrent && "center-scroll-current-display")}
+              key={`center-display-plain-${part.text}-${index}-${subIndex}`}
+            >
               {subRuby.kanji}
             </span>,
           );
@@ -2879,7 +3069,14 @@ function renderCenterDisplayText(
         );
       } else {
         content.push(
-          <span key={`center-display-plain-${index}-${displayCharIndex}`} className={css(styles, "display-plain")}>
+          <span
+            key={`center-display-plain-${index}-${displayCharIndex}`}
+            className={css(
+              styles,
+              "display-plain",
+              tokenStart <= currentTokenIndex && currentTokenIndex < unitTokenEnd && "center-scroll-current-display",
+            )}
+          >
             {unitDisplayChars}
           </span>,
         );
@@ -2913,6 +3110,7 @@ function renderCenterTextWithMarker(
   markerPosition: number,
   nextText: ReactNode,
   nextTextClassName = css(styles, "center-scroll-next-text"),
+  currentCharacterClassName = "",
 ) {
   const characters = Array.from(text);
   const markerIndex = Math.min(characters.length, Math.max(0, markerPosition));
@@ -2922,7 +3120,11 @@ function renderCenterTextWithMarker(
     if (index === markerIndex) {
       content.push(<CenterScrollCurrentMarker key="center-marker" />);
     }
-    content.push(<span key={`center-character-${index}`}>{character}</span>);
+    content.push(
+      <span className={index === markerIndex ? currentCharacterClassName : undefined} key={`center-character-${index}`}>
+        {character}
+      </span>,
+    );
   });
 
   if (markerIndex === characters.length) {
@@ -2936,6 +3138,37 @@ function renderCenterTextWithMarker(
       </span>,
     );
   }
+
+  return content;
+}
+
+function renderCenterInputProgressText(currentText: string, previousText: string) {
+  const content: ReactNode[] = [];
+
+  if (previousText) {
+    content.push(
+      <span className={css(styles, "center-scroll-previous-text")} key="center-progress-previous">
+        {previousText}
+      </span>,
+    );
+  }
+
+  const currentCharacters = Array.from(currentText);
+  if (currentCharacters.length === 0) {
+    content.push(<CenterScrollCurrentMarker key="center-progress-marker" />);
+    return content;
+  }
+
+  currentCharacters.forEach((character, index) => {
+    content.push(
+      <span
+        className={index === currentCharacters.length - 1 ? css(styles, "center-scroll-current-display") : undefined}
+        key={`center-progress-current-${index}`}
+      >
+        {character}
+      </span>,
+    );
+  });
 
   return content;
 }
@@ -2980,14 +3213,18 @@ function ChallengeTextStack({
   reading,
   renderMarkers,
   romajiTarget,
+  inputProgress,
   showDisplayText,
   showFuriganaDisplay,
   showFuriganaMarker,
   showHiraganaDisplay,
   showHiraganaMarker,
+  showKanjiInputProgress,
+  showHiraganaInputProgress,
   showKanjiMarker,
   showRomajiMarker,
   romajiMarkerMode,
+  targetDisplayOrder,
   strictMistakeDisplayMode,
   strictMistakeInput,
 }: {
@@ -2999,34 +3236,49 @@ function ChallengeTextStack({
   reading: string;
   renderMarkers: boolean;
   romajiTarget: RomajiInputTarget | null;
+  inputProgress: InputProgress;
   showDisplayText: boolean;
   showFuriganaDisplay: boolean;
   showFuriganaMarker: boolean;
   showHiraganaDisplay: boolean;
   showHiraganaMarker: boolean;
+  showKanjiInputProgress: boolean;
+  showHiraganaInputProgress: boolean;
   showKanjiMarker: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
+  targetDisplayOrder: TargetDisplayElementId[];
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
 }) {
   const hasSeparateDisplay = display !== guide;
   const markerProgress = romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null;
-
-  return (
-    <>
-      {showDisplayText && hasSeparateDisplay ? (
+  const elements: Partial<Record<TargetDisplayElementId, ReactNode>> = {
+    kanji:
+      showDisplayText && hasSeparateDisplay ? (
         <DisplayText
           display={display}
           furigana={furigana}
+          key="kanji"
           markerProgress={showKanjiMarker || showFuriganaMarker ? markerProgress : null}
           showFurigana={showFuriganaDisplay}
           showFuriganaMarker={showFuriganaMarker}
           showKanjiMarker={showKanjiMarker}
         />
-      ) : null}
-      {showHiraganaDisplay && reading ? (
-        <p className={css(styles, "reading-text")}>
+      ) : null,
+    kanjiInputProgress:
+      showDisplayText && showKanjiInputProgress && inputProgress.kanji ? (
+        <p
+          className={css(styles, "input-progress-text", "kanji-input-progress-text")}
+          aria-label="kanji input progress"
+          key="kanjiInputProgress"
+        >
+          {inputProgress.kanji}
+        </p>
+      ) : null,
+    hiragana:
+      showHiraganaDisplay && reading ? (
+        <p className={css(styles, "reading-text")} key="hiragana">
           {romajiTarget && renderMarkers
             ? renderReadingGuideCharacters(
               reading,
@@ -3037,10 +3289,22 @@ function ChallengeTextStack({
             )
             : reading}
         </p>
-      ) : null}
+      ) : null,
+    hiraganaInputProgress:
+      showHiraganaDisplay && showHiraganaInputProgress && inputProgress.hiragana ? (
+        <p
+          className={css(styles, "input-progress-text", "hiragana-input-progress-text")}
+          aria-label="hiragana input progress"
+          key="hiraganaInputProgress"
+        >
+          {inputProgress.hiragana}
+        </p>
+      ) : null,
+    romaji: (
       <p
         className={css(styles, "input-target")}
         aria-label={hasSeparateDisplay ? "romaji input target" : "input target"}
+        key="romaji"
       >
         {romajiTarget
           ? renderMarkers
@@ -3063,8 +3327,10 @@ function ChallengeTextStack({
             showRomajiMarker,
           )}
       </p>
-    </>
-  );
+    ),
+  };
+
+  return <>{targetDisplayOrder.map((id) => elements[id] ?? null)}</>;
 }
 
 function DisplayText({
@@ -3315,6 +3581,165 @@ function normalizeKana(value: string): string {
         : character;
     })
     .join("");
+}
+
+function createInputProgress({
+  acceptsTextInput,
+  display,
+  furigana,
+  input,
+  reading,
+  romajiTarget,
+}: {
+  acceptsTextInput: boolean;
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  input: string;
+  reading: string;
+  romajiTarget: RomajiInputTarget | null;
+}) {
+  if (!input) {
+    return { hiragana: "", kanji: "" };
+  }
+
+  if (acceptsTextInput) {
+    const displayPrefixLength = getSharedPrefixLength(display, input);
+    const kanji = displayPrefixLength > 0 ? display.slice(0, displayPrefixLength) : input;
+    const hiragana =
+      displayPrefixLength > 0
+        ? getReadingForDisplayPrefix(display, furigana, displayPrefixLength)
+        : normalizeKana(input);
+
+    return { hiragana, kanji };
+  }
+
+  if (!romajiTarget) {
+    return { hiragana: "", kanji: "" };
+  }
+
+  const progress = getRomajiInputProgress(romajiTarget, input);
+  const completedTokens = progress.completedTokens;
+  const hiraganaProgress = sliceReadingByTokensWithBoundary(reading, completedTokens);
+  const pendingRomaji = getPendingRomajiInput(progress, hiraganaProgress.convertedTokenCount);
+
+  return {
+    hiragana: `${hiraganaProgress.text}${pendingRomaji}`,
+    kanji: `${sliceDisplayByReadingTokens(display, furigana, hiraganaProgress.convertedTokenCount)}${pendingRomaji}`,
+  };
+}
+
+function createCompletedInputProgress({
+  display,
+  reading,
+}: {
+  display: string;
+  reading: string;
+}): InputProgress {
+  return {
+    hiragana: reading,
+    kanji: display,
+  };
+}
+
+function getPendingRomajiInput(
+  progress: ReturnType<typeof getRomajiInputProgress>,
+  convertedTokenCount: number,
+) {
+  if (!progress.accepted) {
+    return "";
+  }
+
+  let pendingInput = "";
+
+  for (
+    let tokenIndex = convertedTokenCount;
+    tokenIndex < progress.completedTokens;
+    tokenIndex += 1
+  ) {
+    pendingInput += progress.selectedOptions[tokenIndex] ?? "";
+  }
+
+  if (progress.currentOption && convertedTokenCount <= progress.currentTokenIndex) {
+    pendingInput += progress.currentOption.slice(0, progress.currentOptionOffset);
+  }
+
+  return pendingInput;
+}
+
+function getSharedPrefixLength(target: string, value: string) {
+  const targetCharacters = Array.from(target);
+  const valueCharacters = Array.from(value);
+  let index = 0;
+
+  while (index < targetCharacters.length && targetCharacters[index] === valueCharacters[index]) {
+    index += 1;
+  }
+
+  return index;
+}
+
+function getReadingForDisplayPrefix(
+  display: string,
+  furigana: JapaneseFuriganaEntry[],
+  prefixLength: number,
+) {
+  const prefix = Array.from(display).slice(0, prefixLength).join("");
+  return createJapaneseFuriganaParts(prefix, furigana)
+    .map((part) => normalizeKana(part.ruby ?? part.text))
+    .join("");
+}
+
+function sliceReadingByTokens(reading: string, tokenCount: number) {
+  return sliceReadingByTokensWithBoundary(reading, tokenCount).text;
+}
+
+function sliceReadingByTokensWithBoundary(reading: string, tokenCount: number) {
+  const parts = createJapaneseReadingGuideParts(reading);
+  let output = "";
+  let convertedTokenCount = 0;
+
+  for (const part of parts) {
+    if (part.kind === "visual") {
+      if (output) {
+        output += part.text;
+      }
+      continue;
+    }
+
+    if (part.tokenEnd <= tokenCount) {
+      output += part.text;
+      convertedTokenCount = part.tokenEnd;
+    }
+  }
+
+  return { text: output.trimEnd(), convertedTokenCount };
+}
+
+function sliceDisplayByReadingTokens(
+  display: string,
+  furigana: JapaneseFuriganaEntry[],
+  tokenCount: number,
+) {
+  let output = "";
+  let tokenStart = 0;
+
+  for (const part of createJapaneseFuriganaParts(display, furigana)) {
+    const tokenEnd = tokenStart + countJapaneseReadingTokens(part.ruby ?? part.text);
+
+    if (tokenEnd <= tokenCount) {
+      output += part.text;
+      tokenStart = tokenEnd;
+      continue;
+    }
+
+    if (tokenStart < tokenCount) {
+      output += normalizeKana(sliceReadingByTokens(part.ruby ?? part.text, tokenCount - tokenStart));
+    }
+
+    break;
+  }
+
+  return output;
 }
 
 function renderReadingGuideCharacters(

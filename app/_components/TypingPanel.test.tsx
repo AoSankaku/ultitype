@@ -62,20 +62,28 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     showHiraganaMarker: true,
     showKanjiDisplay: true,
     showKanjiMarker: false,
+    showKanjiInputProgress: false,
+    showHiraganaInputProgress: false,
     showRomajiMarker: true,
     romajiMarkerMode: "character",
     englishFontFamily: initialSettings.englishFontFamily,
     japaneseFontFamily: initialSettings.japaneseFontFamily,
     kanjiFontSize: initialSettings.kanjiFontSize,
+    kanjiInputProgressFontSize: initialSettings.kanjiInputProgressFontSize,
     furiganaFontScale: initialSettings.furiganaFontScale,
     hiraganaFontSize: initialSettings.hiraganaFontSize,
+    hiraganaInputProgressFontSize: initialSettings.hiraganaInputProgressFontSize,
     romajiFontSize: initialSettings.romajiFontSize,
     kanjiLineHeight: initialSettings.kanjiLineHeight,
     kanjiMarginBottom: initialSettings.kanjiMarginBottom,
+    kanjiInputProgressLineHeight: initialSettings.kanjiInputProgressLineHeight,
+    kanjiInputProgressMarginBottom: initialSettings.kanjiInputProgressMarginBottom,
     furiganaLineHeight: initialSettings.furiganaLineHeight,
     furiganaMarginBottom: initialSettings.furiganaMarginBottom,
     hiraganaLineHeight: initialSettings.hiraganaLineHeight,
     hiraganaMarginBottom: initialSettings.hiraganaMarginBottom,
+    hiraganaInputProgressLineHeight: initialSettings.hiraganaInputProgressLineHeight,
+    hiraganaInputProgressMarginBottom: initialSettings.hiraganaInputProgressMarginBottom,
     romajiLineHeight: initialSettings.romajiLineHeight,
     romajiMarginBottom: initialSettings.romajiMarginBottom,
     productionLongTextLineCount: initialSettings.productionLongTextLineCount,
@@ -85,6 +93,7 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     rankCalculationMode: initialSettings.rankCalculationMode,
     strictMistakeDisplayMode: "overwrite",
     strictMistakeInput: "",
+    targetDisplayOrder: initialSettings.targetDisplayOrder,
     topDisplayMetricIds: initialSettings.topDisplayMetricIds,
     onBackToModeSelect: () => undefined,
     onImeInput: () => undefined,
@@ -310,14 +319,18 @@ describe("TypingPanel", () => {
   test("applies configured input screen font sizes to the target view", () => {
     const markup = renderTypingPanel({
       kanjiFontSize: 34,
+      kanjiInputProgressFontSize: 18,
       furiganaFontScale: 0.45,
       hiraganaFontSize: 25,
+      hiraganaInputProgressFontSize: 17,
       romajiFontSize: 21,
     });
 
     expect(markup).toContain("--target-kanji-font-size:34px");
+    expect(markup).toContain("--target-kanji-input-progress-font-size:18px");
     expect(markup).toContain("--target-furigana-font-scale:0.45em");
     expect(markup).toContain("--target-hiragana-font-size:25px");
+    expect(markup).toContain("--target-hiragana-input-progress-font-size:17px");
     expect(markup).toContain("--target-romaji-font-size:21px");
   });
 
@@ -325,22 +338,98 @@ describe("TypingPanel", () => {
     const markup = renderTypingPanel({
       kanjiLineHeight: 1.5,
       kanjiMarginBottom: 7,
+      kanjiInputProgressLineHeight: 1.25,
+      kanjiInputProgressMarginBottom: 3,
       furiganaLineHeight: 1.2,
       furiganaMarginBottom: 2,
       hiraganaLineHeight: 1.35,
       hiraganaMarginBottom: 8,
+      hiraganaInputProgressLineHeight: 1.2,
+      hiraganaInputProgressMarginBottom: 4,
       romajiLineHeight: 1.4,
       romajiMarginBottom: 3,
     });
 
     expect(markup).toContain("--target-kanji-line-height:1.5");
     expect(markup).toContain("--target-kanji-margin-bottom:7px");
+    expect(markup).toContain("--target-kanji-input-progress-line-height:1.25");
+    expect(markup).toContain("--target-kanji-input-progress-margin-bottom:3px");
     expect(markup).toContain("--target-furigana-line-height:1.2");
     expect(markup).toContain("--target-furigana-margin-bottom:2px");
     expect(markup).toContain("--target-hiragana-line-height:1.35");
     expect(markup).toContain("--target-hiragana-margin-bottom:8px");
+    expect(markup).toContain("--target-hiragana-input-progress-line-height:1.2");
+    expect(markup).toContain("--target-hiragana-input-progress-margin-bottom:4px");
     expect(markup).toContain("--target-romaji-line-height:1.4");
     expect(markup).toContain("--target-romaji-margin-bottom:3px");
+  });
+
+  test("uses dedicated CSS variables for input progress typography", () => {
+    const css = readFileSync("app/_components/TypingPanel.module.css", "utf8");
+
+    expect(css).toContain("var(--target-kanji-input-progress-font-size");
+    expect(css).toContain("var(--target-kanji-input-progress-line-height");
+    expect(css).toContain("var(--target-kanji-input-progress-margin-bottom");
+    expect(css).toContain("var(--target-hiragana-input-progress-font-size");
+    expect(css).toContain("var(--target-hiragana-input-progress-line-height");
+    expect(css).toContain("var(--target-hiragana-input-progress-margin-bottom");
+  });
+
+  test("reserves two lines for wrapping target rows outside center scroll", () => {
+    const css = readFileSync("app/_components/TypingPanel.module.css", "utf8");
+
+    expect(css).toContain(
+      "min-height: calc(var(--target-kanji-font-size, 32px) * var(--target-kanji-line-height, 1.45) * 2)",
+    );
+    expect(css).toContain(
+      "min-height: calc(var(--target-hiragana-font-size, 24px) * var(--target-hiragana-line-height, 1.4) * 2)",
+    );
+    expect(css).toContain(
+      "min-height: calc(var(--target-romaji-font-size, 20px) * var(--target-romaji-line-height, 1.45) * 2)",
+    );
+    expect(css).toContain(
+      "min-height: calc(var(--target-kanji-input-progress-font-size, 24px) * var(--target-kanji-input-progress-line-height, 1.3) * 2)",
+    );
+    expect(css).toContain(
+      "min-height: calc(var(--target-hiragana-input-progress-font-size, 20px) * var(--target-hiragana-input-progress-line-height, 1.3) * 2)",
+    );
+  });
+
+  test("renders target rows in the configured display order", () => {
+    const romajiTarget = createTestRomajiTarget("kaiseki");
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "解析",
+      currentFurigana: [
+        { text: "解", ruby: "かい" },
+        { text: "析", ruby: "せき" },
+      ],
+      currentGuide: romajiTarget.guide,
+      currentReading: "かいせき",
+      currentRomajiTarget: romajiTarget,
+      input: "kais",
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+      targetDisplayOrder: [
+        "romaji",
+        "hiraganaInputProgress",
+        "kanji",
+        "kanjiInputProgress",
+        "hiragana",
+      ],
+    });
+
+    const romajiIndex = markup.indexOf('aria-label="romaji input target"');
+    const hiraganaProgressIndex = markup.indexOf('aria-label="hiragana input progress"');
+    const kanjiIndex = markup.indexOf('class="display-text"');
+    const kanjiProgressIndex = markup.indexOf('aria-label="kanji input progress"');
+    const hiraganaIndex = markup.indexOf('class="reading-text"');
+
+    expect(romajiIndex).toBeGreaterThanOrEqual(0);
+    expect(romajiIndex).toBeLessThan(hiraganaProgressIndex);
+    expect(hiraganaProgressIndex).toBeLessThan(kanjiIndex);
+    expect(kanjiIndex).toBeLessThan(kanjiProgressIndex);
+    expect(kanjiProgressIndex).toBeLessThan(hiraganaIndex);
   });
 
   test("applies configured input screen font families to the target view", () => {
@@ -606,7 +695,7 @@ describe("TypingPanel", () => {
     expect(markup).toContain('class="center-scroll-viewport input-center-viewport"');
   });
 
-  test("shows furigana in center scroll and anchors the display line by reading progress", () => {
+  test("shows furigana in center scroll and centers the display line by the actual current kanji", () => {
     const currentRomajiTarget = createTestRomajiTarget("kyou");
     const markup = renderTypingPanel({
       challengeLanguage: "ja",
@@ -624,7 +713,9 @@ describe("TypingPanel", () => {
       nextChallengeRomajiTarget: createTestRomajiTarget("asu"),
     });
 
-    expect(markup).toContain('<ruby class="display-ruby"><span class="display-ruby-base">今</span><rt>きょ</rt></ruby>');
+    expect(markup).toContain(
+      '<ruby class="display-ruby"><span class="display-ruby-base center-scroll-current-display">今</span><rt>きょ</rt></ruby>',
+    );
     expect(markup).toContain('<ruby class="display-ruby"><span class="display-ruby-base">日</span><rt>う</rt></ruby>');
     expect(markup).toContain(
       '<span aria-hidden="true" class="center-scroll-current-marker"></span><ruby',
@@ -654,7 +745,7 @@ describe("TypingPanel", () => {
     });
 
     expect(markup).toContain(
-      '<ruby class="display-ruby"><span class="display-ruby-base">儂</span><rt>わし</rt></ruby>',
+      '<ruby class="display-ruby"><span class="display-ruby-base center-scroll-current-display">儂</span><rt>わし</rt></ruby>',
     );
   });
 
@@ -953,7 +1044,7 @@ describe("TypingPanel", () => {
   test("does not animate center scroll text on each typed key", () => {
     const css = readFileSync("app/_components/TypingPanel.module.css", "utf8");
     const centerScrollRule = css.match(
-      /\.centerScroll \.displayText,[\s\S]+?\.centerScroll \.inputTarget \{(?<body>[\s\S]+?)\n\}/,
+      /\.centerScroll \.displayText,[\s\S]+?\.centerScroll \.inputProgressText \{(?<body>[\s\S]+?)\n\}/,
     );
 
     expect(centerScrollRule?.groups?.body).toContain("transition: none");
@@ -1558,6 +1649,248 @@ describe("TypingPanel", () => {
 
     expect(markup).toContain(
       '<p class="reading-text"><span class="char correct">か</span><span class="char current">い</span></p>',
+    );
+  });
+
+  test("can show direct input progress as kanji and hiragana", () => {
+    const romajiTarget = createRomajiInputTarget("kaiseki", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "解析",
+      currentFurigana: [
+        { text: "解", ruby: "かい" },
+        { text: "析", ruby: "せき" },
+      ],
+      currentGuide: romajiTarget.guide,
+      currentReading: "かいせき",
+      currentRomajiTarget: romajiTarget,
+      input: "kai",
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+    });
+
+    expect(markup).toContain(
+      '<p class="input-progress-text kanji-input-progress-text" aria-label="kanji input progress">解</p>',
+    );
+    expect(markup).toContain(
+      '<p class="input-progress-text hiragana-input-progress-text" aria-label="hiragana input progress">かい</p>',
+    );
+  });
+
+  test("keeps unconverted trailing romaji in hiragana input progress", () => {
+    const romajiTarget = createRomajiInputTarget("katakana", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+
+    for (const [input, expectedProgress] of [
+      ["k", "k"],
+      ["ka", "か"],
+      ["kat", "かt"],
+      ["kata", "かた"],
+      ["katak", "かたk"],
+      ["kataka", "かたか"],
+      ["katakan", "かたかn"],
+      ["katakana", "かたかな"],
+    ]) {
+      const markup = renderTypingPanel({
+        challengeLanguage: "ja",
+        currentDisplay: "カタカナ",
+        currentGuide: romajiTarget.guide,
+        currentReading: "かたかな",
+        currentRomajiTarget: romajiTarget,
+        input,
+        showHiraganaInputProgress: true,
+      });
+
+      expect(markup).toContain(
+        `<p class="input-progress-text hiragana-input-progress-text" aria-label="hiragana input progress">${expectedProgress}</p>`,
+      );
+    }
+  });
+
+  test("keeps unconverted trailing romaji in kanji input progress", () => {
+    const romajiTarget = createRomajiInputTarget("kaiseki", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "解析",
+      currentFurigana: [
+        { text: "解", ruby: "かい" },
+        { text: "析", ruby: "せき" },
+      ],
+      currentGuide: romajiTarget.guide,
+      currentReading: "かいせき",
+      currentRomajiTarget: romajiTarget,
+      input: "kais",
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+    });
+
+    expect(markup).toContain(
+      '<p class="input-progress-text kanji-input-progress-text" aria-label="kanji input progress">解s</p>',
+    );
+    expect(markup).toContain(
+      '<p class="input-progress-text hiragana-input-progress-text" aria-label="hiragana input progress">かいs</p>',
+    );
+  });
+
+  test("centers center-scroll input progress by its latest typed character", () => {
+    const romajiTarget = createRomajiInputTarget("kaiseki", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "解析",
+      currentFurigana: [
+        { text: "解", ruby: "かい" },
+        { text: "析", ruby: "せき" },
+      ],
+      currentGuide: romajiTarget.guide,
+      currentReading: "かいせき",
+      currentRomajiTarget: romajiTarget,
+      input: "kais",
+      nextChallengeDisplay: "next",
+      nextChallengeGuide: "next",
+      nextChallengePreview: "next",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "next",
+      nextChallengeRomajiTarget: createTestRomajiTarget("next"),
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+    });
+
+    expect(markup).toContain('class="center-scroll-viewport kanji-progress-center-viewport"');
+    expect(markup).toContain('class="center-scroll-viewport hiragana-progress-center-viewport"');
+    expect(markup).toContain(
+      '<p class="input-progress-text kanji-input-progress-text center-continuous-line" aria-label="kanji input progress"><span>解</span><span class="center-scroll-current-display">s</span></p>',
+    );
+    expect(markup).toContain(
+      '<p class="input-progress-text hiragana-input-progress-text center-continuous-line" aria-label="hiragana input progress"><span>か</span><span>い</span><span class="center-scroll-current-display">s</span></p>',
+    );
+  });
+
+  test("renders center-scroll target rows in the configured display order", () => {
+    const romajiTarget = createRomajiInputTarget("kaiseki", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "解析",
+      currentFurigana: [
+        { text: "解", ruby: "かい" },
+        { text: "析", ruby: "せき" },
+      ],
+      currentGuide: romajiTarget.guide,
+      currentReading: "かいせき",
+      currentRomajiTarget: romajiTarget,
+      input: "kais",
+      nextChallengeDisplay: "次",
+      nextChallengeGuide: "next",
+      nextChallengePreview: "next",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "つぎ",
+      nextChallengeRomajiTarget: createTestRomajiTarget("next"),
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+      targetDisplayOrder: [
+        "romaji",
+        "kanjiInputProgress",
+        "hiragana",
+        "kanji",
+        "hiraganaInputProgress",
+      ],
+    });
+
+    const romajiIndex = markup.indexOf('class="center-scroll-viewport input-center-viewport"');
+    const kanjiProgressIndex = markup.indexOf(
+      'class="center-scroll-viewport kanji-progress-center-viewport"',
+    );
+    const hiraganaIndex = markup.indexOf('class="center-scroll-viewport reading-center-viewport"');
+    const kanjiIndex = markup.indexOf('class="center-scroll-viewport display-center-viewport"');
+    const hiraganaProgressIndex = markup.indexOf(
+      'class="center-scroll-viewport hiragana-progress-center-viewport"',
+    );
+
+    expect(romajiIndex).toBeGreaterThanOrEqual(0);
+    expect(romajiIndex).toBeLessThan(kanjiProgressIndex);
+    expect(kanjiProgressIndex).toBeLessThan(hiraganaIndex);
+    expect(hiraganaIndex).toBeLessThan(kanjiIndex);
+    expect(kanjiIndex).toBeLessThan(hiraganaProgressIndex);
+  });
+
+  test("keeps previous center-scroll input progress after advancing challenges", () => {
+    const currentRomajiTarget = createRomajiInputTarget("ta", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "た",
+      currentGuide: currentRomajiTarget.guide,
+      currentReading: "た",
+      currentRomajiTarget,
+      nextChallengeDisplay: "next",
+      nextChallengeGuide: "next",
+      nextChallengePreview: "next",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "next",
+      nextChallengeRomajiTarget: createTestRomajiTarget("next"),
+      previousChallengeDisplay: "か",
+      previousChallengeGuide: "ka",
+      previousChallengeReading: "か",
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+      stats: {
+        ...initialStats,
+        completedPrompts: 1,
+      },
+    });
+
+    expect(markup).toContain(
+      '<p class="input-progress-text kanji-input-progress-text center-continuous-line" aria-label="kanji input progress"><span class="center-scroll-previous-text">か</span><span aria-hidden="true" class="center-scroll-current-marker"></span></p>',
+    );
+    expect(markup).toContain(
+      '<p class="input-progress-text hiragana-input-progress-text center-continuous-line" aria-label="hiragana input progress"><span class="center-scroll-previous-text">か</span><span aria-hidden="true" class="center-scroll-current-marker"></span></p>',
+    );
+  });
+
+  test("can show IME input progress as converted kanji and derived hiragana", () => {
+    const markup = renderTypingPanel({
+      acceptsTextInput: true,
+      challengeLanguage: "ja",
+      currentDisplay: "解析結果",
+      currentFurigana: [
+        { text: "解", ruby: "かい" },
+        { text: "析", ruby: "せき" },
+        { text: "結", ruby: "けっ" },
+        { text: "果", ruby: "か" },
+      ],
+      currentReading: "かいせきけっか",
+      input: "解析",
+      mode: modes.find((mode) => mode.id === "production-ime-on")!,
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+    });
+
+    expect(markup).toContain(
+      '<p class="input-progress-text kanji-input-progress-text" aria-label="kanji input progress">解析</p>',
+    );
+    expect(markup).toContain(
+      '<p class="input-progress-text hiragana-input-progress-text" aria-label="hiragana input progress">かいせき</p>',
     );
   });
 });

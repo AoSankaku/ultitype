@@ -228,15 +228,18 @@ describe("InputScreenSettingsScreen", () => {
       "特殊拗音入力法",
     ]);
     expect(getCategoryItemLabels(markup, "input-screen-settings")).toEqual([
+      "入力画面の表示順",
       "漢字表示",
       "漢字マーカー",
+      "入力途中経過（漢字）表示",
       "ふりがな表示",
       "ふりがなマーカー",
       "ひらがな表示",
       "ひらがなマーカー",
+      "入力途中経過（ひらがな）表示",
       "ローマ字マーカー",
       "次の課題の表示方式",
-      "正確無比モードの誤入力表示",
+      "正確無比の誤入力表示",
     ]);
   });
 
@@ -277,12 +280,35 @@ describe("InputScreenSettingsScreen", () => {
 
     expect(getInputScreenSubcategoryIds(markup)).toEqual([
       "font-family-input-screen-settings",
+      "target-display-order-input-screen-settings",
       "kanji-input-screen-settings",
+      "kanji-input-progress-screen-settings",
       "furigana-input-screen-settings",
       "hiragana-input-screen-settings",
+      "hiragana-input-progress-screen-settings",
       "romaji-input-screen-settings",
       "other-input-screen-settings",
     ]);
+  });
+
+  test("shows a draggable display order setting including hidden elements", () => {
+    const markup = renderInputScreenSettingsScreen({
+      ...initialSettings,
+      showKanjiDisplay: false,
+      showHiraganaInputProgress: false,
+      showHiraganaDisplay: true,
+      showKanjiInputProgress: true,
+    });
+    const orderMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "target-display-order-input-screen-settings",
+    );
+
+    expect(orderMarkup).toContain('aria-label="target display order"');
+    expect(orderMarkup.match(/display order item/g)?.length).toBe(5);
+    expect(orderMarkup.match(/draggable="true"/g)?.length).toBe(5);
+    expect(orderMarkup.match(/hidden-item/g)?.length).toBe(3);
+    expect(orderMarkup.match(/target-display-order-buttons/g)?.length).toBe(5);
   });
 
   test("shows input screen font size controls with default values", () => {
@@ -355,6 +381,67 @@ describe("InputScreenSettingsScreen", () => {
     expect(getSettingRowMarkup(inputScreenMarkup, "furigana-bottom-spacing-setting")).toContain(
       'value="0"',
     );
+  });
+
+  test("shows input progress controls in dedicated subcategories when enabled", () => {
+    const markup = renderInputScreenSettingsScreen({
+      ...initialSettings,
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+    });
+    const kanjiMarkup = getInputScreenSubcategoryMarkup(markup, "kanji-input-screen-settings");
+    const kanjiProgressMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "kanji-input-progress-screen-settings",
+    );
+    const hiraganaMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "hiragana-input-screen-settings",
+    );
+    const hiraganaProgressMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "hiragana-input-progress-screen-settings",
+    );
+
+    expect(kanjiMarkup).not.toContain("入力途中経過（漢字）表示");
+    expect(hiraganaMarkup).not.toContain("入力途中経過（ひらがな）表示");
+    expect(kanjiProgressMarkup).toContain("入力途中経過（漢字）");
+    expect(kanjiProgressMarkup).toContain("入力途中経過（漢字）表示");
+    expect(kanjiProgressMarkup).toContain('aria-label="kanji input progress font size"');
+    expect(kanjiProgressMarkup).toContain('aria-label="kanji input progress line height"');
+    expect(kanjiProgressMarkup).toContain('aria-label="kanji input progress bottom spacing"');
+    expect(hiraganaProgressMarkup).toContain("入力途中経過（ひらがな）");
+    expect(hiraganaProgressMarkup).toContain("入力途中経過（ひらがな）表示");
+    expect(hiraganaProgressMarkup).toContain(
+      'aria-label="hiragana input progress font size"',
+    );
+    expect(hiraganaProgressMarkup).toContain(
+      'aria-label="hiragana input progress line height"',
+    );
+    expect(hiraganaProgressMarkup).toContain(
+      'aria-label="hiragana input progress bottom spacing"',
+    );
+  });
+
+  test("hides input progress detail controls while input progress is off", () => {
+    const markup = renderInputScreenSettingsScreen();
+    const kanjiProgressMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "kanji-input-progress-screen-settings",
+    );
+    const hiraganaProgressMarkup = getInputScreenSubcategoryMarkup(
+      markup,
+      "hiragana-input-progress-screen-settings",
+    );
+
+    expect(kanjiProgressMarkup).toContain("入力途中経過（漢字）表示");
+    expect(kanjiProgressMarkup).not.toContain("入力途中経過（漢字）フォントサイズ");
+    expect(kanjiProgressMarkup).not.toContain("入力途中経過（漢字）の行間");
+    expect(kanjiProgressMarkup).not.toContain("入力途中経過（漢字）の下余白");
+    expect(hiraganaProgressMarkup).toContain("入力途中経過（ひらがな）表示");
+    expect(hiraganaProgressMarkup).not.toContain("入力途中経過（ひらがな）フォントサイズ");
+    expect(hiraganaProgressMarkup).not.toContain("入力途中経過（ひらがな）の行間");
+    expect(hiraganaProgressMarkup).not.toContain("入力途中経過（ひらがな）の下余白");
   });
 
   test("adds steppers to every ratio and pixel number control in input screen settings", () => {
@@ -541,6 +628,8 @@ describe("InputScreenSettingsScreen", () => {
     expect(inputScreenMarkup).toContain("ふりがなマーカー");
     expect(inputScreenMarkup).toContain("ひらがなマーカー");
     expect(inputScreenMarkup).toContain("ローマ字マーカー");
+    expect(inputScreenMarkup).toContain("入力途中経過（漢字）");
+    expect(inputScreenMarkup).toContain("入力途中経過（ひらがな）");
     expect(inputScreenMarkup).toContain("ON推奨");
 
     expect(getSettingRowMarkup(inputScreenMarkup, "kanji-marker-setting")).not.toContain(
@@ -555,6 +644,12 @@ describe("InputScreenSettingsScreen", () => {
     expect(getSettingRowMarkup(inputScreenMarkup, "romaji-marker-setting")).toContain(
       'checked=""',
     );
+    expect(getSettingRowMarkup(inputScreenMarkup, "kanji-input-progress-setting")).not.toContain(
+      'checked=""',
+    );
+    expect(
+      getSettingRowMarkup(inputScreenMarkup, "hiragana-input-progress-setting"),
+    ).not.toContain('checked=""');
   });
 
   test("hides kanji, furigana, and hiragana detail settings when their display is off", () => {
@@ -578,6 +673,7 @@ describe("InputScreenSettingsScreen", () => {
     expect(kanjiMarkup).toContain('aria-label="漢字表示"');
     expect(kanjiMarkup).toContain("漢字表示</h4>");
     expect(kanjiMarkup).not.toContain("漢字マーカー");
+    expect(kanjiMarkup).not.toContain("入力途中経過（漢字）");
     expect(kanjiMarkup).not.toContain("漢字フォントサイズ");
     expect(kanjiMarkup).not.toContain("漢字の行間");
     expect(kanjiMarkup).not.toContain("漢字の下余白");
@@ -592,6 +688,7 @@ describe("InputScreenSettingsScreen", () => {
     expect(hiraganaMarkup).toContain('aria-label="ひらがな表示"');
     expect(hiraganaMarkup).toContain("ひらがな表示</h4>");
     expect(hiraganaMarkup).not.toContain("ひらがなマーカー");
+    expect(hiraganaMarkup).not.toContain("入力途中経過（ひらがな）");
     expect(hiraganaMarkup).not.toContain("ひらがなフォントサイズ");
     expect(hiraganaMarkup).not.toContain("ひらがなの行間");
     expect(hiraganaMarkup).not.toContain("ひらがなの下余白");

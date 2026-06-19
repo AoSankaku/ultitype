@@ -39,6 +39,12 @@ export type TopDisplayMetricId =
   | "completedPrompts"
   | "mistakeRate"
   | "correctRate";
+export type TargetDisplayElementId =
+  | "kanji"
+  | "kanjiInputProgress"
+  | "hiragana"
+  | "hiraganaInputProgress"
+  | "romaji";
 export type FinishReason = "completed" | "retired";
 export type Screen = "mode-select" | "typing";
 export type ProductionDuration = 300 | 600;
@@ -58,20 +64,28 @@ export type AppSettings = {
   showKanjiMarker: boolean;
   showFuriganaMarker: boolean;
   showHiraganaMarker: boolean;
+  showKanjiInputProgress: boolean;
+  showHiraganaInputProgress: boolean;
   showRomajiMarker: boolean;
   romajiMarkerMode: RomajiMarkerMode;
   japaneseFontFamily: JapaneseFontFamily;
   englishFontFamily: EnglishFontFamily;
   kanjiFontSize: number;
+  kanjiInputProgressFontSize: number;
   furiganaFontScale: number;
   hiraganaFontSize: number;
+  hiraganaInputProgressFontSize: number;
   romajiFontSize: number;
   kanjiLineHeight: number;
   kanjiMarginBottom: number;
+  kanjiInputProgressLineHeight: number;
+  kanjiInputProgressMarginBottom: number;
   furiganaLineHeight: number;
   furiganaMarginBottom: number;
   hiraganaLineHeight: number;
   hiraganaMarginBottom: number;
+  hiraganaInputProgressLineHeight: number;
+  hiraganaInputProgressMarginBottom: number;
   romajiLineHeight: number;
   romajiMarginBottom: number;
   productionLongTextLineCount: number;
@@ -94,6 +108,7 @@ export type AppSettings = {
   nextChallengePreviewLength: number;
   nextChallengePreviewMode: NextChallengePreviewMode;
   topDisplayMetricIds: TopDisplayMetricId[];
+  targetDisplayOrder: TargetDisplayElementId[];
 };
 
 export type StoredSession = {

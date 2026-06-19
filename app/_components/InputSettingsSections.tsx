@@ -12,10 +12,11 @@ import {
   englishFontFamilyOptions,
   initialSettings,
   japaneseFontFamilyOptions,
+  targetDisplayElementOptions,
   topDisplayMetricOptions,
 } from "../_lib/constants";
 import { clampInteger } from "../_lib/challenge-utils";
-import type { AppSettings, NextChallengePreviewMode } from "../_lib/types";
+import type { AppSettings, NextChallengePreviewMode, TargetDisplayElementId } from "../_lib/types";
 import styles from "./SettingsScreen.module.css";
 
 type InputSettingsSectionsProps = {
@@ -28,19 +29,25 @@ type SpecialRomajiOption = (typeof specialRomajiVariantOptions)[number];
 
 type FontSizeSettingKey =
   | "kanjiFontSize"
+  | "kanjiInputProgressFontSize"
   | "hiraganaFontSize"
+  | "hiraganaInputProgressFontSize"
   | "romajiFontSize";
 
 type LineHeightSettingKey =
   | "kanjiLineHeight"
+  | "kanjiInputProgressLineHeight"
   | "furiganaLineHeight"
   | "hiraganaLineHeight"
+  | "hiraganaInputProgressLineHeight"
   | "romajiLineHeight";
 
 type MarginBottomSettingKey =
   | "kanjiMarginBottom"
+  | "kanjiInputProgressMarginBottom"
   | "furiganaMarginBottom"
   | "hiraganaMarginBottom"
+  | "hiraganaInputProgressMarginBottom"
   | "romajiMarginBottom";
 
 const nextChallengePreviewModeOptions: Array<{
@@ -453,10 +460,15 @@ function FontFamilySettingRow({
 }
 
 export function InputSettingsSections({ settings, onChange }: InputSettingsSectionsProps) {
+  const [draggedDisplayOrderId, setDraggedDisplayOrderId] = useState<TargetDisplayElementId | null>(null);
   const showFuriganaDisplay = settings.showKanjiDisplay && settings.showFuriganaDisplay;
   const showKanjiMarker = settings.showKanjiDisplay && settings.showKanjiMarker;
   const showFuriganaMarker = showFuriganaDisplay && settings.showFuriganaMarker;
   const showHiraganaMarker = settings.showHiraganaDisplay && settings.showHiraganaMarker;
+  const showKanjiInputProgress =
+    settings.showKanjiDisplay && settings.showKanjiInputProgress;
+  const showHiraganaInputProgress =
+    settings.showHiraganaDisplay && settings.showHiraganaInputProgress;
 
   function getRomajiSelection(option: StandardRomajiOption) {
     return (
@@ -608,6 +620,52 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
         .map((option) => option.id)
         .filter((metricId) => selectedIds.has(metricId)),
     });
+  }
+
+  function getTargetDisplayElementVisibility(id: TargetDisplayElementId) {
+    if (id === "kanji") return settings.showKanjiDisplay;
+    if (id === "kanjiInputProgress") return showKanjiInputProgress;
+    if (id === "hiragana") return settings.showHiraganaDisplay;
+    if (id === "hiraganaInputProgress") return showHiraganaInputProgress;
+    return true;
+  }
+
+  function moveTargetDisplayElement(activeId: TargetDisplayElementId, overId: TargetDisplayElementId) {
+    if (activeId === overId) {
+      return;
+    }
+
+    const order = [...settings.targetDisplayOrder];
+    const activeIndex = order.indexOf(activeId);
+    const overIndex = order.indexOf(overId);
+    if (activeIndex < 0 || overIndex < 0) {
+      return;
+    }
+
+    const [active] = order.splice(activeIndex, 1);
+    if (!active) {
+      return;
+    }
+
+    order.splice(overIndex, 0, active);
+    onChange({ targetDisplayOrder: order });
+  }
+
+  function stepTargetDisplayElement(id: TargetDisplayElementId, direction: -1 | 1) {
+    const currentIndex = settings.targetDisplayOrder.indexOf(id);
+    const nextIndex = currentIndex + direction;
+    if (currentIndex < 0 || nextIndex < 0 || nextIndex >= settings.targetDisplayOrder.length) {
+      return;
+    }
+
+    const order = [...settings.targetDisplayOrder];
+    const [active] = order.splice(currentIndex, 1);
+    if (!active) {
+      return;
+    }
+
+    order.splice(nextIndex, 0, active);
+    onChange({ targetDisplayOrder: order });
   }
 
   function updateFontSize(
@@ -953,6 +1011,87 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
             </div>
           </section>
 
+          <section
+            className={css(styles, "settings-subcategory")}
+            aria-labelledby="target-display-order-input-screen-settings"
+          >
+            <h4
+              className={css(styles, "settings-subcategory-title")}
+              id="target-display-order-input-screen-settings"
+            >
+              表示順
+            </h4>
+            <div className={css(styles, "settings-subcategory-list")}>
+              <section
+                className={css(styles, "settings-row target-display-order-row")}
+                aria-labelledby="target-display-order-setting"
+              >
+                <div>
+                  <h4 id="target-display-order-setting">入力画面の表示順</h4>
+                  <p>ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する</p>
+                </div>
+                <div className={css(styles, "target-display-order-list")} aria-label="target display order">
+                  {settings.targetDisplayOrder.map((id) => {
+                    const option = targetDisplayElementOptions.find((item) => item.id === id);
+                    if (!option) {
+                      return null;
+                    }
+
+                    const isVisible = getTargetDisplayElementVisibility(id);
+
+                    return (
+                      <div
+                        aria-label={`${option.label} display order item`}
+                        className={css(
+                          styles,
+                          "target-display-order-item",
+                          isVisible ? "" : "hidden-item",
+                          draggedDisplayOrderId === id && "dragging",
+                        )}
+                        draggable
+                        key={id}
+                        onDragEnd={() => setDraggedDisplayOrderId(null)}
+                        onDragOver={(event) => event.preventDefault()}
+                        onDragStart={() => setDraggedDisplayOrderId(id)}
+                        onDrop={(event) => {
+                          event.preventDefault();
+                          if (draggedDisplayOrderId) {
+                            moveTargetDisplayElement(draggedDisplayOrderId, id);
+                          }
+                          setDraggedDisplayOrderId(null);
+                        }}
+                      >
+                        <span className={css(styles, "target-display-drag-handle")} aria-hidden="true">
+                          ⋮⋮
+                        </span>
+                        <span>{option.label}</span>
+                        <small>{isVisible ? "表示中" : "非表示中"}</small>
+                        <div className={css(styles, "target-display-order-buttons")}>
+                          <button
+                            aria-label={`${option.label} を上へ移動`}
+                            disabled={settings.targetDisplayOrder.indexOf(id) === 0}
+                            onClick={() => stepTargetDisplayElement(id, -1)}
+                            type="button"
+                          >
+                            <ChevronUp size={16} />
+                          </button>
+                          <button
+                            aria-label={`${option.label} を下へ移動`}
+                            disabled={settings.targetDisplayOrder.indexOf(id) === settings.targetDisplayOrder.length - 1}
+                            onClick={() => stepTargetDisplayElement(id, 1)}
+                            type="button"
+                          >
+                            <ChevronDown size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          </section>
+
           <section className={css(styles, "settings-subcategory")} aria-labelledby="kanji-input-screen-settings">
             <h4 className={css(styles, "settings-subcategory-title")} id="kanji-input-screen-settings">
               漢字
@@ -978,6 +1117,9 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                         showKanjiMarker: event.currentTarget.checked
                           ? settings.showKanjiMarker
                           : false,
+                        showKanjiInputProgress: event.currentTarget.checked
+                          ? settings.showKanjiInputProgress
+                          : false,
                       })
                     }
                     type="checkbox"
@@ -987,48 +1129,80 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
               </section>
               {settings.showKanjiDisplay ? (
                 <>
-              <FontSizeSettingRow
-                ariaLabel="kanji font size"
-                defaultValue={initialSettings.kanjiFontSize}
-                description="漢字混じりの課題文の文字サイズ"
-                id="kanji-font-size-setting"
-                label="漢字フォントサイズ"
-                onChange={updateFontSize}
-                settingKey="kanjiFontSize"
-                value={settings.kanjiFontSize}
-              />
-              <TextSpacingSettingRows
-                bottomSpacingAriaLabel="kanji bottom spacing"
-                bottomSpacingDefaultValue={initialSettings.kanjiMarginBottom}
-                bottomSpacingDescription="漢字行の下に空ける余白"
-                bottomSpacingId="kanji-bottom-spacing-setting"
-                bottomSpacingKey="kanjiMarginBottom"
-                bottomSpacingLabel="漢字の下余白"
-                bottomSpacingValue={settings.kanjiMarginBottom}
-                lineHeightAriaLabel="kanji line height"
-                lineHeightDefaultValue={initialSettings.kanjiLineHeight}
-                lineHeightDescription="漢字行の行間倍率"
-                lineHeightId="kanji-line-height-setting"
-                lineHeightKey="kanjiLineHeight"
-                lineHeightLabel="漢字の行間"
-                lineHeightValue={settings.kanjiLineHeight}
-                onBottomSpacingChange={updateMarginBottom}
-                onLineHeightChange={updateLineHeight}
-              />
-              <section className={css(styles, "settings-row")} aria-labelledby="kanji-marker-setting">
+                  <FontSizeSettingRow
+                    ariaLabel="kanji font size"
+                    defaultValue={initialSettings.kanjiFontSize}
+                    description="漢字混じりの課題文の文字サイズ"
+                    id="kanji-font-size-setting"
+                    label="漢字フォントサイズ"
+                    onChange={updateFontSize}
+                    settingKey="kanjiFontSize"
+                    value={settings.kanjiFontSize}
+                  />
+                  <TextSpacingSettingRows
+                    bottomSpacingAriaLabel="kanji bottom spacing"
+                    bottomSpacingDefaultValue={initialSettings.kanjiMarginBottom}
+                    bottomSpacingDescription="漢字行の下に空ける余白"
+                    bottomSpacingId="kanji-bottom-spacing-setting"
+                    bottomSpacingKey="kanjiMarginBottom"
+                    bottomSpacingLabel="漢字の下余白"
+                    bottomSpacingValue={settings.kanjiMarginBottom}
+                    lineHeightAriaLabel="kanji line height"
+                    lineHeightDefaultValue={initialSettings.kanjiLineHeight}
+                    lineHeightDescription="漢字行の行間倍率"
+                    lineHeightId="kanji-line-height-setting"
+                    lineHeightKey="kanjiLineHeight"
+                    lineHeightLabel="漢字の行間"
+                    lineHeightValue={settings.kanjiLineHeight}
+                    onBottomSpacingChange={updateMarginBottom}
+                    onLineHeightChange={updateLineHeight}
+                  />
+                  <section className={css(styles, "settings-row")} aria-labelledby="kanji-marker-setting">
+                    <div>
+                      <h4 id="kanji-marker-setting">漢字マーカー</h4>
+                      <p>入力中の位置を漢字表示に下線で表示する</p>
+                    </div>
+                    <label className={css(styles, "toggle-control")} aria-label="漢字マーカー">
+                      <input
+                        checked={showKanjiMarker}
+                        onChange={(event) =>
+                          onChange({ showKanjiMarker: event.currentTarget.checked })
+                        }
+                        type="checkbox"
+                      />
+                      <span aria-hidden="true" />
+                    </label>
+                  </section>
+                </>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            className={css(styles, "settings-subcategory")}
+            aria-labelledby="kanji-input-progress-screen-settings"
+          >
+            <h4
+              className={css(styles, "settings-subcategory-title")}
+              id="kanji-input-progress-screen-settings"
+            >
+              入力途中経過（漢字）
+            </h4>
+            <div className={css(styles, "settings-subcategory-list")}>
+              <section className={css(styles, "settings-row")} aria-labelledby="kanji-input-progress-setting">
                 <div>
-                  <h4 id="kanji-marker-setting">漢字マーカー</h4>
-                  <p>入力中の位置を漢字表示に下線で表示する</p>
+                  <h4 id="kanji-input-progress-setting">入力途中経過（漢字）表示</h4>
+                  <p>入力済みの途中経過を漢字表示の下に追加する</p>
                 </div>
                 <label
                   className={css(styles, "toggle-control", settings.showKanjiDisplay ? "" : "locked")}
-                  aria-label="漢字マーカー"
+                  aria-label="入力途中経過（漢字）表示"
                 >
                   <input
-                    checked={showKanjiMarker}
+                    checked={showKanjiInputProgress}
                     disabled={!settings.showKanjiDisplay}
                     onChange={(event) =>
-                      onChange({ showKanjiMarker: event.currentTarget.checked })
+                      onChange({ showKanjiInputProgress: event.currentTarget.checked })
                     }
                     type="checkbox"
                   />
@@ -1040,6 +1214,36 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   ) : null}
                 </label>
               </section>
+              {showKanjiInputProgress ? (
+                <>
+                  <FontSizeSettingRow
+                    ariaLabel="kanji input progress font size"
+                    defaultValue={initialSettings.kanjiInputProgressFontSize}
+                    description="入力途中経過（漢字）の文字サイズ"
+                    id="kanji-input-progress-font-size-setting"
+                    label="入力途中経過（漢字）フォントサイズ"
+                    onChange={updateFontSize}
+                    settingKey="kanjiInputProgressFontSize"
+                    value={settings.kanjiInputProgressFontSize}
+                  />
+                  <TextSpacingSettingRows
+                    bottomSpacingAriaLabel="kanji input progress bottom spacing"
+                    bottomSpacingDefaultValue={initialSettings.kanjiInputProgressMarginBottom}
+                    bottomSpacingDescription="入力途中経過（漢字）の下に空ける余白"
+                    bottomSpacingId="kanji-input-progress-bottom-spacing-setting"
+                    bottomSpacingKey="kanjiInputProgressMarginBottom"
+                    bottomSpacingLabel="入力途中経過（漢字）の下余白"
+                    bottomSpacingValue={settings.kanjiInputProgressMarginBottom}
+                    lineHeightAriaLabel="kanji input progress line height"
+                    lineHeightDefaultValue={initialSettings.kanjiInputProgressLineHeight}
+                    lineHeightDescription="入力途中経過（漢字）の行間倍率"
+                    lineHeightId="kanji-input-progress-line-height-setting"
+                    lineHeightKey="kanjiInputProgressLineHeight"
+                    lineHeightLabel="入力途中経過（漢字）の行間"
+                    lineHeightValue={settings.kanjiInputProgressLineHeight}
+                    onBottomSpacingChange={updateMarginBottom}
+                    onLineHeightChange={updateLineHeight}
+                  />
                 </>
               ) : null}
             </div>
@@ -1085,54 +1289,45 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
               </section>
               {showFuriganaDisplay ? (
                 <>
-              <FontScaleSettingRow
-                disabled={!showFuriganaDisplay}
-                onChange={updateFuriganaFontScale}
-                value={settings.furiganaFontScale}
-              />
-              <TextSpacingSettingRows
-                bottomSpacingAriaLabel="furigana bottom spacing"
-                bottomSpacingDefaultValue={initialSettings.furiganaMarginBottom}
-                bottomSpacingDescription="ふりがな側に追加する下余白"
-                bottomSpacingId="furigana-bottom-spacing-setting"
-                bottomSpacingKey="furiganaMarginBottom"
-                bottomSpacingLabel="ふりがなの下余白"
-                bottomSpacingValue={settings.furiganaMarginBottom}
-                lineHeightAriaLabel="furigana line height"
-                lineHeightDefaultValue={initialSettings.furiganaLineHeight}
-                lineHeightDescription="ふりがなの行間倍率"
-                lineHeightId="furigana-line-height-setting"
-                lineHeightKey="furiganaLineHeight"
-                lineHeightLabel="ふりがなの行間"
-                lineHeightValue={settings.furiganaLineHeight}
-                onBottomSpacingChange={updateMarginBottom}
-                onLineHeightChange={updateLineHeight}
-              />
-              <section className={css(styles, "settings-row")} aria-labelledby="furigana-marker-setting">
-                <div>
-                  <h4 id="furigana-marker-setting">ふりがなマーカー</h4>
-                  <p>入力中の位置をふりがな表示に下線で表示する</p>
-                </div>
-                <label
-                  className={css(styles, "toggle-control", showFuriganaDisplay ? "" : "locked")}
-                  aria-label="ふりがなマーカー"
-                >
-                  <input
-                    checked={showFuriganaMarker}
-                    disabled={!showFuriganaDisplay}
-                    onChange={(event) =>
-                      onChange({ showFuriganaMarker: event.currentTarget.checked })
-                    }
-                    type="checkbox"
+                  <FontScaleSettingRow
+                    disabled={false}
+                    onChange={updateFuriganaFontScale}
+                    value={settings.furiganaFontScale}
                   />
-                  <span aria-hidden="true" />
-                  {!showFuriganaDisplay ? (
-                    <b className={css(styles, "toggle-lock-icon")} aria-label="ふりがな表示オフのためロック">
-                      <Lock aria-hidden="true" size={15} strokeWidth={2.6} />
-                    </b>
-                  ) : null}
-                </label>
-              </section>
+                  <TextSpacingSettingRows
+                    bottomSpacingAriaLabel="furigana bottom spacing"
+                    bottomSpacingDefaultValue={initialSettings.furiganaMarginBottom}
+                    bottomSpacingDescription="ふりがな側に追加する下余白"
+                    bottomSpacingId="furigana-bottom-spacing-setting"
+                    bottomSpacingKey="furiganaMarginBottom"
+                    bottomSpacingLabel="ふりがなの下余白"
+                    bottomSpacingValue={settings.furiganaMarginBottom}
+                    lineHeightAriaLabel="furigana line height"
+                    lineHeightDefaultValue={initialSettings.furiganaLineHeight}
+                    lineHeightDescription="ふりがなの行間倍率"
+                    lineHeightId="furigana-line-height-setting"
+                    lineHeightKey="furiganaLineHeight"
+                    lineHeightLabel="ふりがなの行間"
+                    lineHeightValue={settings.furiganaLineHeight}
+                    onBottomSpacingChange={updateMarginBottom}
+                    onLineHeightChange={updateLineHeight}
+                  />
+                  <section className={css(styles, "settings-row")} aria-labelledby="furigana-marker-setting">
+                    <div>
+                      <h4 id="furigana-marker-setting">ふりがなマーカー</h4>
+                      <p>入力中の位置をふりがな表示に下線で表示する</p>
+                    </div>
+                    <label className={css(styles, "toggle-control")} aria-label="ふりがなマーカー">
+                      <input
+                        checked={showFuriganaMarker}
+                        onChange={(event) =>
+                          onChange({ showFuriganaMarker: event.currentTarget.checked })
+                        }
+                        type="checkbox"
+                      />
+                      <span aria-hidden="true" />
+                    </label>
+                  </section>
                 </>
               ) : null}
             </div>
@@ -1160,6 +1355,9 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                         showHiraganaMarker: event.currentTarget.checked
                           ? settings.showHiraganaMarker
                           : false,
+                        showHiraganaInputProgress: event.currentTarget.checked
+                          ? settings.showHiraganaInputProgress
+                          : false,
                       })
                     }
                     type="checkbox"
@@ -1169,48 +1367,80 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
               </section>
               {settings.showHiraganaDisplay ? (
                 <>
-              <FontSizeSettingRow
-                ariaLabel="hiragana font size"
-                defaultValue={initialSettings.hiraganaFontSize}
-                description="ひらがなの読みの文字サイズ"
-                id="hiragana-font-size-setting"
-                label="ひらがなフォントサイズ"
-                onChange={updateFontSize}
-                settingKey="hiraganaFontSize"
-                value={settings.hiraganaFontSize}
-              />
-              <TextSpacingSettingRows
-                bottomSpacingAriaLabel="hiragana bottom spacing"
-                bottomSpacingDefaultValue={initialSettings.hiraganaMarginBottom}
-                bottomSpacingDescription="ひらがな行の下に空ける余白"
-                bottomSpacingId="hiragana-bottom-spacing-setting"
-                bottomSpacingKey="hiraganaMarginBottom"
-                bottomSpacingLabel="ひらがなの下余白"
-                bottomSpacingValue={settings.hiraganaMarginBottom}
-                lineHeightAriaLabel="hiragana line height"
-                lineHeightDefaultValue={initialSettings.hiraganaLineHeight}
-                lineHeightDescription="ひらがな行の行間倍率"
-                lineHeightId="hiragana-line-height-setting"
-                lineHeightKey="hiraganaLineHeight"
-                lineHeightLabel="ひらがなの行間"
-                lineHeightValue={settings.hiraganaLineHeight}
-                onBottomSpacingChange={updateMarginBottom}
-                onLineHeightChange={updateLineHeight}
-              />
-              <section className={css(styles, "settings-row")} aria-labelledby="hiragana-marker-setting">
+                  <FontSizeSettingRow
+                    ariaLabel="hiragana font size"
+                    defaultValue={initialSettings.hiraganaFontSize}
+                    description="ひらがなの読みの文字サイズ"
+                    id="hiragana-font-size-setting"
+                    label="ひらがなフォントサイズ"
+                    onChange={updateFontSize}
+                    settingKey="hiraganaFontSize"
+                    value={settings.hiraganaFontSize}
+                  />
+                  <TextSpacingSettingRows
+                    bottomSpacingAriaLabel="hiragana bottom spacing"
+                    bottomSpacingDefaultValue={initialSettings.hiraganaMarginBottom}
+                    bottomSpacingDescription="ひらがな行の下に空ける余白"
+                    bottomSpacingId="hiragana-bottom-spacing-setting"
+                    bottomSpacingKey="hiraganaMarginBottom"
+                    bottomSpacingLabel="ひらがなの下余白"
+                    bottomSpacingValue={settings.hiraganaMarginBottom}
+                    lineHeightAriaLabel="hiragana line height"
+                    lineHeightDefaultValue={initialSettings.hiraganaLineHeight}
+                    lineHeightDescription="ひらがな行の行間倍率"
+                    lineHeightId="hiragana-line-height-setting"
+                    lineHeightKey="hiraganaLineHeight"
+                    lineHeightLabel="ひらがなの行間"
+                    lineHeightValue={settings.hiraganaLineHeight}
+                    onBottomSpacingChange={updateMarginBottom}
+                    onLineHeightChange={updateLineHeight}
+                  />
+                  <section className={css(styles, "settings-row")} aria-labelledby="hiragana-marker-setting">
+                    <div>
+                      <h4 id="hiragana-marker-setting">ひらがなマーカー</h4>
+                      <p>入力中の位置をひらがな表示に下線で表示する</p>
+                    </div>
+                    <label className={css(styles, "toggle-control")} aria-label="ひらがなマーカー">
+                      <input
+                        checked={showHiraganaMarker}
+                        onChange={(event) =>
+                          onChange({ showHiraganaMarker: event.currentTarget.checked })
+                        }
+                        type="checkbox"
+                      />
+                      <span aria-hidden="true" />
+                    </label>
+                  </section>
+                </>
+              ) : null}
+            </div>
+          </section>
+
+          <section
+            className={css(styles, "settings-subcategory")}
+            aria-labelledby="hiragana-input-progress-screen-settings"
+          >
+            <h4
+              className={css(styles, "settings-subcategory-title")}
+              id="hiragana-input-progress-screen-settings"
+            >
+              入力途中経過（ひらがな）
+            </h4>
+            <div className={css(styles, "settings-subcategory-list")}>
+              <section className={css(styles, "settings-row")} aria-labelledby="hiragana-input-progress-setting">
                 <div>
-                  <h4 id="hiragana-marker-setting">ひらがなマーカー</h4>
-                  <p>入力中の位置をひらがな表示に下線で表示する</p>
+                  <h4 id="hiragana-input-progress-setting">入力途中経過（ひらがな）表示</h4>
+                  <p>入力済みの途中経過をひらがな表示の下に追加する</p>
                 </div>
                 <label
                   className={css(styles, "toggle-control", settings.showHiraganaDisplay ? "" : "locked")}
-                  aria-label="ひらがなマーカー"
+                  aria-label="入力途中経過（ひらがな）表示"
                 >
                   <input
-                    checked={showHiraganaMarker}
+                    checked={showHiraganaInputProgress}
                     disabled={!settings.showHiraganaDisplay}
                     onChange={(event) =>
-                      onChange({ showHiraganaMarker: event.currentTarget.checked })
+                      onChange({ showHiraganaInputProgress: event.currentTarget.checked })
                     }
                     type="checkbox"
                   />
@@ -1222,6 +1452,36 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   ) : null}
                 </label>
               </section>
+              {showHiraganaInputProgress ? (
+                <>
+                  <FontSizeSettingRow
+                    ariaLabel="hiragana input progress font size"
+                    defaultValue={initialSettings.hiraganaInputProgressFontSize}
+                    description="入力途中経過（ひらがな）の文字サイズ"
+                    id="hiragana-input-progress-font-size-setting"
+                    label="入力途中経過（ひらがな）フォントサイズ"
+                    onChange={updateFontSize}
+                    settingKey="hiraganaInputProgressFontSize"
+                    value={settings.hiraganaInputProgressFontSize}
+                  />
+                  <TextSpacingSettingRows
+                    bottomSpacingAriaLabel="hiragana input progress bottom spacing"
+                    bottomSpacingDefaultValue={initialSettings.hiraganaInputProgressMarginBottom}
+                    bottomSpacingDescription="入力途中経過（ひらがな）の下に空ける余白"
+                    bottomSpacingId="hiragana-input-progress-bottom-spacing-setting"
+                    bottomSpacingKey="hiraganaInputProgressMarginBottom"
+                    bottomSpacingLabel="入力途中経過（ひらがな）の下余白"
+                    bottomSpacingValue={settings.hiraganaInputProgressMarginBottom}
+                    lineHeightAriaLabel="hiragana input progress line height"
+                    lineHeightDefaultValue={initialSettings.hiraganaInputProgressLineHeight}
+                    lineHeightDescription="入力途中経過（ひらがな）の行間倍率"
+                    lineHeightId="hiragana-input-progress-line-height-setting"
+                    lineHeightKey="hiraganaInputProgressLineHeight"
+                    lineHeightLabel="入力途中経過（ひらがな）の行間"
+                    lineHeightValue={settings.hiraganaInputProgressLineHeight}
+                    onBottomSpacingChange={updateMarginBottom}
+                    onLineHeightChange={updateLineHeight}
+                  />
                 </>
               ) : null}
             </div>
@@ -1256,7 +1516,7 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                   <p>ローマ字の現在位置を1文字ずつ表示するか、su や shi などの発音単位で表示するかを選ぶ</p>
                 </div>
                 <div
-                  className={css(styles, "romaji-preset-segmented")}
+                  className={css(styles, "marker-mode-segmented")}
                   role="group"
                   aria-label="romaji marker mode"
                 >
@@ -1359,7 +1619,7 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
                 <div
                   className={css(styles, "romaji-preset-segmented")}
                   role="group"
-                  aria-label="正確無比モードの誤入力表示"
+                  aria-label="正確無比の誤入力表示"
                 >
                   <button
                     aria-pressed={settings.strictMistakeDisplayMode === "overwrite"}

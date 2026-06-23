@@ -95,6 +95,7 @@ type PreviousDirectChallengeSnapshot = {
 export type UseTypingSessionOptions = {
   initialChallengeLanguage?: ChallengeLanguage;
   initialModeId?: ModeId;
+  initialProductionDuration?: ProductionDuration;
   initialScreen?: Screen;
 };
 
@@ -548,6 +549,7 @@ export function getVisibleCorrectionDebt({
 export function useTypingSession({
   initialChallengeLanguage = "ja",
   initialModeId = "practice-accuracy",
+  initialProductionDuration = 300,
   initialScreen = "mode-select",
 }: UseTypingSessionOptions = {}) {
   const initialPracticeChallengeOrder = createOrderedIndexes(
@@ -561,7 +563,8 @@ export function useTypingSession({
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [challengeLanguage, setChallengeLanguage] =
     useState<ChallengeLanguage>(initialChallengeLanguage);
-  const [productionDuration, setProductionDuration] = useState<ProductionDuration>(300);
+  const [productionDuration, setProductionDuration] =
+    useState<ProductionDuration>(initialProductionDuration);
   const [challengeIndex, setChallengeIndex] = useState(0);
   const [practiceChallengeOrder, setPracticeChallengeOrder] = useState(
     () => initialPracticeChallengeOrder,

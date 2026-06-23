@@ -78,7 +78,7 @@ export function ModeSelectScreen({
             <Link
               aria-pressed={challengeLanguage === language.id}
               className={challengeLanguage === language.id ? css(styles, "selected") : ""}
-              href={getModeSelectPath(language.id)}
+              href={getModeSelectPath(language.id, productionDuration)}
               key={language.id}
               onClick={() => handleLanguageChange(language.id)}
               role="button"
@@ -114,6 +114,7 @@ export function ModeSelectScreen({
                   locked={false}
                   mode={item}
                   challengeLanguage={challengeLanguage}
+                  productionDuration={productionDuration}
                   onSelect={() => handleSelectMode(item.id)}
                 />
               ))}
@@ -160,6 +161,7 @@ export function ModeSelectScreen({
                   locked={!productionPlayable || !productionUnlocked}
                   mode={item}
                   challengeLanguage={challengeLanguage}
+                  productionDuration={productionDuration}
                   onSelect={() => handleSelectMode(item.id)}
                 />
               );
@@ -177,6 +179,7 @@ function ModeSelectCard({
   lockReason,
   locked,
   mode,
+  productionDuration,
   onSelect,
 }: {
   challengeLanguage: ChallengeLanguage;
@@ -184,6 +187,7 @@ function ModeSelectCard({
   lockReason?: string;
   locked: boolean;
   mode: TypingMode;
+  productionDuration: ProductionDuration;
   onSelect: () => void;
 }) {
   const ModeIcon = modeIcons[mode.id];
@@ -212,7 +216,11 @@ function ModeSelectCard({
     return (
       <Link
         className={css(styles, "mode-select-card")}
-        href={getModePath(mode.id, challengeLanguage)}
+        href={getModePath(
+          mode.id,
+          challengeLanguage,
+          mode.group === "production" ? productionDuration : undefined,
+        )}
         onClick={onSelect}
         title={mode.description}
       >

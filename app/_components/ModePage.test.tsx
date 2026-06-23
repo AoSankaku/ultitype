@@ -4,13 +4,13 @@ import { readFileSync } from "node:fs";
 describe("ModePage", () => {
   test("keeps the current challenge visible until home navigation completes", () => {
     const source = readFileSync("app/_components/ModePage.tsx", "utf8");
+    const backNavigation = "router.push(getModeSelectPath(challengeLanguage, productionDuration));";
     const backHandler = source.slice(
       source.indexOf("onBackToModeSelect={() => {"),
-      source.indexOf("router.push(getModeSelectPath(challengeLanguage));") +
-        "router.push(getModeSelectPath(challengeLanguage));".length,
+      source.indexOf(backNavigation) + backNavigation.length,
     );
 
-    expect(backHandler).toContain("router.push(getModeSelectPath(challengeLanguage));");
+    expect(backHandler).toContain(backNavigation);
     expect(backHandler).not.toContain("session.typingPanelProps.onBackToModeSelect();");
   });
 });

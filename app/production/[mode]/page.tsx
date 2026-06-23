@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { ModePage } from "../../_components/ModePage";
+import { ProductionModePageView } from "../../_components/ProductionModePageView";
 import { getRouteModeId, getRouteParams } from "../../_lib/mode-routes";
 
 export function generateStaticParams() {
@@ -18,5 +20,9 @@ export default async function ProductionModePage({
     notFound();
   }
 
-  return <ModePage modeId={modeId} />;
+  return (
+    <Suspense fallback={<ModePage modeId={modeId} />}>
+      <ProductionModePageView modeId={modeId} />
+    </Suspense>
+  );
 }

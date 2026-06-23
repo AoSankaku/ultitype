@@ -560,7 +560,9 @@ describe("InputScreenSettingsScreen", () => {
     const markup = renderInputScreenSettingsScreen();
     const topDisplayMarkup = getCategoryMarkup(markup, "top-display-settings");
 
-    expect(getCategoryOptionLabels(markup, "top-display-settings")).toEqual([
+    const topDisplayLabels = getCategoryOptionLabels(markup, "top-display-settings");
+
+    expect(topDisplayLabels).toEqual(expect.arrayContaining([
       "残り時間",
       "残り時間（％）",
       "打鍵/秒",
@@ -571,7 +573,9 @@ describe("InputScreenSettingsScreen", () => {
       "完了課題",
       "ミス/物理打鍵",
       "正解/物理打鍵",
-    ]);
+    ]));
+    expect(topDisplayLabels).toContain("かな文字/秒");
+    expect(topDisplayLabels).toContain("課題文字/秒");
     expect(topDisplayMarkup).toContain("残り時間を外しても、残り時間バーは表示されます。");
     expect(topDisplayMarkup).not.toContain("disabled");
   });

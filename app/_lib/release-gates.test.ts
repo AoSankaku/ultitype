@@ -11,7 +11,7 @@ describe("release gates", () => {
     ).toBe(true);
   });
 
-  test("keeps production IME-on mode limited to the development server", () => {
+  test("allows production IME-on mode in production builds", () => {
     expect(
       isProductionModePlayableInBuild({
         modeId: "production-ime-on",
@@ -23,7 +23,7 @@ describe("release gates", () => {
         modeId: "production-ime-on",
         nodeEnv: "production",
       }),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       isProductionModePlayableInBuild({
         modeId: "production-ime-on",
@@ -48,14 +48,14 @@ describe("release gates", () => {
     ).toBe(true);
   });
 
-  test("keeps production IME-on mode unplayable in production even when unlocked", () => {
+  test("allows unlocked production IME-on mode in production", () => {
     expect(
       canPlayProductionMode({
         modeId: "production-ime-on",
         nodeEnv: "production",
         unlocked: true,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   test("keeps production mode unplayable on the dev server until unlocked", () => {

@@ -397,6 +397,11 @@
   gap: 14px;
 }
 
+.productionImeLayout {
+  display: grid;
+  gap: 14px;
+}
+
 .productionLongBody {
   position: relative;
   height: calc(var(--target-kanji-font-size, 32px) * var(--target-kanji-line-height, 1.45) * var(--target-production-long-lines, 5));
@@ -420,6 +425,7 @@
 
 .productionLongScrollContent {
   transform: translateY(calc(-1 * var(--production-long-scroll-lines, 0) * var(--target-kanji-font-size, 32px) * var(--target-kanji-line-height, 1.45)));
+  transition: transform 1800ms cubic-bezier(0.22, 0.8, 0.28, 1);
 }
 
 .productionLongDisplayText {
@@ -677,6 +683,50 @@
   padding: 16px;
   font-size: 18px;
   line-height: 1.7;
+}
+
+.productionImeInputShell {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: min(240px, 100%);
+  max-width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.productionImeInput {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  height: calc(3lh + 32px);
+  margin-top: 18px;
+  min-height: 0;
+  max-height: calc(3lh + 32px);
+  overflow: hidden;
+  resize: none;
+}
+
+.productionImeInputResizeHandle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+.productionImeInputResizeHandle::before {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--soft);
+  border-bottom: 2px solid var(--soft);
+  content: "";
 }
 
 .challengeTip {

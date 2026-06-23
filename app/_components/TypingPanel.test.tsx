@@ -6,10 +6,16 @@ import { initialSettings, initialStats } from "../_lib/constants";
 import { postSessionTips, preSessionTips } from "../_lib/challenge-tips";
 import {
   TypingPanel,
+  calculateProductionImePromptScrollMarkerPosition,
   calculateProductionLongScrollLines,
   calculateScaledCenterScrollTranslate,
+  createProductionLongChallengeHandoff,
+  createProductionLongScrollContentKey,
   createCenterScrollMeasurementKey,
+  getProductionLongEffectiveScrollLines,
+  productionLongScrollTransitionMs,
   getDirectInputFocusRetryDelays,
+  stabilizeProductionImePromptScrollMarkerPosition,
 } from "./TypingPanel";
 
 type TypingPanelProps = Parameters<typeof TypingPanel>[0];
@@ -31,14 +37,17 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     imeError: "",
     input: "",
     inputRef: { current: null },
+    scoringInput: overrides.scoringInput ?? overrides.input ?? "",
     isFinished: false,
     isProductionBlocked: false,
     mistakeFlash: null,
     metrics: {
       accuracy: 1,
       consistency: 1,
+      kanaCharactersPerSecond: 0,
       keysPerSecond: 0,
       paceMs: 0,
+      promptCharactersPerSecond: 0,
       score: 0,
     },
     mode: modes[0]!,
@@ -96,6 +105,8 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     targetDisplayOrder: initialSettings.targetDisplayOrder,
     topDisplayMetricIds: initialSettings.topDisplayMetricIds,
     onBackToModeSelect: () => undefined,
+    onImeCompositionEnd: () => undefined,
+    onImeCompositionStart: () => undefined,
     onImeInput: () => undefined,
     onImeKeyDown: () => undefined,
     onPrepareSession: () => undefined,
@@ -122,8 +133,10 @@ describe("TypingPanel", () => {
       metrics: {
         accuracy: 0.875,
         consistency: 1,
+        kanaCharactersPerSecond: 0,
         keysPerSecond: 2.5,
         paceMs: 400,
+        promptCharactersPerSecond: 0,
         score: 0,
       },
       progress: 25,
@@ -191,8 +204,10 @@ describe("TypingPanel", () => {
       metrics: {
         accuracy: 1,
         consistency: 1,
+        kanaCharactersPerSecond: 0,
         keysPerSecond: 5,
         paceMs: 200,
+        promptCharactersPerSecond: 0,
         score: 1234,
       },
       rankCalculationMode: "projected",
@@ -209,8 +224,10 @@ describe("TypingPanel", () => {
       metrics: {
         accuracy: 1,
         consistency: 1,
+        kanaCharactersPerSecond: 0,
         keysPerSecond: 5,
         paceMs: 200,
+        promptCharactersPerSecond: 0,
         score: 1234,
       },
       rankCalculationMode: "actual",
@@ -223,8 +240,10 @@ describe("TypingPanel", () => {
       metrics: {
         accuracy: 1,
         consistency: 1,
+        kanaCharactersPerSecond: 0,
         keysPerSecond: 5,
         paceMs: 200,
+        promptCharactersPerSecond: 0,
         score: 1234,
       },
       rankCalculationMode: "projected",
@@ -276,8 +295,24 @@ describe("TypingPanel", () => {
       mode: modes.find((mode) => mode.id === "production-ime-on")!,
     });
 
-    expect(markup).toContain('class="typing-input"');
+    expect(markup).toContain('class="typing-input production-ime-input"');
     expect(markup).not.toContain('class="direct-input-guard"');
+  });
+
+  test("shows the same Backspace correction indicator for production IME lock", () => {
+    const markup = renderTypingPanel({
+      acceptsTextInput: true,
+      correctionDebt: 1,
+      mode: modes.find((mode) => mode.id === "production-ime-on")!,
+    });
+    const tipIndex = markup.indexOf('class="challenge-tip"');
+    const debtIndex = markup.indexOf('class="correction-debt"');
+    const analysisIndex = markup.indexOf('class="challenge-analysis"');
+
+    expect(markup).toContain('class="correction-debt"');
+    expect(markup).toContain('class="keycap">Backspace</span>');
+    expect(debtIndex).toBeGreaterThan(tipIndex);
+    expect(debtIndex).toBeLessThan(analysisIndex);
   });
 
   test("schedules direct input focus retries only during development direct typing", () => {
@@ -525,6 +560,38 @@ describe("TypingPanel", () => {
     expect(markup).toContain('class="reading-text center-continuous-line"');
     expect(markup).toContain('class="input-target center-continuous-line"');
     expect(markup).not.toContain('class="display-text center-continuous-line"');
+  });
+
+  test("keeps the production long scroll target at the end of a direct challenge", () => {
+    const currentRomajiTarget = createRomajiInputTarget("kaisekikekka", {
+      preset: initialSettings.romajiInputPreset,
+      selections: initialSettings.romajiInputSelections,
+      allowSplitYoon: initialSettings.allowSplitYoon,
+      sokuon: initialSettings.sokuonInput,
+    });
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "解析結果",
+      currentFurigana: [
+        { text: "解析", ruby: "かいせき" },
+        { text: "結果", ruby: "けっか" },
+      ],
+      currentGuide: currentRomajiTarget.guide,
+      currentReading: "かいせきけっか",
+      currentRomajiTarget,
+      input: "kaisekikekka",
+      mode: modes.find((mode) => mode.id === "production-ime-off")!,
+      nextChallengeDisplay: "次の文。",
+      nextChallengeGuide: "tsuginobun.",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "つぎのぶん。",
+      nextChallengeRomajiTarget: createTestRomajiTarget("tsuginobun."),
+    });
+
+    expect(markup).toContain('class="production-long-scroll-target"');
+    expect(markup).toContain(
+      '<span class="production-long-scroll-target"><ruby class="display-ruby">果<rt>か</rt></ruby></span>',
+    );
   });
 
   test("centers production direct hiragana and romaji from the start after the first challenge", () => {
@@ -1057,6 +1124,153 @@ describe("TypingPanel", () => {
     expect(calculateProductionLongScrollLines(46.4, 46.4)).toBe(1);
     expect(calculateProductionLongScrollLines(100, 46.4)).toBe(2);
     expect(calculateProductionLongScrollLines(100, 0)).toBe(0);
+    expect(calculateProductionLongScrollLines(46.4, 46.4, 1)).toBe(0);
+    expect(calculateProductionLongScrollLines(100, 46.4, 1)).toBe(1);
+  });
+
+  test("includes fractional spacer height when production long scroll crosses challenges", () => {
+    expect(calculateProductionLongScrollLines(46.4 * 2.5, 46.4, 0, 0.5)).toBe(2.5);
+    expect(calculateProductionLongScrollLines(46.4 * 2.5, 46.4, 1, 0.5)).toBe(1.5);
+  });
+
+  test("resets stale production long body scroll lines when the challenge text changes", () => {
+    const previousContentKey = createProductionLongScrollContentKey({
+      display: "previous challenge",
+      nextChallengeDisplay: "next challenge",
+    });
+    const nextContentKey = createProductionLongScrollContentKey({
+      display: "next challenge",
+      nextChallengeDisplay: "third challenge",
+    });
+
+    expect(
+      getProductionLongEffectiveScrollLines(
+        { contentKey: previousContentKey, scrollLines: 12 },
+        previousContentKey,
+      ),
+    ).toBe(12);
+    expect(
+      getProductionLongEffectiveScrollLines(
+        { contentKey: previousContentKey, scrollLines: 12 },
+        nextContentKey,
+      ),
+    ).toBe(0);
+  });
+
+  test("keeps the previous production long scroll position for a continuous next-challenge handoff", () => {
+    const previousContentKey = createProductionLongScrollContentKey({
+      display: "previous challenge",
+      nextChallengeDisplay: "next challenge",
+    });
+    const handoff = createProductionLongChallengeHandoff({
+      display: "next challenge",
+      nextChallengeDisplay: "third challenge",
+      previousDisplay: "previous challenge",
+      previousNextChallengeDisplay: "next challenge",
+    });
+
+    expect(handoff?.scrollContentKey).toBe(previousContentKey);
+    expect(
+      getProductionLongEffectiveScrollLines(
+        { contentKey: previousContentKey, scrollLines: 12 },
+        handoff?.scrollContentKey ?? "",
+      ),
+    ).toBe(12);
+  });
+
+  test("calculates the production IME prompt scroll marker from the shortest minimum-mistake match", () => {
+    expect(calculateProductionImePromptScrollMarkerPosition("", "ABCdeDEFGHIJ")).toBeNull();
+    expect(calculateProductionImePromptScrollMarkerPosition("ABCDEF", "ABCdeDEFGHIJ")).toBe(11);
+  });
+
+  test("does not scroll production IME prompts to distant matches from unconverted kana", () => {
+    const target =
+      "高速なタイピングでは、単純に指を速く動かすだけでは限界が来る。文章を少し先まで読み、次に必要な動きを準備し、ミスが起きた瞬間にも流れを切らない判断が求められる。";
+
+    expect(calculateProductionImePromptScrollMarkerPosition("高速なタイピングでは、", target)).toBe(14);
+    expect(
+      calculateProductionImePromptScrollMarkerPosition("こうそくなタイピングでは、", target),
+    ).toBeNull();
+  });
+
+  test("keeps the production IME prompt scroll marker from moving backward during forward input", () => {
+    const target =
+      "練習結果を保存する場合、最初は最高値だけでも十分に意味がある。詳細な履歴やグラフは後から増やせる。";
+    const previous = stabilizeProductionImePromptScrollMarkerPosition({
+      display: target,
+      input: "練習結果を保存する場合、最初は最高値だけでも十分に意味がある。詳細な履歴や",
+      inputLength: 40,
+      nextMarker: 43,
+      previous: null,
+    });
+
+    expect(
+      stabilizeProductionImePromptScrollMarkerPosition({
+        display: target,
+        input: "練習結果を保存する場合、最初は最高値だけでも十分に意味がある。詳細な履歴やグラフ",
+        inputLength: 45,
+        nextMarker: null,
+        previous,
+      }).marker,
+    ).toBe(43);
+    expect(
+      stabilizeProductionImePromptScrollMarkerPosition({
+        display: target,
+        input: "練習結果を保存する場合、最初は最高値だけでも十分に意味がある。詳細な履歴やグラフ。",
+        inputLength: 46,
+        nextMarker: 38,
+        previous,
+      }).marker,
+    ).toBe(43);
+    expect(
+      stabilizeProductionImePromptScrollMarkerPosition({
+        display: target,
+        input: "練習結果を保存する場合、最初は最高値だけでも",
+        inputLength: 32,
+        nextMarker: 35,
+        previous,
+      }).marker,
+    ).toBe(35);
+  });
+
+  test("keeps the production IME prompt scroll marker when conversion shortens the input", () => {
+    const target =
+      "レーティングは単なる称号ではなく、練習の入口を制御するための指標として使う。";
+    const previous = stabilizeProductionImePromptScrollMarkerPosition({
+      display: target,
+      input: "レーティングは単なる称号ではなく、練習の入口を制御するためのしひょうとして",
+      inputLength: 40,
+      nextMarker: 43,
+      previous: null,
+    });
+
+    expect(
+      stabilizeProductionImePromptScrollMarkerPosition({
+        display: target,
+        input: "レーティングは単なる称号ではなく、練習の入口を制御するための指標として",
+        inputLength: 37,
+        nextMarker: 31,
+        previous,
+      }).marker,
+    ).toBe(43);
+  });
+
+  test("places the production IME prompt scroll target without showing input progress", () => {
+    const markup = renderTypingPanel({
+      acceptsTextInput: true,
+      challengeLanguage: "en",
+      currentDisplay: "ABCdeDEFGHIJ",
+      input: "ABCDEF",
+      mode: modes.find((mode) => mode.id === "production-ime-on")!,
+      showKanjiInputProgress: true,
+      showHiraganaInputProgress: true,
+    });
+
+    expect(markup).toContain(
+      'ABCdeDEFGHI<span class="production-long-scroll-target">J</span>',
+    );
+    expect(markup).not.toContain('aria-label="kanji input progress"');
+    expect(markup).not.toContain('aria-label="hiragana input progress"');
   });
 
   test("clips and fades the production long body at the configured line count", () => {
@@ -1089,6 +1303,10 @@ describe("TypingPanel", () => {
     expect(longBodyContentRule?.groups?.body).toContain(
       "transform: translateY(calc(-1 * var(--production-long-scroll-lines, 0) * var(--target-kanji-font-size, 32px) * var(--target-kanji-line-height, 1.45)))",
     );
+    expect(longBodyContentRule?.groups?.body).toContain(
+      "transition: transform 1800ms cubic-bezier(0.22, 0.8, 0.28, 1)",
+    );
+    expect(productionLongScrollTransitionMs).toBe(1800);
     expect(css).not.toContain(".productionLongScrollMarker");
     expect(nextSpacerRule?.groups?.body).toContain(
       "margin-top: calc(var(--target-kanji-font-size, 32px) * var(--target-kanji-line-height, 1.45) * 0.5)",
@@ -1630,7 +1848,7 @@ describe("TypingPanel", () => {
       showKanjiDisplay: false,
     });
 
-    expect(markup).toContain('<p class="display-text">hello world</p>');
+    expect(markup).toContain('<p class="display-text production-long-display-text">hello world</p>');
   });
 
   test("highlights the hiragana reading with the current romaji progress", () => {
@@ -1868,7 +2086,7 @@ describe("TypingPanel", () => {
     );
   });
 
-  test("can show IME input progress as converted kanji and derived hiragana", () => {
+  test("keeps production IME-on input out of the prompt display progress rows", () => {
     const markup = renderTypingPanel({
       acceptsTextInput: true,
       challengeLanguage: "ja",
@@ -1886,11 +2104,21 @@ describe("TypingPanel", () => {
       showHiraganaInputProgress: true,
     });
 
-    expect(markup).toContain(
-      '<p class="input-progress-text kanji-input-progress-text" aria-label="kanji input progress">解析</p>',
-    );
-    expect(markup).toContain(
-      '<p class="input-progress-text hiragana-input-progress-text" aria-label="hiragana input progress">かいせき</p>',
-    );
+    expect(markup).toContain('class="production-long-body"');
+    expect(markup).toContain('class="typing-input production-ime-input"');
+    expect(markup).not.toContain('aria-label="kanji input progress"');
+    expect(markup).not.toContain('aria-label="hiragana input progress"');
+  });
+
+  test("disables production IME-on input after the session finishes", () => {
+    const markup = renderTypingPanel({
+      acceptsTextInput: true,
+      input: "ラーメンを食べt",
+      isFinished: true,
+      mode: modes.find((mode) => mode.id === "production-ime-on")!,
+    });
+
+    expect(markup).toContain('class="typing-input production-ime-input"');
+    expect(markup).toContain("disabled=");
   });
 });

@@ -92,6 +92,8 @@ describe("stored state persistence", () => {
     expect(stored.settings.topDisplayMetricIds).toEqual([
       "remainingTime",
       "keysPerSecond",
+      "kanaCharactersPerSecond",
+      "promptCharactersPerSecond",
       "accuracy",
       "mistakes",
       "physicalKeystrokes",

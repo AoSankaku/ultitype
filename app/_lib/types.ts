@@ -33,6 +33,8 @@ export type TopDisplayMetricId =
   | "remainingPercent"
   | "keysPerSecond"
   | "keysPerMinute"
+  | "kanaCharactersPerSecond"
+  | "promptCharactersPerSecond"
   | "accuracy"
   | "mistakes"
   | "physicalKeystrokes"
@@ -142,6 +144,8 @@ export type RuntimeStats = {
   keystrokes: number;
   scoredInputLength: number;
   physicalKeystrokes: number;
+  kanaCharacters: number;
+  promptCharacters: number;
   characterAttempts: number;
   correctCharacters: number;
   mistakes: number;

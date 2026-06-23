@@ -303,6 +303,7 @@ export function InputScreenSettingsScreen({
               imeError=""
               input={visibleMockInput}
               inputRef={{ current: null }}
+              scoringInput={visibleMockInput}
               isFinished={false}
               isPreview
               isProductionBlocked={false}
@@ -310,8 +311,10 @@ export function InputScreenSettingsScreen({
               metrics={{
                 accuracy: 1,
                 consistency: 1,
+                kanaCharactersPerSecond: currentKeysPerSecond,
                 keysPerSecond: currentKeysPerSecond,
                 paceMs: 200,
+                promptCharactersPerSecond: 0,
                 score: 500,
               }}
               mode={modes[0]!}
@@ -381,6 +384,8 @@ export function InputScreenSettingsScreen({
               strictMistakeInput=""
               topDisplayMetricIds={settings.topDisplayMetricIds}
               onBackToModeSelect={() => undefined}
+              onImeCompositionEnd={() => undefined}
+              onImeCompositionStart={() => undefined}
               onImeInput={() => undefined}
               onImeKeyDown={() => undefined}
               onPrepareSession={handleToggleMockPlayback}

@@ -18,6 +18,7 @@ import type {
   DragEvent,
   FormEvent,
   KeyboardEvent,
+  PointerEvent,
   ReactNode,
   RefObject,
   CSSProperties,
@@ -26,6 +27,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   formatTimer,
   getRomajiInputProgress,
+  scoreImeProductionInput,
   type Metrics,
   type Rank,
   type RomajiInputTarget,
@@ -90,6 +92,7 @@ type TypingPanelProps = {
   imeError: string;
   input: string;
   inputRef: RefObject<HTMLTextAreaElement | null>;
+  scoringInput: string;
   isFinished: boolean;
   isProductionBlocked: boolean;
   mistakeFlash: MistakeFlash | null;
@@ -155,6 +158,8 @@ type TypingPanelProps = {
   topDisplayMetricIds: TopDisplayMetricId[];
   targetDisplayOrder: TargetDisplayElementId[];
   onBackToModeSelect: () => void;
+  onImeCompositionEnd: (input: string) => void;
+  onImeCompositionStart: (input: string) => void;
   onImeInput: (input: string) => void;
   onImeKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
   onPrepareSession: () => void;
@@ -174,6 +179,41 @@ type DirectInputFocusRetryInput = {
   isProductionBlocked: boolean;
 };
 
+type ProductionImeInputStickinessInput = {
+  key: string | null;
+  selectionEnd: number;
+  selectionStart: number;
+  valueLength: number;
+};
+
+type ProductionImeInputResizeSession = {
+  maxWidth: number;
+  pointerId: number;
+  startWidth: number;
+  startX: number;
+};
+
+type CenteredProductionImeInputWidthInput = {
+  maxWidth: number;
+  pointerDeltaX: number;
+  startWidth: number;
+};
+
+type ProductionImePromptScrollMarkerState = {
+  display: string;
+  input: string;
+  inputLength: number;
+  marker: number | null;
+};
+
+type StableProductionImePromptScrollMarkerInput = {
+  display: string;
+  input: string;
+  inputLength: number;
+  nextMarker: number | null;
+  previous: ProductionImePromptScrollMarkerState | null;
+};
+
 function cssSelector(...classNames: string[]) {
   return css(styles, ...classNames)
     .split(/\s+/)
@@ -183,6 +223,10 @@ function cssSelector(...classNames: string[]) {
 }
 
 const challengeTipFadeMs = 260;
+export const productionLongScrollTransitionMs = 1800;
+const productionImePromptScrollLeadCharacters = 3;
+const productionImeInputMinWidth = 240;
+const productionImeInputWidthStorageKey = "ultitype:production-ime-input-width";
 
 export function getDirectInputFocusRetryDelays({
   acceptsTextInput,
@@ -195,6 +239,116 @@ export function getDirectInputFocusRetryDelays({
   }
 
   return [50, 150, 300, 600];
+}
+
+export function clampProductionImeInputWidth(width: number) {
+  if (!Number.isFinite(width)) {
+    return null;
+  }
+
+  return Math.max(productionImeInputMinWidth, Math.round(width));
+}
+
+export function calculateCenteredProductionImeInputWidth({
+  maxWidth,
+  pointerDeltaX,
+  startWidth,
+}: CenteredProductionImeInputWidthInput) {
+  if (!Number.isFinite(maxWidth) || maxWidth <= 0) {
+    return productionImeInputMinWidth;
+  }
+
+  const clampedMaxWidth = Math.round(maxWidth);
+  const minWidth = Math.min(productionImeInputMinWidth, clampedMaxWidth);
+  const nextWidth = Math.round(startWidth + pointerDeltaX * 2);
+
+  return Math.min(Math.max(nextWidth, minWidth), clampedMaxWidth);
+}
+
+export function shouldStickProductionImeInputToBottom({
+  key,
+  selectionEnd,
+  selectionStart,
+  valueLength,
+}: ProductionImeInputStickinessInput) {
+  if (key === "Backspace" || key?.startsWith("Arrow")) {
+    return false;
+  }
+
+  return selectionStart === valueLength && selectionEnd === valueLength;
+}
+
+export function calculateProductionImePromptScrollMarkerPosition(input: string, target: string) {
+  const targetCharacters = Array.from(target);
+  if (Array.from(input).length === 0 || targetCharacters.length === 0) {
+    return null;
+  }
+
+  const score = scoreImeProductionInput(input, target);
+  if (!isReliableProductionImePromptScrollScore(score)) {
+    return null;
+  }
+
+  return Math.min(
+    targetCharacters.length - 1,
+    score.completedTargetLength + productionImePromptScrollLeadCharacters,
+  );
+}
+
+function isReliableProductionImePromptScrollScore(score: {
+  completedTargetLength: number;
+  inputLength: number;
+  mistakes: number;
+}) {
+  if (score.completedTargetLength === 0 && score.mistakes > 0) {
+    return false;
+  }
+
+  const maxStableMistakes = Math.max(4, Math.ceil(score.inputLength * 0.45));
+  return score.mistakes <= maxStableMistakes;
+}
+
+export function stabilizeProductionImePromptScrollMarkerPosition({
+  display,
+  input,
+  inputLength,
+  nextMarker,
+  previous,
+}: StableProductionImePromptScrollMarkerInput): ProductionImePromptScrollMarkerState {
+  if (previous === null || previous.display !== display || inputLength === 0) {
+    return { display, input, inputLength, marker: nextMarker };
+  }
+
+  const isTrailingDeletion = inputLength < previous.inputLength && previous.input.startsWith(input);
+  if (isTrailingDeletion) {
+    return { display, input, inputLength, marker: nextMarker };
+  }
+
+  if (nextMarker === null) {
+    return { display, input, inputLength, marker: previous.marker };
+  }
+
+  return {
+    display,
+    input,
+    inputLength,
+    marker: previous.marker === null ? nextMarker : Math.max(previous.marker, nextMarker),
+  };
+}
+
+function useStableProductionImePromptScrollMarkerPosition(input: string, target: string) {
+  const markerStateRef = useRef<ProductionImePromptScrollMarkerState | null>(null);
+  const inputLength = Array.from(input).length;
+  const nextMarker = calculateProductionImePromptScrollMarkerPosition(input, target);
+  const stableState = stabilizeProductionImePromptScrollMarkerPosition({
+    display: target,
+    input,
+    inputLength,
+    nextMarker,
+    previous: markerStateRef.current,
+  });
+  markerStateRef.current = stableState;
+  return stableState.marker;
 }
 
 export function TypingPanel({
@@ -213,6 +367,7 @@ export function TypingPanel({
   imeError,
   input,
   inputRef,
+  scoringInput,
   isFinished,
   isProductionBlocked,
   mistakeFlash,
@@ -278,6 +433,8 @@ export function TypingPanel({
   topDisplayMetricIds,
   targetDisplayOrder,
   onBackToModeSelect,
+  onImeCompositionEnd,
+  onImeCompositionStart,
   onImeInput,
   onImeKeyDown,
   onPrepareSession,
@@ -292,6 +449,7 @@ export function TypingPanel({
   });
   const topDisplayMetrics = createTopDisplayMetrics({
     metrics,
+    mode,
     progress,
     remainingSeconds,
     stats,
@@ -300,6 +458,12 @@ export function TypingPanel({
   const SessionModeIcon = sessionModeIcon === undefined ? getSessionModeIcon(mode) : sessionModeIcon;
   const visibleModeLabel = sessionModeLabel ?? mode.label;
   const PrepareActionIcon = prepareActionIcon ?? Play;
+  const isProductionImeOn = mode.id === "production-ime-on";
+  const productionImeInputShellRef = useRef<HTMLDivElement | null>(null);
+  const productionImeLastKeyRef = useRef<string | null>(null);
+  const productionImeResizeSessionRef = useRef<ProductionImeInputResizeSession | null>(null);
+  const productionImeInputWidthObservedRef = useRef(false);
+  const [productionImeInputWidth, setProductionImeInputWidth] = useState<number | null>(null);
   const scorePrefix =
     rankCalculationMode === "projected" && !isFinished && remainingSeconds > 0 ? "\u2248 " : "";
   const scoreLabel = `${scorePrefix}${Math.round(metrics.score).toLocaleString()} pts`;
@@ -419,9 +583,274 @@ export function TypingPanel({
     };
   }, [acceptsTextInput, autoFocusDirectInput, inputRef, isProductionBlocked, mode.id]);
 
+  useEffect(() => {
+    if (!isProductionImeOn) {
+      return;
+    }
+
+    const storedWidth = clampProductionImeInputWidth(
+      Number(window.localStorage.getItem(productionImeInputWidthStorageKey)),
+    );
+    setProductionImeInputWidth(storedWidth);
+  }, [isProductionImeOn]);
+
+  useLayoutEffect(() => {
+    if (!isProductionImeOn || !acceptsTextInput) {
+      return;
+    }
+
+    const textArea = inputRef.current;
+    if (!textArea) {
+      return;
+    }
+
+    if (
+      shouldStickProductionImeInputToBottom({
+        key: productionImeLastKeyRef.current,
+        selectionEnd: textArea.selectionEnd,
+        selectionStart: textArea.selectionStart,
+        valueLength: textArea.value.length,
+      })
+    ) {
+      textArea.scrollTop = textArea.scrollHeight;
+    }
+  }, [acceptsTextInput, input, inputRef, isProductionImeOn]);
+
+  useLayoutEffect(() => {
+    if (!isProductionImeOn || typeof ResizeObserver === "undefined") {
+      return;
+    }
+
+    const shell = productionImeInputShellRef.current;
+    if (!shell) {
+      return;
+    }
+
+    productionImeInputWidthObservedRef.current = false;
+    const resizeObserver = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) {
+        return;
+      }
+
+      const borderBoxSize = Array.isArray(entry.borderBoxSize)
+        ? entry.borderBoxSize[0]
+        : entry.borderBoxSize;
+      const measuredWidth = borderBoxSize?.inlineSize ?? entry.contentRect.width;
+      const nextWidth = clampProductionImeInputWidth(measuredWidth);
+      if (nextWidth === null) {
+        return;
+      }
+
+      if (!productionImeInputWidthObservedRef.current) {
+        productionImeInputWidthObservedRef.current = true;
+        return;
+      }
+
+      setProductionImeInputWidth((currentWidth) =>
+        currentWidth === nextWidth ? currentWidth : nextWidth,
+      );
+      window.localStorage.setItem(productionImeInputWidthStorageKey, String(nextWidth));
+    });
+
+    resizeObserver.observe(shell);
+    return () => resizeObserver.disconnect();
+  }, [inputRef, isProductionImeOn]);
+
   function handleBackToModeSelect() {
     playTypingSound("back");
     onBackToModeSelect();
+  }
+
+  function handleImeInputChange(event: FormEvent<HTMLTextAreaElement>) {
+    onImeInput(event.currentTarget.value);
+  }
+
+  function handleImeCompositionEnd(event: CompositionEvent<HTMLTextAreaElement>) {
+    onPreventDirectTextInput(event);
+    onImeCompositionEnd(event.currentTarget.value);
+  }
+
+  function handleImeCompositionStart(event: CompositionEvent<HTMLTextAreaElement>) {
+    onPreventDirectTextInput(event);
+    onImeCompositionStart(event.currentTarget.value);
+  }
+
+  function handleImeInputKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
+
+    if (isProductionImeOn) {
+      productionImeLastKeyRef.current = event.key;
+    }
+
+    onImeKeyDown(event);
+  }
+
+  function handleProductionImeInputWidthCommit() {
+    if (!isProductionImeOn) {
+      return;
+    }
+
+    const shell = productionImeInputShellRef.current;
+    if (!shell) {
+      return;
+    }
+
+    const nextWidth = clampProductionImeInputWidth(shell.getBoundingClientRect().width);
+    if (nextWidth === null) {
+      return;
+    }
+
+    setProductionImeInputWidth((currentWidth) =>
+      currentWidth === nextWidth ? currentWidth : nextWidth,
+    );
+    window.localStorage.setItem(productionImeInputWidthStorageKey, String(nextWidth));
+  }
+
+  function handleProductionImeResizePointerDown(event: PointerEvent<HTMLButtonElement>) {
+    const shell = productionImeInputShellRef.current;
+    const parent = shell?.parentElement;
+    if (!shell || !parent) {
+      return;
+    }
+
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    productionImeResizeSessionRef.current = {
+      maxWidth: parent.getBoundingClientRect().width,
+      pointerId: event.pointerId,
+      startWidth: shell.getBoundingClientRect().width,
+      startX: event.clientX,
+    };
+  }
+
+  function handleProductionImeResizePointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const session = productionImeResizeSessionRef.current;
+    if (!session || session.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const nextWidth = calculateCenteredProductionImeInputWidth({
+      maxWidth: session.maxWidth,
+      pointerDeltaX: event.clientX - session.startX,
+      startWidth: session.startWidth,
+    });
+    setProductionImeInputWidth(nextWidth);
+  }
+
+  function handleProductionImeResizePointerUp(event: PointerEvent<HTMLButtonElement>) {
+    const session = productionImeResizeSessionRef.current;
+    if (!session || session.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const nextWidth = calculateCenteredProductionImeInputWidth({
+      maxWidth: session.maxWidth,
+      pointerDeltaX: event.clientX - session.startX,
+      startWidth: session.startWidth,
+    });
+    productionImeResizeSessionRef.current = null;
+    setProductionImeInputWidth(nextWidth);
+    window.localStorage.setItem(productionImeInputWidthStorageKey, String(nextWidth));
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+
+  function renderTypingInputField() {
+    if (acceptsTextInput && isProductionImeOn) {
+      return (
+        <div
+          className={css(styles, "production-ime-input-shell")}
+          ref={productionImeInputShellRef}
+          style={productionImeInputWidth !== null ? { width: `${productionImeInputWidth}px` } : undefined}
+        >
+          <textarea
+            aria-label="typing input"
+            className={css(styles, "typing-input", "production-ime-input")}
+            data-production-ime-input="true"
+            disabled={isFinished}
+            onChange={handleImeInputChange}
+            onBeforeInput={onPreventDirectTextInput}
+            onCompositionEnd={handleImeCompositionEnd}
+            onCompositionStart={handleImeCompositionStart}
+            onDrop={onPreventDirectTextInput}
+            onKeyDown={handleImeInputKeyDown}
+            onKeyUp={handleProductionImeInputWidthCommit}
+            onPaste={onPreventDirectTextInput}
+            placeholder={
+              startedAt
+                ? challengeLanguage === "ja"
+                  ? "IMEありで入力し、行が一致したら Enter"
+                  : "英文を入力し、行が一致したら Enter"
+                : "開始ボタン、またはここで入力を始める"
+            }
+            ref={inputRef}
+            rows={3}
+            value={input}
+          />
+          <button
+            aria-label="resize typing input"
+            className={css(styles, "production-ime-input-resize-handle")}
+            onPointerDown={handleProductionImeResizePointerDown}
+            onPointerMove={handleProductionImeResizePointerMove}
+            onPointerUp={handleProductionImeResizePointerUp}
+            onPointerCancel={handleProductionImeResizePointerUp}
+            type="button"
+          />
+        </div>
+      );
+    }
+
+    return acceptsTextInput ? (
+      <textarea
+        aria-label="typing input"
+        className={css(styles, "typing-input", isProductionImeOn ? "production-ime-input" : "")}
+        data-production-ime-input={isProductionImeOn ? "true" : undefined}
+        onChange={handleImeInputChange}
+        onBeforeInput={onPreventDirectTextInput}
+        onCompositionEnd={handleImeCompositionEnd}
+        onCompositionStart={handleImeCompositionStart}
+        onDrop={onPreventDirectTextInput}
+        onKeyDown={handleImeInputKeyDown}
+        onKeyUp={isProductionImeOn ? handleProductionImeInputWidthCommit : undefined}
+        onPointerUp={isProductionImeOn ? handleProductionImeInputWidthCommit : undefined}
+        onBlur={isProductionImeOn ? handleProductionImeInputWidthCommit : undefined}
+        onPaste={onPreventDirectTextInput}
+        placeholder={
+          startedAt
+            ? challengeLanguage === "ja"
+              ? "IMEありで入力し、行が一致したら Enter"
+              : "英文を入力し、行が一致したら Enter"
+            : "開始ボタン、またはここで入力を始める"
+        }
+        ref={inputRef}
+        rows={isProductionImeOn ? 3 : undefined}
+        style={
+          isProductionImeOn && productionImeInputWidth !== null
+            ? { width: `${productionImeInputWidth}px` }
+            : undefined
+        }
+        value={input}
+      />
+    ) : (
+      <textarea
+        aria-label="direct keyboard capture"
+        autoCapitalize="none"
+        autoCorrect="off"
+        className={css(styles, "direct-input-guard")}
+        inputMode="none"
+        onBeforeInput={onPreventDirectTextInput}
+        onCompositionStart={onPreventDirectTextInput}
+        onDrop={onPreventDirectTextInput}
+        onPaste={onPreventDirectTextInput}
+        readOnly
+        ref={inputRef}
+        spellCheck={false}
+        tabIndex={-1}
+        value=""
+      />
+    );
   }
 
   return (
@@ -498,7 +927,19 @@ export function TypingPanel({
       ) : (
         <>
           <div className={targetViewClassName} aria-label="current challenge" style={targetViewStyle}>
-            {mode.requiresIme ? (
+            {isProductionImeOn ? (
+              <ProductionImeChallengeView
+                display={currentDisplay}
+                furigana={currentFurigana}
+                input={scoringInput}
+                nextChallengeDisplay={nextChallengeDisplay}
+                nextChallengeFurigana={nextChallengeFurigana}
+                showDisplayText={showDisplayText}
+                showFurigana={showFuriganaDisplay}
+                showFuriganaMarker={showFuriganaMarker}
+                showKanjiMarker={showKanjiMarker}
+              />
+            ) : mode.requiresIme ? (
               <>
                 {targetDisplayOrder.map((id) => imeTargetElements[id] ?? null)}
               </>
@@ -546,6 +987,8 @@ export function TypingPanel({
             )}
           </div>
 
+          {isProductionImeOn ? renderTypingInputField() : null}
+
           <ChallengeTip
             completedPrompts={stats.completedPrompts}
             isFinished={isFinished}
@@ -558,20 +1001,25 @@ export function TypingPanel({
             acceptsTextInput={acceptsTextInput}
             currentAccuracy={currentAccuracy}
             currentDisplay={currentDisplay}
-            input={input}
+            input={mode.id === "production-ime-on" ? scoringInput : input}
             metrics={metrics}
             stats={stats}
           />
 
-          {acceptsTextInput ? (
+          {!isProductionImeOn ? (acceptsTextInput ? (
             <textarea
               aria-label="typing input"
-              className={css(styles, "typing-input")}
-              onChange={(event) => onImeInput(event.target.value)}
+              className={css(styles, "typing-input", isProductionImeOn ? "production-ime-input" : "")}
+              data-production-ime-input={isProductionImeOn ? "true" : undefined}
+              onChange={handleImeInputChange}
               onBeforeInput={onPreventDirectTextInput}
-              onCompositionStart={onPreventDirectTextInput}
+              onCompositionEnd={handleImeCompositionEnd}
+              onCompositionStart={handleImeCompositionStart}
               onDrop={onPreventDirectTextInput}
-              onKeyDown={onImeKeyDown}
+              onKeyDown={handleImeInputKeyDown}
+              onKeyUp={isProductionImeOn ? handleProductionImeInputWidthCommit : undefined}
+              onPointerUp={isProductionImeOn ? handleProductionImeInputWidthCommit : undefined}
+              onBlur={isProductionImeOn ? handleProductionImeInputWidthCommit : undefined}
               onPaste={onPreventDirectTextInput}
               placeholder={
                 startedAt
@@ -581,6 +1029,12 @@ export function TypingPanel({
                   : "開始ボタン、またはここで入力を始める"
               }
               ref={inputRef}
+              rows={isProductionImeOn ? 3 : undefined}
+              style={
+                isProductionImeOn && productionImeInputWidth !== null
+                  ? { width: `${productionImeInputWidth}px` }
+                  : undefined
+              }
               value={input}
             />
           ) : (
@@ -600,7 +1054,7 @@ export function TypingPanel({
               tabIndex={-1}
               value=""
             />
-          )}
+          )) : null}
           {imeError ? <p className={css(styles, "error-line")}>{imeError}</p> : null}
         </>
       )}
@@ -616,6 +1070,50 @@ export function TypingPanel({
         </div>
       ) : null}
     </section>
+  );
+}
+
+function ProductionImeChallengeView({
+  display,
+  furigana,
+  input,
+  nextChallengeDisplay,
+  nextChallengeFurigana,
+  showDisplayText,
+  showFurigana,
+  showFuriganaMarker,
+  showKanjiMarker,
+}: {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  input: string;
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  showDisplayText: boolean;
+  showFurigana: boolean;
+  showFuriganaMarker: boolean;
+  showKanjiMarker: boolean;
+}) {
+  const scrollMarkerCharacterIndex = useStableProductionImePromptScrollMarkerPosition(input, display);
+
+  return (
+    <div className={css(styles, "production-ime-layout")}>
+      {showDisplayText ? (
+        <ProductionLongDisplay
+          display={display}
+          furigana={furigana}
+          input=""
+          nextChallengeDisplay={nextChallengeDisplay}
+          nextChallengeFurigana={nextChallengeFurigana}
+          romajiTarget={null}
+          scrollAnchorLine={1}
+          scrollMarkerCharacterIndex={scrollMarkerCharacterIndex}
+          showFurigana={showFurigana}
+          showFuriganaMarker={showFuriganaMarker}
+          showKanjiMarker={showKanjiMarker}
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -702,9 +1200,9 @@ function ChallengeAnalysis({
   metrics: Metrics;
   stats: RuntimeStats;
 }) {
-  const tiles = acceptsTextInput
-    ? getImeCorrectnessTiles(input, currentDisplay)
-    : getDirectCorrectnessTiles(stats.keyStabilityHistory);
+  const tiles = acceptsTextInput ? [] : getDirectCorrectnessTiles(stats.keyStabilityHistory);
+  const correctnessEmptyLabel =
+    acceptsTextInput && input.length > 0 ? "課題終了まで非表示" : "入力待ち";
   const speedMetric = getSpeedMetric(metrics.keysPerSecond);
   const driftMs = getAverageAbsoluteDrift(stats.keyStabilityHistory, metrics.paceMs);
 
@@ -719,7 +1217,7 @@ function ChallengeAnalysis({
         </div>
         <div className={css(styles, "correctness-tiles")} aria-label="正誤履歴">
           {tiles.length === 0 ? (
-            <span className={css(styles, "analysis-empty")}>入力待ち</span>
+            <span className={css(styles, "analysis-empty")}>{correctnessEmptyLabel}</span>
           ) : (
             tiles.map((tile) => (
               <span className={css(styles, "correctness-tile", tile.state)} key={tile.id} title={tile.title}>
@@ -809,12 +1307,14 @@ function CorrectionDebtIndicator({ debt }: { debt: number }) {
 
 function createTopDisplayMetrics({
   metrics,
+  mode,
   progress,
   remainingSeconds,
   stats,
   topDisplayMetricIds,
 }: {
   metrics: Metrics;
+  mode: TypingMode;
   progress: number;
   remainingSeconds: number;
   stats: RuntimeStats;
@@ -850,6 +1350,20 @@ function createTopDisplayMetrics({
             label: "打鍵/分",
             value: Math.round(metrics.keysPerSecond * 60).toLocaleString(),
           };
+        case "kanaCharactersPerSecond":
+          return {
+            id,
+            label: "かな文字/秒",
+            value: metrics.kanaCharactersPerSecond.toFixed(2),
+          };
+        case "promptCharactersPerSecond":
+          return mode.id === "production-ime-on"
+            ? {
+                id,
+                label: "課題文字/秒",
+                value: metrics.promptCharactersPerSecond.toFixed(2),
+              }
+            : null;
         case "accuracy":
           return {
             id,
@@ -887,7 +1401,8 @@ function createTopDisplayMetrics({
             value: <MetricSplitValue left={stats.correctCharacters} right={stats.physicalKeystrokes} />,
           };
       }
-    });
+    })
+    .filter((metric) => metric !== null && metric !== undefined);
 }
 
 function clampPercent(value: number) {
@@ -918,26 +1433,6 @@ function getDirectCorrectnessTiles(history: KeyStabilitySample[]): CorrectnessTi
       label,
       state,
       title: formatSampleTitle(sample),
-    };
-  });
-}
-
-function getImeCorrectnessTiles(input: string, target: string): CorrectnessTile[] {
-  const inputCharacters = Array.from(input);
-  const targetCharacters = Array.from(target);
-  const startIndex = Math.max(0, inputCharacters.length - 48);
-
-  return inputCharacters.slice(startIndex).map((character, offset) => {
-    const index = startIndex + offset;
-    const expected = targetCharacters[index];
-    const isCorrect = expected !== undefined && character === expected;
-    const label = formatKeyLabel(character);
-
-    return {
-      id: `ime-${index}-${character}`,
-      label,
-      state: expected === undefined ? "wrong" : isCorrect ? "correct" : "wrong",
-      title: `${label} / ${isCorrect ? "正打" : "ミス"}`,
     };
   });
 }
@@ -1455,6 +1950,8 @@ function ProductionLongDisplay({
   nextChallengeDisplay,
   nextChallengeFurigana,
   romajiTarget,
+  scrollAnchorLine = 0,
+  scrollMarkerCharacterIndex,
   showFurigana,
   showFuriganaMarker,
   showKanjiMarker,
@@ -1465,50 +1962,262 @@ function ProductionLongDisplay({
   nextChallengeDisplay: string;
   nextChallengeFurigana: JapaneseFuriganaEntry[];
   romajiTarget: RomajiInputTarget | null;
+  scrollAnchorLine?: number;
+  scrollMarkerCharacterIndex?: number | null;
   showFurigana: boolean;
   showFuriganaMarker: boolean;
   showKanjiMarker: boolean;
 }) {
+  const previousSnapshotRef = useRef<ProductionLongDisplaySnapshot | null>(null);
+  const [activeHandoff, setActiveHandoff] = useState<ProductionLongDisplayHandoff | null>(null);
   const markerProgress = romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null;
-  const markerKey = `${markerProgress?.currentTokenIndex ?? 0}-${markerProgress?.completedTokens ?? 0}`;
-  const { bodyRef, scrollLines } = useProductionLongBodyScroll(markerKey);
+  const currentContentKey = createProductionLongScrollContentKey({
+    display,
+    nextChallengeDisplay,
+  });
+  const previousSnapshot = previousSnapshotRef.current;
+  const nextHandoff =
+    previousSnapshot === null
+      ? null
+      : createProductionLongDisplayHandoff({
+          display,
+          furigana,
+          nextChallengeDisplay,
+          nextChallengeFurigana,
+          previous: previousSnapshot,
+        });
+  const visibleHandoff = activeHandoff ?? nextHandoff;
+  const scrollContentKey = visibleHandoff?.scrollContentKey ?? currentContentKey;
+  const markerKey = `${visibleHandoff?.id ?? "normal"}-${scrollAnchorLine}-${scrollMarkerCharacterIndex ?? "romaji"}-${markerProgress?.currentTokenIndex ?? 0}-${markerProgress?.completedTokens ?? 0}`;
+  const { bodyRef, scrollLines } = useProductionLongBodyScroll(
+    markerKey,
+    scrollAnchorLine,
+    scrollContentKey,
+  );
   const scrollStyle = {
     "--production-long-scroll-lines": `${scrollLines}`,
   } as CSSProperties;
 
+  useLayoutEffect(() => {
+    if (nextHandoff !== null && activeHandoff?.id !== nextHandoff.id) {
+      setActiveHandoff(nextHandoff);
+    }
+  }, [activeHandoff?.id, nextHandoff]);
+
+  useEffect(() => {
+    if (activeHandoff === null) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setActiveHandoff((current) => (current?.id === activeHandoff.id ? null : current));
+    }, productionLongScrollTransitionMs);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [activeHandoff]);
+
+  useLayoutEffect(() => {
+    previousSnapshotRef.current = {
+      display,
+      furigana,
+      nextChallengeDisplay,
+      nextChallengeFurigana,
+      scrollContentKey: currentContentKey,
+    };
+  }, [currentContentKey, display, furigana, nextChallengeDisplay, nextChallengeFurigana]);
+
   return (
     <div className={css(styles, "production-long-body")} ref={bodyRef}>
-      <div className={css(styles, "production-long-scroll-content")} style={scrollStyle}>
-        <ProductionLongDisplayText
-          display={display}
-          furigana={furigana}
-          markerProgress={showKanjiMarker || showFuriganaMarker ? markerProgress : null}
-          scrollMarkerProgress={markerProgress}
-          showFurigana={showFurigana}
-          showFuriganaMarker={showFuriganaMarker}
-          showKanjiMarker={showKanjiMarker}
-        />
-        {nextChallengeDisplay ? (
-          <div className={css(styles, "production-long-next-spacer")}>
+      <div
+        className={css(styles, "production-long-scroll-content")}
+        key={scrollContentKey}
+        style={scrollStyle}
+      >
+        {visibleHandoff ? (
+          <>
             <ProductionLongDisplayText
-              display={nextChallengeDisplay}
-              furigana={nextChallengeFurigana}
+              display={visibleHandoff.previousDisplay}
+              furigana={visibleHandoff.previousFurigana}
               markerProgress={null}
+              scrollMarkerCharacterIndex={null}
               scrollMarkerProgress={null}
               showFurigana={showFurigana}
               showFuriganaMarker={false}
               showKanjiMarker={false}
             />
-          </div>
-        ) : null}
+            <div className={css(styles, "production-long-next-spacer")}>
+              <ProductionLongDisplayText
+                display={display}
+                furigana={furigana}
+                markerProgress={showKanjiMarker || showFuriganaMarker ? markerProgress : null}
+                scrollMarkerCharacterIndex={scrollMarkerCharacterIndex ?? 0}
+                scrollMarkerProgress={markerProgress}
+                showFurigana={showFurigana}
+                showFuriganaMarker={showFuriganaMarker}
+                showKanjiMarker={showKanjiMarker}
+              />
+            </div>
+            {nextChallengeDisplay ? (
+              <div className={css(styles, "production-long-next-spacer")}>
+                <ProductionLongDisplayText
+                  display={nextChallengeDisplay}
+                  furigana={nextChallengeFurigana}
+                  markerProgress={null}
+                  scrollMarkerCharacterIndex={null}
+                  scrollMarkerProgress={null}
+                  showFurigana={showFurigana}
+                  showFuriganaMarker={false}
+                  showKanjiMarker={false}
+                />
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <ProductionLongDisplayText
+              display={display}
+              furigana={furigana}
+              markerProgress={showKanjiMarker || showFuriganaMarker ? markerProgress : null}
+              scrollMarkerCharacterIndex={scrollMarkerCharacterIndex ?? null}
+              scrollMarkerProgress={markerProgress}
+              showFurigana={showFurigana}
+              showFuriganaMarker={showFuriganaMarker}
+              showKanjiMarker={showKanjiMarker}
+            />
+            {nextChallengeDisplay ? (
+              <div className={css(styles, "production-long-next-spacer")}>
+                <ProductionLongDisplayText
+                  display={nextChallengeDisplay}
+                  furigana={nextChallengeFurigana}
+                  markerProgress={null}
+                  scrollMarkerCharacterIndex={null}
+                  scrollMarkerProgress={null}
+                  showFurigana={showFurigana}
+                  showFuriganaMarker={false}
+                  showKanjiMarker={false}
+                />
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-function useProductionLongBodyScroll(markerKey: string) {
+type ProductionLongDisplaySnapshot = {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  scrollContentKey: string;
+};
+
+type ProductionLongDisplayHandoff = {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  id: string;
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  previousDisplay: string;
+  previousFurigana: JapaneseFuriganaEntry[];
+  resetContentKey: string;
+  scrollContentKey: string;
+};
+
+type ProductionLongScrollState = {
+  contentKey: string;
+  scrollLines: number;
+};
+
+export function createProductionLongScrollContentKey({
+  display,
+  nextChallengeDisplay,
+}: {
+  display: string;
+  nextChallengeDisplay: string;
+}) {
+  return `${display.length}:${display}\u001f${nextChallengeDisplay.length}:${nextChallengeDisplay}`;
+}
+
+export function createProductionLongChallengeHandoff({
+  display,
+  nextChallengeDisplay,
+  previousDisplay,
+  previousNextChallengeDisplay,
+}: {
+  display: string;
+  nextChallengeDisplay: string;
+  previousDisplay: string;
+  previousNextChallengeDisplay: string;
+}) {
+  if (!display || previousDisplay === display || previousNextChallengeDisplay !== display) {
+    return null;
+  }
+
+  return {
+    id: `${previousDisplay.length}:${previousDisplay}\u001f${display.length}:${display}`,
+    resetContentKey: createProductionLongScrollContentKey({ display, nextChallengeDisplay }),
+    scrollContentKey: createProductionLongScrollContentKey({
+      display: previousDisplay,
+      nextChallengeDisplay: previousNextChallengeDisplay,
+    }),
+  };
+}
+
+function createProductionLongDisplayHandoff({
+  display,
+  furigana,
+  nextChallengeDisplay,
+  nextChallengeFurigana,
+  previous,
+}: {
+  display: string;
+  furigana: JapaneseFuriganaEntry[];
+  nextChallengeDisplay: string;
+  nextChallengeFurigana: JapaneseFuriganaEntry[];
+  previous: ProductionLongDisplaySnapshot;
+}): ProductionLongDisplayHandoff | null {
+  const handoff = createProductionLongChallengeHandoff({
+    display,
+    nextChallengeDisplay,
+    previousDisplay: previous.display,
+    previousNextChallengeDisplay: previous.nextChallengeDisplay,
+  });
+
+  if (handoff === null) {
+    return null;
+  }
+
+  return {
+    ...handoff,
+    display,
+    furigana,
+    nextChallengeDisplay,
+    nextChallengeFurigana,
+    previousDisplay: previous.display,
+    previousFurigana: previous.furigana,
+  };
+}
+
+export function getProductionLongEffectiveScrollLines(
+  state: ProductionLongScrollState,
+  contentKey: string,
+) {
+  return state.contentKey === contentKey ? state.scrollLines : 0;
+}
+
+function useProductionLongBodyScroll(
+  markerKey: string,
+  scrollAnchorLine: number,
+  scrollContentKey: string,
+) {
   const bodyRef = useRef<HTMLDivElement | null>(null);
-  const [scrollLines, setScrollLines] = useState(0);
+  const [scrollState, setScrollState] = useState<ProductionLongScrollState>({
+    contentKey: scrollContentKey,
+    scrollLines: 0,
+  });
+  const scrollLines = getProductionLongEffectiveScrollLines(scrollState, scrollContentKey);
 
   useLayoutEffect(() => {
     const body = bodyRef.current;
@@ -1533,15 +2242,29 @@ function useProductionLongBodyScroll(markerKey: string) {
         );
 
         if (!content || !textLine || !marker) {
-          setScrollLines(0);
+          setScrollState((current) =>
+            current.contentKey === scrollContentKey && current.scrollLines === 0
+              ? current
+              : { contentKey: scrollContentKey, scrollLines: 0 },
+          );
           animationFrameId = null;
           return;
         }
 
         const lineHeight = getProductionLongLineHeight(textLine);
         const markerTop = marker.getBoundingClientRect().top - content.getBoundingClientRect().top;
-        const nextScrollLines = calculateProductionLongScrollLines(markerTop, lineHeight);
-        setScrollLines((current) => (current === nextScrollLines ? current : nextScrollLines));
+        const spacerOffsetLines = getProductionLongSpacerOffsetLines(marker, lineHeight);
+        const nextScrollLines = calculateProductionLongScrollLines(
+          markerTop,
+          lineHeight,
+          scrollAnchorLine,
+          spacerOffsetLines,
+        );
+        setScrollState((current) =>
+          current.contentKey === scrollContentKey && current.scrollLines === nextScrollLines
+            ? current
+            : { contentKey: scrollContentKey, scrollLines: nextScrollLines },
+        );
         animationFrameId = null;
       });
     };
@@ -1564,7 +2287,7 @@ function useProductionLongBodyScroll(markerKey: string) {
       resizeObserver?.disconnect();
       window.removeEventListener("resize", updateScrollLines);
     };
-  }, [markerKey]);
+  }, [markerKey, scrollAnchorLine, scrollContentKey]);
 
   return { bodyRef, scrollLines };
 }
@@ -1580,18 +2303,50 @@ function getProductionLongLineHeight(element: HTMLElement) {
   return Number.isFinite(fontSize) && fontSize > 0 ? fontSize * 1.45 : 0;
 }
 
-export function calculateProductionLongScrollLines(markerTop: number, lineHeight: number) {
+function getProductionLongSpacerOffsetLines(marker: HTMLElement, lineHeight: number) {
+  if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+    return 0;
+  }
+
+  const spacer = marker.closest<HTMLElement>(cssSelector("production-long-next-spacer"));
+  if (!spacer) {
+    return 0;
+  }
+
+  const marginTop = Number.parseFloat(window.getComputedStyle(spacer).marginTop);
+  if (!Number.isFinite(marginTop) || marginTop <= 0) {
+    return 0;
+  }
+
+  const marginLines = marginTop / lineHeight;
+  return marginLines - Math.floor(marginLines);
+}
+
+export function calculateProductionLongScrollLines(
+  markerTop: number,
+  lineHeight: number,
+  scrollAnchorLine = 0,
+  spacerOffsetLines = 0,
+) {
   if (!Number.isFinite(markerTop) || !Number.isFinite(lineHeight) || markerTop <= 0 || lineHeight <= 0) {
     return 0;
   }
 
-  return Math.max(0, Math.floor(markerTop / lineHeight));
+  const anchorLine =
+    Number.isFinite(scrollAnchorLine) && scrollAnchorLine > 0 ? Math.floor(scrollAnchorLine) : 0;
+  const normalizedSpacerOffsetLines =
+    Number.isFinite(spacerOffsetLines) && spacerOffsetLines > 0 ? spacerOffsetLines : 0;
+  const nextScrollLines =
+    Math.floor(markerTop / lineHeight) - anchorLine + normalizedSpacerOffsetLines;
+
+  return Math.max(0, Math.round(nextScrollLines * 1000) / 1000);
 }
 
 function ProductionLongDisplayText({
   display,
   furigana,
   markerProgress,
+  scrollMarkerCharacterIndex,
   scrollMarkerProgress,
   showFurigana,
   showFuriganaMarker,
@@ -1600,33 +2355,63 @@ function ProductionLongDisplayText({
   display: string;
   furigana: JapaneseFuriganaEntry[];
   markerProgress: { completedTokens: number; currentTokenIndex: number } | null;
+  scrollMarkerCharacterIndex: number | null;
   scrollMarkerProgress: { completedTokens: number; currentTokenIndex: number } | null;
   showFurigana: boolean;
   showFuriganaMarker: boolean;
   showKanjiMarker: boolean;
 }) {
   if (furigana.length === 0) {
+    if (scrollMarkerCharacterIndex !== null) {
+      return (
+        <p className={css(styles, "display-text production-long-display-text")}>
+          {renderProductionLongPlainScrollTarget(display, scrollMarkerCharacterIndex)}
+        </p>
+      );
+    }
+
     return <p className={css(styles, "display-text production-long-display-text")}>{display}</p>;
   }
 
+  let characterStart = 0;
   let tokenStart = 0;
+  const displayParts = createJapaneseFuriganaParts(display, furigana);
+  const totalTokenCount = displayParts.reduce(
+    (total, part) => total + countJapaneseReadingTokens(part.ruby ?? part.text),
+    0,
+  );
 
   return (
     <p className={css(styles, "display-text production-long-display-text")}>
-      {createJapaneseFuriganaParts(display, furigana).map((part, index) => {
+      {displayParts.map((part, index) => {
+        const partCharacterStart = characterStart;
+        const partCharacterEnd = partCharacterStart + Array.from(part.text).length;
         const partTokenStart = tokenStart;
         const tokenCount = countJapaneseReadingTokens(part.ruby ?? part.text);
         const tokenEnd = tokenStart + tokenCount;
+        characterStart = partCharacterEnd;
         tokenStart = tokenEnd;
 
         if (part.ruby) {
           const subRubies = splitRubyPart(part.text, part.ruby, partTokenStart);
+          let subRubyCharacterStart = partCharacterStart;
+
           return subRubies.map((subRuby, subIndex) => {
-            const isScrollTarget = shouldPlaceProductionLongScrollTarget(
-              scrollMarkerProgress,
-              subRuby.tokenStart,
-              subRuby.tokenEnd,
-            );
+            const subRubyCharacterEnd =
+              subRubyCharacterStart + Array.from(subRuby.kanji).length;
+            const isScrollTarget =
+              shouldPlaceProductionLongScrollTarget(
+                scrollMarkerProgress,
+                subRuby.tokenStart,
+                subRuby.tokenEnd,
+                subRuby.tokenEnd >= totalTokenCount,
+              ) ||
+              shouldPlaceProductionLongScrollCharacterTarget(
+                scrollMarkerCharacterIndex,
+                subRubyCharacterStart,
+                subRubyCharacterEnd,
+              );
+            subRubyCharacterStart = subRubyCharacterEnd;
 
             if (showFurigana) {
               const rubyClassName = getDisplayMarkerClassName(
@@ -1687,11 +2472,18 @@ function ProductionLongDisplayText({
           });
         }
 
-        const isScrollTarget = shouldPlaceProductionLongScrollTarget(
-          scrollMarkerProgress,
-          partTokenStart,
-          tokenEnd,
-        );
+        const isScrollTarget =
+          shouldPlaceProductionLongScrollTarget(
+            scrollMarkerProgress,
+            partTokenStart,
+            tokenEnd,
+            tokenEnd >= totalTokenCount,
+          ) ||
+          shouldPlaceProductionLongScrollCharacterTarget(
+            scrollMarkerCharacterIndex,
+            partCharacterStart,
+            partCharacterEnd,
+          );
 
         if (showKanjiMarker && markerProgress !== null) {
           return (
@@ -1723,15 +2515,45 @@ function ProductionLongDisplayText({
   );
 }
 
+function renderProductionLongPlainScrollTarget(display: string, scrollMarkerCharacterIndex: number) {
+  const characters = Array.from(display);
+  const clampedIndex = Math.min(Math.max(scrollMarkerCharacterIndex, 0), characters.length - 1);
+  const before = characters.slice(0, clampedIndex).join("");
+  const marker = characters[clampedIndex];
+  const after = characters.slice(clampedIndex + 1).join("");
+
+  return (
+    <>
+      {before}
+      <span className={css(styles, "production-long-scroll-target")}>{marker}</span>
+      {after}
+    </>
+  );
+}
+
 function shouldPlaceProductionLongScrollTarget(
   markerProgress: { completedTokens: number; currentTokenIndex: number } | null,
   tokenStart: number,
   tokenEnd: number,
+  isFinalTokenRange = false,
 ) {
   return (
     markerProgress !== null &&
-    tokenStart <= markerProgress.currentTokenIndex &&
-    markerProgress.currentTokenIndex < tokenEnd
+    ((tokenStart <= markerProgress.currentTokenIndex &&
+      markerProgress.currentTokenIndex < tokenEnd) ||
+      (isFinalTokenRange && markerProgress.currentTokenIndex >= tokenEnd))
+  );
+}
+
+function shouldPlaceProductionLongScrollCharacterTarget(
+  markerCharacterIndex: number | null,
+  characterStart: number,
+  characterEnd: number,
+) {
+  return (
+    markerCharacterIndex !== null &&
+    characterStart <= markerCharacterIndex &&
+    markerCharacterIndex < characterEnd
   );
 }
 

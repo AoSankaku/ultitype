@@ -85,6 +85,8 @@ export type MetricsInput = {
   elapsedSeconds: number;
   scoreDurationSeconds?: number;
   keystrokes: number;
+  kanaCharacters: number;
+  promptCharacters: number;
   characterAttempts: number;
   correctCharacters: number;
   mistakes: number;
@@ -95,6 +97,8 @@ export type MetricsInput = {
 
 export type Metrics = {
   keysPerSecond: number;
+  kanaCharactersPerSecond: number;
+  promptCharactersPerSecond: number;
   accuracy: number;
   paceMs: number;
   consistency: number;
@@ -505,6 +509,41 @@ export function createRomajiInputTarget(guide: string, config: RomajiInputConfig
     parts,
     tokens,
   } satisfies RomajiInputTarget;
+}
+
+export function countShortestRomajiKeystrokes(source: string) {
+  const target = createRomajiInputTarget(source, {
+    allowSplitYoon: true,
+    allowSplitSpecialYoon: true,
+    preset: "shortest",
+    selections: {},
+    specialPreset: "integrated",
+    specialSelections: {},
+  });
+
+  return target.tokens.reduce((sum, token) => sum + token.preferred.length, 0);
+}
+
+export function countPreferredRomajiProgressKeystrokes(
+  target: RomajiInputTarget,
+  shortestTarget: RomajiInputTarget,
+  input: string,
+) {
+  const progress = getRomajiInputProgress(target, input);
+  if (!progress.accepted) {
+    return 0;
+  }
+
+  const completedKeystrokes = shortestTarget.tokens
+    .slice(0, progress.completedTokens)
+    .reduce((sum, token) => sum + token.preferred.length, 0);
+  const currentToken = shortestTarget.tokens[progress.currentTokenIndex];
+  const currentKeystrokes =
+    progress.currentOption && currentToken
+      ? Math.min(progress.currentOptionOffset, currentToken.preferred.length)
+      : 0;
+
+  return completedKeystrokes + currentKeystrokes;
 }
 
 export function getRomajiInputProgress(target: RomajiInputTarget, input: string) {
@@ -1032,6 +1071,8 @@ function uniqueStrings<T extends string>(values: T[]): T[] {
 export function calculateMetrics(input: MetricsInput): Metrics {
   const elapsed = Math.max(input.elapsedSeconds, 0.001);
   const keysPerSecond = input.keystrokes / elapsed;
+  const kanaCharactersPerSecond = input.kanaCharacters / elapsed;
+  const promptCharactersPerSecond = input.promptCharacters / elapsed;
   const scoreElapsed = Math.max(input.scoreDurationSeconds ?? input.elapsedSeconds, 0.001);
   const scoreKeysPerSecond = input.keystrokes / scoreElapsed;
   const accuracy =
@@ -1046,6 +1087,8 @@ export function calculateMetrics(input: MetricsInput): Metrics {
 
   return {
     keysPerSecond,
+    kanaCharactersPerSecond,
+    promptCharactersPerSecond,
     accuracy,
     paceMs,
     consistency,
@@ -1173,6 +1216,165 @@ export function countImeCorrectCharacters(input: string, target: string): number
   return isImeSubmissionMatch(input, target)
     ? target.length
     : countCorrectAtSamePositions(normalizedInput, normalizedTarget);
+}
+
+export type ImeProductionScoreOptions = {
+  forceComplete?: boolean;
+  requireTrailingNewline?: boolean;
+};
+
+export type ImeProductionScore = {
+  completedTargetLength: number;
+  correctCharacters: number;
+  inputLength: number;
+  isComplete: boolean;
+  mistakes: number;
+  targetLength: number;
+};
+
+type ImeProductionScoreCell = {
+  cost: number;
+  correct: number;
+};
+
+function getBetterImeProductionScoreCell(
+  current: ImeProductionScoreCell | null,
+  candidate: ImeProductionScoreCell,
+) {
+  if (current === null || candidate.cost < current.cost) {
+    return candidate;
+  }
+
+  return current;
+}
+
+function getMinimumImeProductionPrefixLength(inputCharacters: string[], targetCharacters: string[]) {
+  let searchStartIndex = 0;
+  let minimumPrefixLength = 0;
+
+  for (const inputCharacter of inputCharacters) {
+    const targetIndex = targetCharacters.indexOf(inputCharacter, searchStartIndex);
+    if (targetIndex === -1) {
+      continue;
+    }
+
+    searchStartIndex = targetIndex + 1;
+    minimumPrefixLength = searchStartIndex;
+  }
+
+  return minimumPrefixLength;
+}
+
+function normalizeImeProductionPunctuationCharacter(character: string) {
+  switch (character) {
+    case ",":
+    case "、":
+      return "、";
+    case ".":
+    case "。":
+      return "。";
+    default:
+      return character;
+  }
+}
+
+function normalizeImeProductionPunctuationCharacters(characters: string[]) {
+  return characters.map((character) => normalizeImeProductionPunctuationCharacter(character));
+}
+
+function countMixedImeProductionPunctuationMistake(characters: string[]) {
+  let hasJapanesePunctuation = false;
+  let hasWesternPunctuation = false;
+
+  for (const character of characters) {
+    if (character === "、" || character === "。") {
+      hasJapanesePunctuation = true;
+    } else if (character === "," || character === ".") {
+      hasWesternPunctuation = true;
+    }
+  }
+
+  return hasJapanesePunctuation && hasWesternPunctuation ? 1 : 0;
+}
+
+export function scoreImeProductionInput(
+  input: string,
+  target: string,
+  options: ImeProductionScoreOptions = {},
+): ImeProductionScore {
+  const rawInputCharacters = Array.from(input);
+  const rawTargetCharacters = Array.from(
+    options.requireTrailingNewline && !target.endsWith("\n") ? `${target}\n` : target,
+  );
+  const inputCharacters = normalizeImeProductionPunctuationCharacters(rawInputCharacters);
+  const targetCharacters = normalizeImeProductionPunctuationCharacters(rawTargetCharacters);
+  const mixedPunctuationMistake =
+    countMixedImeProductionPunctuationMistake(rawInputCharacters);
+  const inputLength = inputCharacters.length;
+  const targetLength = targetCharacters.length;
+  const minimumPrefixLength = options.forceComplete
+    ? targetLength
+    : getMinimumImeProductionPrefixLength(inputCharacters, targetCharacters);
+
+  const rows = inputLength + 1;
+  const columns = targetLength + 1;
+  const table: ImeProductionScoreCell[][] = Array.from({ length: rows }, () =>
+    Array.from({ length: columns }, () => ({ cost: 0, correct: 0 })),
+  );
+
+  for (let inputIndex = 1; inputIndex <= inputLength; inputIndex += 1) {
+    table[inputIndex][0] = { cost: inputIndex, correct: 0 };
+  }
+
+  for (let targetIndex = 1; targetIndex <= targetLength; targetIndex += 1) {
+    table[0][targetIndex] = { cost: targetIndex, correct: 0 };
+  }
+
+  for (let inputIndex = 1; inputIndex <= inputLength; inputIndex += 1) {
+    for (let targetIndex = 1; targetIndex <= targetLength; targetIndex += 1) {
+      const charactersMatch =
+        inputCharacters[inputIndex - 1] === targetCharacters[targetIndex - 1];
+      let bestCell = getBetterImeProductionScoreCell(null, {
+        cost: table[inputIndex - 1][targetIndex - 1].cost + (charactersMatch ? 0 : 1),
+        correct: table[inputIndex - 1][targetIndex - 1].correct + (charactersMatch ? 1 : 0),
+      });
+      bestCell = getBetterImeProductionScoreCell(bestCell, {
+        cost: table[inputIndex - 1][targetIndex].cost + 1,
+        correct: table[inputIndex - 1][targetIndex].correct,
+      });
+      bestCell = getBetterImeProductionScoreCell(bestCell, {
+        cost: table[inputIndex][targetIndex - 1].cost + 1,
+        correct: table[inputIndex][targetIndex - 1].correct,
+      });
+      table[inputIndex][targetIndex] = bestCell;
+    }
+  }
+
+  let completedTargetLength = minimumPrefixLength;
+  let bestResult = table[inputLength][completedTargetLength];
+
+  if (!options.forceComplete) {
+    for (
+      let targetIndex = minimumPrefixLength + 1;
+      targetIndex <= targetLength;
+      targetIndex += 1
+    ) {
+      const candidate = table[inputLength][targetIndex];
+      if (candidate.cost < bestResult.cost) {
+        completedTargetLength = targetIndex;
+        bestResult = candidate;
+      }
+    }
+  }
+
+  return {
+    completedTargetLength,
+    correctCharacters: bestResult.correct,
+    inputLength,
+    isComplete: completedTargetLength === targetLength,
+    mistakes: bestResult.cost + mixedPunctuationMistake,
+    targetLength,
+  };
 }
 
 export function formatTimer(seconds: number): string {

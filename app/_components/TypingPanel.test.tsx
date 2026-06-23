@@ -256,6 +256,32 @@ describe("TypingPanel", () => {
     expect(finishedMarkup).not.toContain("\u2248 1,234 pts");
   });
 
+  test("renders finished result messages without mojibake", () => {
+    const finishedMarkup = renderTypingPanel({
+      currentRank: getRank(1234),
+      finishReason: "completed",
+      isFinished: true,
+      metrics: {
+        accuracy: 1,
+        consistency: 1,
+        kanaCharactersPerSecond: 0,
+        keysPerSecond: 5,
+        paceMs: 200,
+        promptCharactersPerSecond: 0,
+        score: 1234,
+      },
+      remainingSeconds: 0,
+    });
+    const retiredMarkup = renderTypingPanel({
+      finishReason: "retired",
+      isFinished: true,
+    });
+
+    expect(finishedMarkup).toContain("セッション終了: F1 / 1,234 pts");
+    expect(retiredMarkup).toContain("無入力が続いたためリタイアしました");
+    expect(`${finishedMarkup}${retiredMarkup}`).not.toMatch(/[繧縺蜈譛荳邨髢隱鬘譁蟄蠑蝣蛟諠陦謇鬆蜉蜍蛻繝遉譎謌菫霑螳逕逅遘郢驍]/);
+  });
+
   test("shows the full in-progress rank in actual calculation mode", () => {
     const actualMarkup = renderTypingPanel({
       currentRank: getRank(4280),

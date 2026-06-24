@@ -17,4 +17,5 @@ export * from "./typing-panel/center-display-text";
 export * from "./typing-panel/challenge-text-stack";
 export * from "./typing-panel/display-text";
 export * from "./typing-panel/input-progress";
+export * from "./typing-panel/direct-guide-characters";
 export * from "./typing-panel/guide-characters";

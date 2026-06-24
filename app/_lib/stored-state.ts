@@ -123,6 +123,7 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
     ),
     topDisplayMetricIds: normalizeTopDisplayMetricIds(settings.topDisplayMetricIds),
     targetDisplayOrder: normalizeTargetDisplayOrder(settings.targetDisplayOrder),
+    enSpaceDisplay: normalizeEnSpaceDisplay(settings.enSpaceDisplay),
   };
 }
 
@@ -229,6 +230,8 @@ export function normalizeStoredState(storedState: Partial<StoredState> | null | 
         storedSettings?.topDisplayMetricIds ?? [...defaultTopDisplayMetricIds],
       targetDisplayOrder:
         storedSettings?.targetDisplayOrder ?? [...defaultTargetDisplayOrder],
+      enSpaceDisplay:
+        storedSettings?.enSpaceDisplay ?? initialSettings.enSpaceDisplay,
       consecutiveMistypeRetireCount:
         storedSettings?.consecutiveMistypeRetireCount ??
         initialSettings.consecutiveMistypeRetireCount,
@@ -332,6 +335,12 @@ function normalizeSpecialRomajiInputPreset(value: AppSettings["specialRomajiInpu
   return value === "split" || value === "integrated" || value === "custom"
     ? value
     : initialSettings.specialRomajiInputPreset;
+}
+
+function normalizeEnSpaceDisplay(value: AppSettings["enSpaceDisplay"]) {
+  return value === "glyph" || value === "underscore"
+    ? value
+    : initialSettings.enSpaceDisplay;
 }
 
 function getLegacyFuriganaFontScale(settings: LegacyAppSettings | undefined, kanjiFontSize: number) {

@@ -67,6 +67,7 @@ type TypingTargetViewProps = Pick<
   | "strictMistakeDisplayMode"
   | "strictMistakeInput"
   | "targetDisplayOrder"
+  | "enSpaceDisplay"
 > & {
   inputProgress: InputProgress;
   isProductionImeOn: boolean;
@@ -135,6 +136,7 @@ export function TypingTargetView({
   strictMistakeDisplayMode,
   strictMistakeInput,
   targetDisplayOrder,
+  enSpaceDisplay,
 }: TypingTargetViewProps) {
   const imeTargetElements: Partial<Record<TypingPanelProps["targetDisplayOrder"][number], ReactNode>> = {
     kanji: showDisplayText ? (
@@ -254,6 +256,7 @@ export function TypingTargetView({
           showRomajiMarker={showRomajiMarker}
           romajiMarkerMode={romajiMarkerMode}
           targetDisplayOrder={targetDisplayOrder}
+          enSpaceDisplay={enSpaceDisplay}
           showDisplayText={showDisplayText}
           isProductionDirect={mode.group === "production"}
           currentChallengeLane={stats.completedPrompts % 2 === 0 ? "top" : "bottom"}

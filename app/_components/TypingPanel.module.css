@@ -622,6 +622,11 @@
   white-space: pre;
 }
 
+.visibleSpaceGlyph {
+  color: color-mix(in srgb, currentColor 86%, var(--soft));
+  letter-spacing: 0;
+}
+
 @keyframes challenge-lane-in {
   from {
     opacity: 0.72;

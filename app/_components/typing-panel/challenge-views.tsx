@@ -55,6 +55,7 @@ import { getVisibleSessionRank } from "../../_lib/session-rank-visibility";
 import { type SoundSettings, useTypingSounds } from "../../_lib/typing-sounds";
 import type {
   ChallengeLanguage,
+  EnSpaceDisplay,
   EnglishFontFamily,
   FinishReason,
   JapaneseFontFamily,
@@ -116,6 +117,7 @@ export function DirectChallengeView({
   targetDisplayOrder,
   strictMistakeDisplayMode,
   strictMistakeInput,
+  enSpaceDisplay,
 }: {
   display: string;
   englishFontFamily: EnglishFontFamily;
@@ -155,6 +157,7 @@ export function DirectChallengeView({
   targetDisplayOrder: TargetDisplayElementId[];
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
+  enSpaceDisplay: EnSpaceDisplay;
 }) {
   const challengeContent = (
     <ChallengeTextStack
@@ -180,6 +183,7 @@ export function DirectChallengeView({
       targetDisplayOrder={targetDisplayOrder}
       strictMistakeDisplayMode={strictMistakeDisplayMode}
       strictMistakeInput={strictMistakeInput}
+      enSpaceDisplay={enSpaceDisplay}
     />
   );
   const nextChallengeContent = (
@@ -206,6 +210,7 @@ export function DirectChallengeView({
       targetDisplayOrder={targetDisplayOrder}
       strictMistakeDisplayMode="none"
       strictMistakeInput=""
+      enSpaceDisplay={enSpaceDisplay}
     />
   );
 
@@ -245,6 +250,7 @@ export function DirectChallengeView({
         targetDisplayOrder={targetDisplayOrder}
         strictMistakeDisplayMode={strictMistakeDisplayMode}
         strictMistakeInput={strictMistakeInput}
+        enSpaceDisplay={enSpaceDisplay}
       />
     );
   }
@@ -290,6 +296,7 @@ export function DirectChallengeView({
           startsAtLeft={completedPrompts === 0}
           strictMistakeDisplayMode={strictMistakeDisplayMode}
           strictMistakeInput={strictMistakeInput}
+          enSpaceDisplay={enSpaceDisplay}
         />
       </div>
     );
@@ -377,6 +384,7 @@ export function ProductionDirectChallengeView({
   targetDisplayOrder,
   strictMistakeDisplayMode,
   strictMistakeInput,
+  enSpaceDisplay,
 }: {
   display: string;
   englishFontFamily: EnglishFontFamily;
@@ -411,6 +419,7 @@ export function ProductionDirectChallengeView({
   targetDisplayOrder: TargetDisplayElementId[];
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
+  enSpaceDisplay: EnSpaceDisplay;
 }) {
   return (
     <div className={css(styles, "production-direct-layout")}>
@@ -463,6 +472,7 @@ export function ProductionDirectChallengeView({
             startsAtLeft={completedPrompts === 0}
             strictMistakeDisplayMode={strictMistakeDisplayMode}
             strictMistakeInput={strictMistakeInput}
+            enSpaceDisplay={enSpaceDisplay}
           />
         </div>
       ) : (
@@ -482,6 +492,7 @@ export function ProductionDirectChallengeView({
           romajiMarkerMode={romajiMarkerMode}
           strictMistakeDisplayMode={strictMistakeDisplayMode}
           strictMistakeInput={strictMistakeInput}
+          enSpaceDisplay={enSpaceDisplay}
         />
       )}
     </div>

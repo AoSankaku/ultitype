@@ -101,6 +101,31 @@ describe("stored state persistence", () => {
     ]);
   });
 
+  test("fills and validates the English space display setting", () => {
+    const migrated = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        enSpaceDisplay: undefined,
+      },
+    });
+    const normalized = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        enSpaceDisplay: "invalid" as typeof initialStoredState.settings.enSpaceDisplay,
+      },
+    });
+    const underscore = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        enSpaceDisplay: "underscore",
+      },
+    });
+
+    expect(migrated.settings.enSpaceDisplay).toBe("glyph");
+    expect(normalized.settings.enSpaceDisplay).toBe("glyph");
+    expect(underscore.settings.enSpaceDisplay).toBe("underscore");
+  });
+
   test("keeps an explicitly empty top display metric selection", () => {
     const stored = normalizeStoredState({
       settings: {

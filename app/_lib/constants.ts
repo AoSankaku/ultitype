@@ -235,6 +235,7 @@ export const initialSettings: AppSettings = {
   nextChallengePreviewMode: "split-slide",
   topDisplayMetricIds: [...defaultTopDisplayMetricIds],
   targetDisplayOrder: [...defaultTargetDisplayOrder],
+  enSpaceDisplay: "glyph",
 };
 
 export const initialStoredState: StoredState = {

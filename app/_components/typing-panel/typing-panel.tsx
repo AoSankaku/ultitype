@@ -103,6 +103,7 @@ export function TypingPanel({
   isPreview = false,
   topDisplayMetricIds,
   targetDisplayOrder,
+  enSpaceDisplay,
   onBackToModeSelect,
   onImeCompositionEnd,
   onImeCompositionStart,
@@ -401,6 +402,7 @@ export function TypingPanel({
             strictMistakeDisplayMode={strictMistakeDisplayMode}
             strictMistakeInput={strictMistakeInput}
             targetDisplayOrder={targetDisplayOrder}
+            enSpaceDisplay={enSpaceDisplay}
           />
 
           {isProductionImeOn ? (

@@ -67,6 +67,7 @@ import type {
   StrictMistakeDisplayMode,
   TargetDisplayElementId,
   TopDisplayMetricId,
+  EnSpaceDisplay,
 } from "../../_lib/types";
 import styles from "../TypingPanel.module.css";
 
@@ -109,6 +110,7 @@ export function ContinuousChallengeTextStack({
   startsAtLeft,
   strictMistakeDisplayMode,
   strictMistakeInput,
+  enSpaceDisplay,
 }: {
   display: string;
   englishFontFamily: EnglishFontFamily;
@@ -143,6 +145,7 @@ export function ContinuousChallengeTextStack({
   startsAtLeft: boolean;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
+  enSpaceDisplay: EnSpaceDisplay;
 }) {
   const hasSeparateDisplay = display !== guide;
   const centerMarkerPosition = getCenterMarkerPosition(romajiTarget, input);
@@ -276,6 +279,7 @@ export function ContinuousChallengeTextStack({
                 "",
                 "none",
                 false,
+                enSpaceDisplay,
               )}
             </span>
           ) : null}
@@ -288,6 +292,7 @@ export function ContinuousChallengeTextStack({
               strictMistakeDisplayMode,
               showRomajiMarker,
               romajiMarkerMode,
+              enSpaceDisplay,
             )
             : renderGuideCharacters(
               guide,
@@ -296,9 +301,10 @@ export function ContinuousChallengeTextStack({
               strictMistakeInput,
               strictMistakeDisplayMode,
               showRomajiMarker,
+              enSpaceDisplay,
             )}
           <span className={css(styles, "center-scroll-next-text")}>
-            {renderGuideCharacters(nextChallengeGuide, "", null, "", "none", false)}
+            {renderGuideCharacters(nextChallengeGuide, "", null, "", "none", false, enSpaceDisplay)}
           </span>
         </p>
       </CenterScrollViewport>

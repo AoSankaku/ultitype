@@ -383,6 +383,7 @@ export function InputScreenSettingsScreen({
               strictMistakeDisplayMode={settings.strictMistakeDisplayMode}
               strictMistakeInput=""
               topDisplayMetricIds={settings.topDisplayMetricIds}
+              enSpaceDisplay={settings.enSpaceDisplay}
               onBackToModeSelect={() => undefined}
               onImeCompositionEnd={() => undefined}
               onImeCompositionStart={() => undefined}

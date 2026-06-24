@@ -67,6 +67,7 @@ import type {
   StrictMistakeDisplayMode,
   TargetDisplayElementId,
   TopDisplayMetricId,
+  EnSpaceDisplay,
 } from "../../_lib/types";
 import styles from "../TypingPanel.module.css";
 
@@ -97,6 +98,7 @@ export function ChallengeTextStack({
   targetDisplayOrder,
   strictMistakeDisplayMode,
   strictMistakeInput,
+  enSpaceDisplay,
 }: {
   display: string;
   furigana: JapaneseFuriganaEntry[];
@@ -120,6 +122,7 @@ export function ChallengeTextStack({
   targetDisplayOrder: TargetDisplayElementId[];
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
+  enSpaceDisplay: EnSpaceDisplay;
 }) {
   const hasSeparateDisplay = display !== guide;
   const markerProgress = romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null;
@@ -186,8 +189,9 @@ export function ChallengeTextStack({
               strictMistakeDisplayMode,
               showRomajiMarker,
               romajiMarkerMode,
+              enSpaceDisplay,
             )
-            : renderGuideCharacters(guide, "", null, "", "none", false)
+            : renderGuideCharacters(guide, "", null, "", "none", false, enSpaceDisplay)
           : renderGuideCharacters(
             guide,
             input,
@@ -195,6 +199,7 @@ export function ChallengeTextStack({
             strictMistakeInput,
             strictMistakeDisplayMode,
             showRomajiMarker,
+            enSpaceDisplay,
           )}
       </p>
     ),

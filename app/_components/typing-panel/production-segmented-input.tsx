@@ -67,10 +67,11 @@ import type {
   StrictMistakeDisplayMode,
   TargetDisplayElementId,
   TopDisplayMetricId,
+  EnSpaceDisplay,
 } from "../../_lib/types";
 import styles from "../TypingPanel.module.css";
 
-import { getOverwriteMistakeCharacter, getVisibleStrictMistakeCharacters, renderRomajiGuideTokenUnits, renderStrictMistakeCharacters } from "./guide-characters";
+import { getOverwriteMistakeCharacter, getVisibleSpaceCharacter, getVisibleStrictMistakeCharacters, renderRomajiGuideTokenUnits, renderStrictMistakeCharacters } from "./guide-characters";
 import { createFallbackSegment, createReadingPunctuationSegments, createRomajiPunctuationSegments, getActiveProductionSegmentIndex } from "./production-segments";
 import { ProductionTextSegment } from "./types";
 
@@ -90,6 +91,7 @@ export function ProductionSegmentedInputStack({
   romajiMarkerMode,
   strictMistakeDisplayMode,
   strictMistakeInput,
+  enSpaceDisplay,
 }: {
   guide: string;
   input: string;
@@ -106,6 +108,7 @@ export function ProductionSegmentedInputStack({
   romajiMarkerMode: RomajiMarkerMode;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
+  enSpaceDisplay: EnSpaceDisplay;
 }) {
   const readingSegments = createReadingPunctuationSegments(reading);
   const guideSegments = createRomajiPunctuationSegments(romajiTarget, guide);
@@ -146,6 +149,7 @@ export function ProductionSegmentedInputStack({
       romajiMarkerMode={romajiMarkerMode}
       strictMistakeDisplayMode={strictMistakeDisplayMode}
       strictMistakeInput={strictMistakeInput}
+      enSpaceDisplay={enSpaceDisplay}
     />
   );
   const nextContent = (
@@ -165,6 +169,7 @@ export function ProductionSegmentedInputStack({
       romajiMarkerMode={romajiMarkerMode}
       strictMistakeDisplayMode="none"
       strictMistakeInput=""
+      enSpaceDisplay={enSpaceDisplay}
     />
   );
 
@@ -212,6 +217,7 @@ export function ProductionSegmentLaneContent({
   romajiMarkerMode,
   strictMistakeDisplayMode,
   strictMistakeInput,
+  enSpaceDisplay,
 }: {
   guideSegment: ProductionTextSegment;
   input: string;
@@ -226,6 +232,7 @@ export function ProductionSegmentLaneContent({
   romajiMarkerMode: RomajiMarkerMode;
   strictMistakeDisplayMode: StrictMistakeDisplayMode;
   strictMistakeInput: string;
+  enSpaceDisplay: EnSpaceDisplay;
 }) {
   return (
     <>
@@ -240,7 +247,7 @@ export function ProductionSegmentLaneContent({
               mistakeFlash,
               showHiraganaMarker,
             )
-            : renderPlainSegmentCharacters(readingSegment.text)}
+            : renderPlainSegmentCharacters(readingSegment.text, enSpaceDisplay)}
         </p>
       ) : null}
       <p className={css(styles, "input-target")} aria-label="romaji input target">
@@ -255,18 +262,40 @@ export function ProductionSegmentLaneContent({
             showRomajiMarker,
             romajiMarkerMode,
           )
-          : renderPlainSegmentCharacters(guideSegment.text)}
+          : renderPlainSegmentCharacters(guideSegment.text, enSpaceDisplay)}
       </p>
     </>
   );
 }
 
-export function renderPlainSegmentCharacters(text: string) {
-  return Array.from(text).map((character, index) => (
-    <span className={css(styles, "char")} key={`segment-plain-${character}-${index}`}>
-      {character}
-    </span>
-  ));
+export function renderPlainSegmentCharacters(
+  text: string,
+  enSpaceDisplay: EnSpaceDisplay = "glyph",
+) {
+  return Array.from(text).map((character, index) => {
+    if (/\s/.test(character)) {
+      return (
+        <span
+          className={css(
+            styles,
+            "visual-space",
+            "char",
+            enSpaceDisplay === "glyph" ? "visible-space-glyph" : "",
+          )}
+          key={`segment-space-${index}`}
+          aria-hidden="true"
+        >
+          {getVisibleSpaceCharacter(enSpaceDisplay)}
+        </span>
+      );
+    }
+
+    return (
+      <span className={css(styles, "char")} key={`segment-plain-${character}-${index}`}>
+        {character}
+      </span>
+    );
+  });
 }
 
 export function renderReadingGuideSegmentCharacters(

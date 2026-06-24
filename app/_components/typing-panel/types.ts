@@ -53,6 +53,7 @@ import { getVisibleSessionRank } from "../../_lib/session-rank-visibility";
 import { type SoundSettings, useTypingSounds } from "../../_lib/typing-sounds";
 import type {
   ChallengeLanguage,
+  EnSpaceDisplay,
   EnglishFontFamily,
   FinishReason,
   JapaneseFontFamily,
@@ -156,6 +157,7 @@ export type TypingPanelProps = {
   isPreview?: boolean;
   topDisplayMetricIds: TopDisplayMetricId[];
   targetDisplayOrder: TargetDisplayElementId[];
+  enSpaceDisplay: EnSpaceDisplay;
   onBackToModeSelect: () => void;
   onImeCompositionEnd: (input: string) => void;
   onImeCompositionStart: (input: string) => void;

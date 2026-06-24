@@ -104,6 +104,7 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     strictMistakeInput: "",
     targetDisplayOrder: initialSettings.targetDisplayOrder,
     topDisplayMetricIds: initialSettings.topDisplayMetricIds,
+    enSpaceDisplay: initialSettings.enSpaceDisplay,
     onBackToModeSelect: () => undefined,
     onImeCompositionEnd: () => undefined,
     onImeCompositionStart: () => undefined,
@@ -520,6 +521,43 @@ describe("TypingPanel", () => {
     expect(englishMarkup).toContain('class="target-view english-target-view"');
     expect(japaneseMarkup).toContain('class="target-view"');
     expect(japaneseMarkup).not.toContain("english-target-view");
+  });
+
+  test("shows English spaces as target characters without shifting progress", () => {
+    const spaceCurrentMarkup = renderTypingPanel({
+      challengeLanguage: "en",
+      currentDisplay: "a b",
+      currentGuide: "a b",
+      input: "a",
+    });
+    const nextCharacterCurrentMarkup = renderTypingPanel({
+      challengeLanguage: "en",
+      currentDisplay: "a b",
+      currentGuide: "a b",
+      input: "a ",
+    });
+
+    expect(spaceCurrentMarkup).toContain(
+      '<span class="char correct">a</span><span class="visual-space char current visible-space-glyph" aria-hidden="true">\u2423</span><span class="char">b</span>',
+    );
+    expect(nextCharacterCurrentMarkup).toContain(
+      '<span class="char correct">a</span><span class="visual-space char correct visible-space-glyph" aria-hidden="true">\u2423</span><span class="char current">b</span>',
+    );
+  });
+
+  test("can render English target spaces as underscores", () => {
+    const markup = renderTypingPanel({
+      challengeLanguage: "en",
+      currentDisplay: "a b",
+      currentGuide: "a b",
+      enSpaceDisplay: "underscore",
+      input: "a",
+    });
+
+    expect(markup).toContain(
+      '<span class="char correct">a</span><span class="visual-space char current" aria-hidden="true">_</span><span class="char">b</span>',
+    );
+    expect(markup).not.toContain("visible-space-glyph");
   });
 
   test("shows split slide next challenge with the same text stack in the lower lane", () => {

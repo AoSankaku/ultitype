@@ -1544,6 +1544,7 @@ export function useTypingSession({
       strictMistakeDisplayMode: stored.settings.strictMistakeDisplayMode,
       strictMistakeInput: stats.mistakeInput,
       topDisplayMetricIds: stored.settings.topDisplayMetricIds,
+      enSpaceDisplay: stored.settings.enSpaceDisplay,
       onBackToModeSelect: returnToModeSelect,
       onImeInput: handleImeInput,
       onImeCompositionEnd: handleImeCompositionEnd,

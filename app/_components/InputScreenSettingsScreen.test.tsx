@@ -238,6 +238,7 @@ describe("InputScreenSettingsScreen", () => {
       "ひらがなマーカー",
       "入力途中経過（ひらがな）表示",
       "ローマ字マーカー",
+      "スペース表示",
       "次の課題の表示方式",
       "正確無比の誤入力表示",
     ]);
@@ -287,8 +288,20 @@ describe("InputScreenSettingsScreen", () => {
       "hiragana-input-screen-settings",
       "hiragana-input-progress-screen-settings",
       "romaji-input-screen-settings",
+      "english-space-settings",
       "other-input-screen-settings",
     ]);
+  });
+
+  test("shows English space display controls", () => {
+    const markup = renderInputScreenSettingsScreen();
+    const englishMarkup = getInputScreenSubcategoryMarkup(markup, "english-space-settings");
+
+    expect(englishMarkup).toContain("英文モード");
+    expect(englishMarkup).toContain("スペース表示");
+    expect(englishMarkup).toContain('aria-pressed="true"');
+    expect(englishMarkup).toContain("\u2423");
+    expect(englishMarkup).toContain("_");
   });
 
   test("shows a draggable display order setting including hidden elements", () => {

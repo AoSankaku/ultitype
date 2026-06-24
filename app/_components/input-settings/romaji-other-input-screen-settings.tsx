@@ -98,6 +98,42 @@ export function RomajiOtherInputScreenSettings({ controller }: { controller: Inp
             </div>
           </section>
 
+          <section className={css(styles, "settings-subcategory")} aria-labelledby="english-space-settings">
+            <h4 className={css(styles, "settings-subcategory-title")} id="english-space-settings">
+              英文モード
+            </h4>
+            <div className={css(styles, "settings-subcategory-list")}>
+              <section className={css(styles, "settings-row")} aria-labelledby="en-space-display-setting">
+                <div>
+                  <h4 id="en-space-display-setting">スペース表示</h4>
+                  <p>英文モードでスペースを記号として表示する</p>
+                </div>
+                <div
+                  className={css(styles, "romaji-preset-segmented")}
+                  role="group"
+                  aria-label="スペース表示"
+                >
+                  <button
+                    aria-pressed={settings.enSpaceDisplay === "glyph"}
+                    className={settings.enSpaceDisplay === "glyph" ? css(styles, "selected") : ""}
+                    onClick={() => onChange({ enSpaceDisplay: "glyph" })}
+                    type="button"
+                  >
+                    {"\u2423"}
+                  </button>
+                  <button
+                    aria-pressed={settings.enSpaceDisplay === "underscore"}
+                    className={settings.enSpaceDisplay === "underscore" ? css(styles, "selected") : ""}
+                    onClick={() => onChange({ enSpaceDisplay: "underscore" })}
+                    type="button"
+                  >
+                    _
+                  </button>
+                </div>
+              </section>
+            </div>
+          </section>
+
           <section className={css(styles, "settings-subcategory")} aria-labelledby="other-input-screen-settings">
             <h4 className={css(styles, "settings-subcategory-title")} id="other-input-screen-settings">
               その他の設定

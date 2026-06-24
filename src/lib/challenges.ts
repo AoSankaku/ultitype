@@ -237,7 +237,7 @@ export function createJapaneseDirectChallenges(
 
 const sokuonSourceMarker = "^";
 
-function kanaReadingToRomaji(reading: string): string {
+export function kanaReadingToRomaji(reading: string): string {
   return createJapaneseReadingSourceParts(reading)
     .map((part) => part.source)
     .join("");

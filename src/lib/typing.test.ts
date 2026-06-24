@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import {
   applyDirectKey,
   calculateMetrics,
+  countShortestRomajiKeystrokes,
+  countPreferredRomajiProgressKeystrokes,
   createRomajiInputTarget,
   getRomajiGuideDisplay,
   getRomajiInputProgress,
@@ -12,6 +14,7 @@ import {
   isImeSubmissionMatch,
   isProductionUnlocked,
   modes,
+  scoreImeProductionInput,
   shouldAcceptTextInput,
 } from "./typing";
 
@@ -20,6 +23,8 @@ describe("calculateMetrics", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 10,
       keystrokes: 70,
+      kanaCharacters: 30,
+      promptCharacters: 20,
       characterAttempts: 60,
       correctCharacters: 54,
       mistakes: 6,
@@ -28,6 +33,8 @@ describe("calculateMetrics", () => {
     });
 
     expect(metrics.keysPerSecond).toBeCloseTo(7);
+    expect(metrics.kanaCharactersPerSecond).toBeCloseTo(3);
+    expect(metrics.promptCharactersPerSecond).toBeCloseTo(2);
     expect("wpm" in metrics).toBe(false);
     expect(metrics.accuracy).toBeCloseTo(0.9);
     expect(metrics.score).toBeCloseTo(5103);
@@ -37,6 +44,8 @@ describe("calculateMetrics", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 2,
       keystrokes: 16,
+      kanaCharacters: 0,
+      promptCharacters: 0,
       characterAttempts: 16,
       correctCharacters: 16,
       mistakes: 0,
@@ -51,6 +60,8 @@ describe("calculateMetrics", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 2,
       keystrokes: 12,
+      kanaCharacters: 0,
+      promptCharacters: 0,
       characterAttempts: 12,
       correctCharacters: 12,
       mistakes: 0,
@@ -65,6 +76,8 @@ describe("calculateMetrics", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 1,
       keystrokes: 12,
+      kanaCharacters: 0,
+      promptCharacters: 0,
       characterAttempts: 12,
       correctCharacters: 12,
       mistakes: 0,
@@ -79,6 +92,8 @@ describe("calculateMetrics", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 2,
       keystrokes: 12,
+      kanaCharacters: 0,
+      promptCharacters: 0,
       characterAttempts: 12,
       correctCharacters: 12,
       mistakes: 0,
@@ -94,6 +109,8 @@ describe("calculateMetrics", () => {
       elapsedSeconds: 10,
       scoreDurationSeconds: 120,
       keystrokes: 60,
+      kanaCharacters: 0,
+      promptCharacters: 0,
       characterAttempts: 60,
       correctCharacters: 60,
       mistakes: 0,
@@ -103,6 +120,27 @@ describe("calculateMetrics", () => {
 
     expect(metrics.keysPerSecond).toBeCloseTo(6);
     expect(metrics.score).toBeCloseTo(500);
+  });
+
+  test("counts production romaji estimates with the shortest accepted spelling", () => {
+    expect(countShortestRomajiKeystrokes("shi^teita")).toBe(8);
+  });
+
+  test("caps production romaji progress at the shortest spelling while a longer variant is typed", () => {
+    const target = createRomajiInputTarget("shi", {
+      allowSplitYoon: true,
+      preset: "hepburn",
+      selections: {},
+    });
+    const shortestTarget = createRomajiInputTarget("shi", {
+      allowSplitYoon: true,
+      preset: "shortest",
+      selections: {},
+    });
+
+    expect(countPreferredRomajiProgressKeystrokes(target, shortestTarget, "s")).toBe(1);
+    expect(countPreferredRomajiProgressKeystrokes(target, shortestTarget, "sh")).toBe(2);
+    expect(countPreferredRomajiProgressKeystrokes(target, shortestTarget, "shi")).toBe(2);
   });
 });
 
@@ -163,6 +201,108 @@ describe("IME submission matching", () => {
   test("allows Japanese punctuation variants but preserves alphabet differences", () => {
     expect(isImeSubmissionMatch("高速入力，正確性。", "高速入力、正確性。")).toBe(true);
     expect(isImeSubmissionMatch("Type", "type")).toBe(false);
+    expect(isImeSubmissionMatch("Ｔype", "Type")).toBe(false);
+  });
+
+  test("scores confirmed IME text against the kanji prompt with strict character differences", () => {
+    expect(scoreImeProductionInput("文章を1手先まで", "文章を１手先まで")).toMatchObject({
+      completedTargetLength: 8,
+      correctCharacters: 7,
+      mistakes: 1,
+    });
+    expect(scoreImeProductionInput("ABCDEF", "ABCではDEF")).toMatchObject({
+      completedTargetLength: 8,
+      correctCharacters: 6,
+      mistakes: 2,
+    });
+    expect(scoreImeProductionInput("ABC、DEF", "ABCDEF")).toMatchObject({
+      completedTargetLength: 6,
+      correctCharacters: 6,
+      mistakes: 1,
+    });
+  });
+
+  test("counts alphabet case and width differences as production IME mistakes", () => {
+    expect(scoreImeProductionInput("Type", "type")).toMatchObject({
+      completedTargetLength: 4,
+      correctCharacters: 3,
+      mistakes: 1,
+    });
+    expect(scoreImeProductionInput("Ｔype", "Type")).toMatchObject({
+      completedTargetLength: 4,
+      correctCharacters: 3,
+      mistakes: 1,
+    });
+    expect(
+      scoreImeProductionInput("Save機能", "save機能", {
+        forceComplete: true,
+      }),
+    ).toMatchObject({
+      completedTargetLength: 6,
+      correctCharacters: 5,
+      mistakes: 1,
+    });
+  });
+
+  test("accepts unified comma and period variants for production IME scoring", () => {
+    expect(scoreImeProductionInput("A,B.C,D", "A、B。C、D")).toMatchObject({
+      completedTargetLength: 7,
+      correctCharacters: 7,
+      mistakes: 0,
+    });
+    expect(scoreImeProductionInput("A、B。C、D", "A,B.C,D")).toMatchObject({
+      completedTargetLength: 7,
+      correctCharacters: 7,
+      mistakes: 0,
+    });
+  });
+
+  test("counts mixed comma and period variants as one production IME mistake", () => {
+    expect(scoreImeProductionInput("A,B。C,D", "A、B。C、D")).toMatchObject({
+      completedTargetLength: 7,
+      correctCharacters: 7,
+      mistakes: 1,
+    });
+  });
+
+  test("counts transposed IME text by the involved character range", () => {
+    expect(scoreImeProductionInput("にも瞬間", "瞬間にも")).toMatchObject({
+      completedTargetLength: 4,
+      correctCharacters: 0,
+      mistakes: 4,
+    });
+  });
+
+  test("chooses the shortest target prefix with the fewest IME mistakes for partial input", () => {
+    expect(scoreImeProductionInput("流れを", "流れを切らない判断")).toMatchObject({
+      completedTargetLength: 3,
+      correctCharacters: 3,
+      isComplete: false,
+      mistakes: 0,
+    });
+  });
+
+  test("requires a newline when completing each IME production prompt", () => {
+    expect(
+      scoreImeProductionInput("課題文", "課題文", {
+        forceComplete: true,
+        requireTrailingNewline: true,
+      }),
+    ).toMatchObject({
+      completedTargetLength: 4,
+      correctCharacters: 3,
+      mistakes: 1,
+    });
+    expect(
+      scoreImeProductionInput("課題文\n", "課題文", {
+        forceComplete: true,
+        requireTrailingNewline: true,
+      }),
+    ).toMatchObject({
+      completedTargetLength: 4,
+      correctCharacters: 4,
+      mistakes: 0,
+    });
   });
 });
 

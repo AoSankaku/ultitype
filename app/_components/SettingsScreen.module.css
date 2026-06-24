@@ -328,6 +328,28 @@
   opacity: 0.45;
 }
 
+.fontFamilySelect {
+  min-width: 220px;
+}
+
+.fontFamilySelect select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  outline: none;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 12px;
+  font: inherit;
+  font-weight: 900;
+}
+
+.fontFamilySelect select:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .themeSegmented {
   display: grid;
   min-width: 220px;
@@ -493,6 +515,76 @@
   accent-color: var(--accent-2);
 }
 
+.targetDisplayOrderRow {
+  align-items: start;
+}
+
+.targetDisplayOrderList {
+  display: grid;
+  width: min(620px, 50vw);
+  gap: 8px;
+}
+
+.targetDisplayOrderItem {
+  display: grid;
+  min-height: 46px;
+  grid-template-columns: 28px minmax(120px, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 7px 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.targetDisplayOrderItem.hiddenItem {
+  color: var(--muted);
+  opacity: 0.72;
+}
+
+.targetDisplayOrderItem.dragging {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.targetDisplayDragHandle {
+  cursor: grab;
+  color: var(--muted);
+  font-size: 16px;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.targetDisplayOrderItem small {
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 4px 7px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.targetDisplayOrderButtons {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.targetDisplayOrderButtons button {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid var(--line);
+  background: var(--surface-deep);
+  color: var(--text);
+}
+
+.targetDisplayOrderButtons button:disabled {
+  cursor: not-allowed;
+  opacity: 0.36;
+}
+
 .sokuonSplitToggle {
   display: flex;
   min-height: 42px;
@@ -527,6 +619,28 @@
 }
 
 .romajiPresetSegmented button.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.markerModeSegmented {
+  display: grid;
+  min-width: 220px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.markerModeSegmented button {
+  min-height: 42px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px 10px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.markerModeSegmented button.selected {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -689,6 +803,11 @@
       width: 100%;
     }
 
+  .fontFamilySelect {
+      width: 100%;
+      min-width: 0;
+    }
+
   .soundToggleList {
       grid-template-columns: 1fr;
     }
@@ -709,6 +828,7 @@
     }
 
   .themeSegmented,
+    .markerModeSegmented,
     .previewModeSegmented,
     .rankCalculationSegmented {
       min-width: 0;

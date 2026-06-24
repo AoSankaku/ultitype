@@ -7,7 +7,10 @@ export type ProductionModeId = Extract<ModeId, "production-ime-off" | "productio
 
 export type ProductionModePlayability = Record<ProductionModeId, boolean>;
 
-const productionBuildPlayableModeIds = new Set<ProductionModeId>(["production-ime-off"]);
+const productionBuildPlayableModeIds = new Set<ProductionModeId>([
+  "production-ime-off",
+  "production-ime-on",
+]);
 
 export function isProductionModePlayableInBuild({
   modeId,

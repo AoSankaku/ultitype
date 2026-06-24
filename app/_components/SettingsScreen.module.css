@@ -468,6 +468,15 @@
   align-items: start;
 }
 
+.spaceBoxPreview {
+  display: inline-block;
+  width: 0.3em;
+  height: 0.82em;
+  border: 0.08em solid currentColor;
+  box-sizing: border-box;
+  vertical-align: -0.04em;
+}
+
 .sokuonMethodRow {
   align-items: start;
 }

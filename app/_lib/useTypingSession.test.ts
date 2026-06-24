@@ -12,6 +12,7 @@ import {
   shouldAcceptImeTextInputChange,
   shouldSubmitImeProductionInputOnEnter,
   getDirectInputKey,
+  getDirectChallengeBoundaryText,
   shouldAutoRetireSession,
 } from "./useTypingSession";
 import type { DirectKeyEvent, KeyStabilitySample } from "./types";
@@ -57,6 +58,45 @@ describe("getDirectInputKey", () => {
   test("ignores navigation and unknown non-printable keys", () => {
     expect(getDirectInputKey(keyEvent({ code: "ShiftLeft", key: "Shift" }))).toBeNull();
     expect(getDirectInputKey(keyEvent({ code: "Convert", key: "Process" }))).toBeNull();
+  });
+});
+
+describe("getDirectChallengeBoundaryText", () => {
+  test("requires a trailing space before advancing between English direct challenges", () => {
+    expect(
+      getDirectChallengeBoundaryText({
+        challengeLanguage: "en",
+        requiresIme: false,
+        text: "Stable rhythm.",
+      }),
+    ).toBe("Stable rhythm. ");
+  });
+
+  test("does not add a boundary character to Japanese direct or IME challenges", () => {
+    expect(
+      getDirectChallengeBoundaryText({
+        challengeLanguage: "ja",
+        requiresIme: false,
+        text: "安定",
+      }),
+    ).toBe("安定");
+    expect(
+      getDirectChallengeBoundaryText({
+        challengeLanguage: "en",
+        requiresIme: true,
+        text: "Stable rhythm.",
+      }),
+    ).toBe("Stable rhythm.");
+  });
+
+  test("keeps a missing next challenge empty", () => {
+    expect(
+      getDirectChallengeBoundaryText({
+        challengeLanguage: "en",
+        requiresIme: false,
+        text: "",
+      }),
+    ).toBe("");
   });
 });
 

@@ -627,6 +627,16 @@
   letter-spacing: 0;
 }
 
+.visibleSpaceBox {
+  display: inline-block;
+  width: 0.3em;
+  height: 0.82em;
+  border: 0.08em solid currentColor;
+  box-sizing: border-box;
+  margin-inline: 0.08em;
+  vertical-align: -0.04em;
+}
+
 @keyframes challenge-lane-in {
   from {
     opacity: 0.72;

@@ -129,6 +129,15 @@ export function RomajiOtherInputScreenSettings({ controller }: { controller: Inp
                   >
                     _
                   </button>
+                  <button
+                    aria-label="縦長ボックス"
+                    aria-pressed={settings.enSpaceDisplay === "box"}
+                    className={settings.enSpaceDisplay === "box" ? css(styles, "selected") : ""}
+                    onClick={() => onChange({ enSpaceDisplay: "box" })}
+                    type="button"
+                  >
+                    <span aria-hidden="true" className={css(styles, "space-box-preview")} />
+                  </button>
                 </div>
               </section>
             </div>

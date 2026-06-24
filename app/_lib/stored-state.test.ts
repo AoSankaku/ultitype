@@ -120,10 +120,17 @@ describe("stored state persistence", () => {
         enSpaceDisplay: "underscore",
       },
     });
+    const box = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        enSpaceDisplay: "box",
+      },
+    });
 
     expect(migrated.settings.enSpaceDisplay).toBe("glyph");
     expect(normalized.settings.enSpaceDisplay).toBe("glyph");
     expect(underscore.settings.enSpaceDisplay).toBe("underscore");
+    expect(box.settings.enSpaceDisplay).toBe("box");
   });
 
   test("keeps an explicitly empty top display metric selection", () => {

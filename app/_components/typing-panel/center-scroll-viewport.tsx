@@ -268,9 +268,7 @@ export function getElementScaleX(element: HTMLElement, rect = element.getBoundin
 }
 
 export function getCompletedGuideInput(guide: string) {
-  return Array.from(guide)
-    .filter((character) => !/\s/.test(character))
-    .join("");
+  return guide;
 }
 
 export function getCenterMarkerPosition(target: RomajiInputTarget | null, input: string) {

@@ -338,7 +338,7 @@ function normalizeSpecialRomajiInputPreset(value: AppSettings["specialRomajiInpu
 }
 
 function normalizeEnSpaceDisplay(value: AppSettings["enSpaceDisplay"]) {
-  return value === "glyph" || value === "underscore"
+  return value === "glyph" || value === "underscore" || value === "box"
     ? value
     : initialSettings.enSpaceDisplay;
 }

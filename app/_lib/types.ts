@@ -50,7 +50,7 @@ export type TargetDisplayElementId =
 export type FinishReason = "completed" | "retired";
 export type Screen = "mode-select" | "typing";
 export type ProductionDuration = 300 | 600;
-export type EnSpaceDisplay = "glyph" | "underscore";
+export type EnSpaceDisplay = "glyph" | "underscore" | "box";
 export type MistakeFlash = {
   id: number;
   input: string;

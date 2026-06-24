@@ -302,6 +302,8 @@ describe("InputScreenSettingsScreen", () => {
     expect(englishMarkup).toContain('aria-pressed="true"');
     expect(englishMarkup).toContain("\u2423");
     expect(englishMarkup).toContain("_");
+    expect(englishMarkup).toContain('aria-label="縦長ボックス"');
+    expect(englishMarkup).toContain('class="space-box-preview"');
   });
 
   test("shows a draggable display order setting including hidden elements", () => {

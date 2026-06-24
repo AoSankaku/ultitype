@@ -12,6 +12,7 @@ import {
   createProductionLongChallengeHandoff,
   createProductionLongScrollContentKey,
   createCenterScrollMeasurementKey,
+  getCompletedGuideInput,
   getProductionLongEffectiveScrollLines,
   productionLongScrollTransitionMs,
   getDirectInputFocusRetryDelays,
@@ -560,6 +561,22 @@ describe("TypingPanel", () => {
     expect(markup).not.toContain("visible-space-glyph");
   });
 
+  test("can render English target spaces as narrow vertical boxes", () => {
+    const markup = renderTypingPanel({
+      challengeLanguage: "en",
+      currentDisplay: "a b",
+      currentGuide: "a b",
+      enSpaceDisplay: "box",
+      input: "a",
+    });
+
+    expect(markup).toContain(
+      '<span class="visual-space char current visible-space-box" aria-hidden="true"></span>',
+    );
+    expect(markup).not.toContain("\u2423");
+    expect(markup).not.toContain(">_</span>");
+  });
+
   test("shows split slide next challenge with the same text stack in the lower lane", () => {
     const nextRomajiTarget = createTestRomajiTarget("tsugi");
     const markup = renderTypingPanel({
@@ -1039,6 +1056,10 @@ describe("TypingPanel", () => {
     expect(inputLine).toContain(
       'class="center-scroll-previous-text"><span class="char correct">d</span><span class="char correct">o</span><span class="char correct">n</span><span class="char correct">e</span></span>',
     );
+  });
+
+  test("preserves spaces when marking a completed English challenge as correct", () => {
+    expect(getCompletedGuideInput("done now ")).toBe("done now ");
   });
 
   test("keeps previous center scroll Japanese markers correct after advancing", () => {

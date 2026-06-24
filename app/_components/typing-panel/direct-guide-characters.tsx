@@ -54,15 +54,20 @@ export function renderGuideCharacters(
 
       const isMistakeFlash =
         mistakeFlash !== null && typed === undefined && currentIndex === input.length;
-      const glyphClass = enSpaceDisplay === "glyph" ? "visible-space-glyph" : "";
+      const displayClass =
+        enSpaceDisplay === "glyph"
+          ? "visible-space-glyph"
+          : enSpaceDisplay === "box"
+            ? "visible-space-box"
+            : "";
       const className =
         typed === undefined
           ? currentIndex === input.length && showMarker
-            ? css(styles, "visual-space", "char current", glyphClass)
-            : css(styles, "visual-space", "char", glyphClass)
+            ? css(styles, "visual-space", "char current", displayClass)
+            : css(styles, "visual-space", "char", displayClass)
           : /\s/.test(typed)
-            ? css(styles, "visual-space", "char correct", glyphClass)
-            : css(styles, "visual-space", "char wrong", glyphClass);
+            ? css(styles, "visual-space", "char correct", displayClass)
+            : css(styles, "visual-space", "char wrong", displayClass);
       const flashClassName = isMistakeFlash ? cx(className, css(styles, "mistake-flash")) : className;
       const flashKey = isMistakeFlash && mistakeFlash ? mistakeFlash.id : "idle";
       elements.push(
@@ -136,7 +141,11 @@ export function renderGuideCharacters(
 }
 
 export function getVisibleSpaceCharacter(enSpaceDisplay: EnSpaceDisplay): string {
-  return enSpaceDisplay === "underscore" ? "_" : "\u2423";
+  if (enSpaceDisplay === "underscore") {
+    return "_";
+  }
+
+  return enSpaceDisplay === "box" ? "" : "\u2423";
 }
 
 export function getVisibleStrictMistakeCharacters(

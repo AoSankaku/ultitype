@@ -158,6 +158,18 @@ export function getDirectInputKey(event: DirectKeyEvent): string | null {
   return null;
 }
 
+export function getDirectChallengeBoundaryText({
+  challengeLanguage,
+  requiresIme,
+  text,
+}: {
+  challengeLanguage: ChallengeLanguage;
+  requiresIme: boolean;
+  text: string;
+}) {
+  return text && challengeLanguage === "en" && !requiresIme ? `${text} ` : text;
+}
+
 export function countTrailingMistypes(history: RuntimeStats["keyStabilityHistory"]) {
   let count = 0;
 
@@ -673,7 +685,11 @@ export function useTypingSession({
       : null;
   const currentDisplay = mode.requiresIme
     ? currentImeChallenge
-    : currentDirectChallenge.display;
+    : getDirectChallengeBoundaryText({
+        challengeLanguage,
+        requiresIme: mode.requiresIme,
+        text: currentDirectChallenge.display,
+      });
   const currentFurigana =
     challengeLanguage === "ja"
       ? mode.requiresIme
@@ -693,11 +709,20 @@ export function useTypingSession({
       : "";
   const currentInputTarget = mode.requiresIme
     ? currentImeChallenge
-    : (currentRomajiTarget ?? currentDirectChallenge.input);
+    : (currentRomajiTarget ??
+      getDirectChallengeBoundaryText({
+        challengeLanguage,
+        requiresIme: mode.requiresIme,
+        text: currentDirectChallenge.input,
+      }));
   const currentGuide =
     challengeLanguage === "ja" && !mode.requiresIme
       ? currentRomajiTarget?.guide
-      : currentDirectChallenge.guide;
+      : getDirectChallengeBoundaryText({
+          challengeLanguage,
+          requiresIme: mode.requiresIme,
+          text: currentDirectChallenge.guide ?? currentDirectChallenge.input,
+        });
   const bestPracticeRank = getRank(stored.bestPracticeScore);
   const bestProductionRank = getRank(stored.bestProductionScore);
   const productionPlayableModes = PRODUCTION_MODE_PLAYABILITY;
@@ -735,7 +760,7 @@ export function useTypingSession({
         ? {
             display: currentDisplay,
             furigana: currentFurigana,
-            guide: currentRomajiTarget?.guide ?? currentDirectGuideSource,
+            guide: currentGuide ?? currentDirectGuideSource,
             reading: currentReading,
           }
         : null,
@@ -1489,12 +1514,22 @@ export function useTypingSession({
       mode,
       nextChallengeDisplay: mode.requiresIme
         ? nextImeChallenge
-        : (nextDirectChallenge?.display ?? ""),
+        : getDirectChallengeBoundaryText({
+            challengeLanguage,
+            requiresIme: mode.requiresIme,
+            text: nextDirectChallenge?.display ?? "",
+          }),
       nextChallengeFurigana:
         mode.requiresIme && challengeLanguage === "ja"
           ? (longChallengeFurigana[nextDirectChallengeIndex % longChallengeFurigana.length] ?? [])
           : (nextDirectChallenge?.furigana ?? []),
-      nextChallengeGuide: nextRomajiTarget?.guide ?? nextDirectGuideSource,
+      nextChallengeGuide:
+        nextRomajiTarget?.guide ??
+        getDirectChallengeBoundaryText({
+          challengeLanguage,
+          requiresIme: mode.requiresIme,
+          text: nextDirectGuideSource,
+        }),
       nextChallengePreview,
       nextChallengePreviewMode: stored.settings.nextChallengePreviewMode,
       targetDisplayOrder: stored.settings.targetDisplayOrder,

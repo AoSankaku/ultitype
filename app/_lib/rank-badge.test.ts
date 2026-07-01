@@ -84,6 +84,16 @@ describe("getRankBadgeSpec", () => {
       textStrokeColor: "#ffffff",
       text: "UM0",
     });
+
+    expect(getRankBadgeSpec("UM42")).toMatchObject({
+      borderColor: null,
+      foregroundColor: "#111111",
+      glossy: true,
+      rainbow: true,
+      shape: "square",
+      textStrokeColor: "#ffffff",
+      text: "UM42",
+    });
   });
 
   test("uses a heavier border for round bordered rank badges", () => {

@@ -166,6 +166,18 @@ describe("rank", () => {
     expect(getRank(500 + 117 * 90).label).toBe("UM1");
   });
 
+  test("keeps UM ranks open-ended above UM0", () => {
+    expect(getRank(500 + 126 * 90)).toMatchObject({
+      label: "UM10",
+      level: 126,
+    });
+    expect(getRank(500 + 158 * 90)).toMatchObject({
+      label: "UM42",
+      level: 158,
+    });
+    expect(getRank(500 + 158 * 90 - 1).label).toBe("UM41");
+  });
+
   test("uses the SPEC color names for the updated rank progression", () => {
     const progression = getRankProgression();
 

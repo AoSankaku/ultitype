@@ -53,10 +53,19 @@ describe("ModeSelectScreen", () => {
     expect(markup.match(/class="mode-select-card locked"/g)?.length).toBe(2);
   });
 
+  test("hides rating mode codes while the cards are locked", () => {
+    const markup = renderModeSelectScreen({ productionUnlocked: false });
+
+    expect(markup.match(/class="mode-code"/g)?.length).toBe(3);
+    expect(markup).not.toContain('<span class="mode-code">本番</span>');
+    expect(markup).not.toContain('<span class="mode-code">IME</span>');
+  });
+
   test("keeps rating modes available outside their alpha production build gates", () => {
     const markup = renderModeSelectScreen({ productionUnlocked: true });
 
     expect(markup.match(/class="mode-select-card locked"/g)?.length ?? 0).toBe(0);
+    expect(markup.match(/class="mode-code"/g)?.length).toBe(5);
   });
 
   test("keeps only alpha-gated rating modes locked when another rating mode is playable", () => {

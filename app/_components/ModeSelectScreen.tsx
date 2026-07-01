@@ -197,7 +197,7 @@ function ModeSelectCard({
         <span className={css(styles, "mode-icon")} aria-hidden="true">
           <ModeIcon size={26} strokeWidth={2.2} />
         </span>
-        <span className={css(styles, "mode-code")}>{mode.shortLabel}</span>
+        {!locked ? <span className={css(styles, "mode-code")}>{mode.shortLabel}</span> : null}
       </div>
       <div className={css(styles, "mode-card-copy")}>
         <strong>{mode.label}</strong>

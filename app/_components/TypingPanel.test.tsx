@@ -993,6 +993,59 @@ describe("TypingPanel", () => {
     expect(inputLine).toContain('<span class="char current">y</span>');
   });
 
+  test("keeps the center scroll romaji anchor when the romaji marker is hidden", () => {
+    const currentRomajiTarget = createTestRomajiTarget("kyou");
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "display",
+      currentGuide: currentRomajiTarget.guide,
+      currentReading: "reading",
+      currentRomajiTarget,
+      input: "k",
+      nextChallengeDisplay: "next",
+      nextChallengeGuide: "next",
+      nextChallengePreview: "next",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "next",
+      nextChallengeRomajiTarget: createTestRomajiTarget("next"),
+      showRomajiMarker: false,
+    });
+    const inputLine = markup.slice(
+      markup.indexOf('class="input-target center-continuous-line"'),
+      markup.indexOf("</p>", markup.indexOf('class="input-target center-continuous-line"')),
+    );
+
+    expect(inputLine).not.toContain('<span class="char current">y</span>');
+    expect(inputLine).toContain('<span class="char center-scroll-current-display">y</span>');
+  });
+
+  test("keeps the center scroll romaji token anchor when the romaji marker is hidden", () => {
+    const currentRomajiTarget = createTestRomajiTarget("kyou");
+    const markup = renderTypingPanel({
+      challengeLanguage: "ja",
+      currentDisplay: "display",
+      currentGuide: currentRomajiTarget.guide,
+      currentReading: "reading",
+      currentRomajiTarget,
+      input: "k",
+      nextChallengeDisplay: "next",
+      nextChallengeGuide: "next",
+      nextChallengePreview: "next",
+      nextChallengePreviewMode: "center-scroll",
+      nextChallengeReading: "next",
+      nextChallengeRomajiTarget: createTestRomajiTarget("next"),
+      romajiMarkerMode: "token",
+      showRomajiMarker: false,
+    });
+    const inputLine = markup.slice(
+      markup.indexOf('class="input-target center-continuous-line"'),
+      markup.indexOf("</p>", markup.indexOf('class="input-target center-continuous-line"')),
+    );
+
+    expect(inputLine).not.toContain('<span class="char correct current">kyo</span>');
+    expect(inputLine).toContain('<span class="char center-scroll-current-display">kyo</span>');
+  });
+
   test("keeps the previous challenge visible before the current center scroll challenge", () => {
     const currentRomajiTarget = createTestRomajiTarget("ima");
     const markup = renderTypingPanel({

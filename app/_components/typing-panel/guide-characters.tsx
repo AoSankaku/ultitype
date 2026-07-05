@@ -156,6 +156,7 @@ export function renderRomajiGuideCharacters(
   showMarker: boolean,
   markerMode: RomajiMarkerMode,
   _enSpaceDisplay: EnSpaceDisplay = "glyph",
+  preserveCurrentAnchor = false,
 ) {
   if (markerMode === "token") {
     return renderRomajiGuideTokenUnits(
@@ -165,6 +166,8 @@ export function renderRomajiGuideCharacters(
       strictMistakeInput,
       strictMistakeDisplayMode,
       showMarker,
+      undefined,
+      preserveCurrentAnchor,
     );
   }
 
@@ -243,6 +246,8 @@ export function renderRomajiGuideCharacters(
           ? css(styles, "char correct")
           : isNextCurrentCharacter && showMarker
             ? css(styles, "char current")
+            : isNextCurrentCharacter && preserveCurrentAnchor
+              ? css(styles, "char center-scroll-current-display")
           : css(styles, "char");
       const flashClassName = isMistakeFlash ? cx(className, css(styles, "mistake-flash")) : className;
       const flashKey = isMistakeFlash && mistakeFlash ? mistakeFlash.id : "idle";
@@ -283,6 +288,7 @@ export function renderRomajiGuideTokenUnits(
   strictMistakeDisplayMode: StrictMistakeDisplayMode,
   showMarker: boolean,
   segment?: ProductionTextSegment,
+  preserveCurrentAnchor = false,
 ) {
   const progress = getRomajiInputProgress(target, input);
   const units = createRomajiMarkerUnits(target, progress);
@@ -357,6 +363,8 @@ export function renderRomajiGuideTokenUnits(
         ? isStartedCurrent
           ? css(styles, "char correct current")
           : css(styles, "char current")
+        : isCurrent && preserveCurrentAnchor
+          ? css(styles, "char center-scroll-current-display")
         : css(styles, "char");
     const flashClassName = isMistakeFlash ? cx(className, css(styles, "mistake-flash")) : className;
     const flashKey = isMistakeFlash && mistakeFlash ? mistakeFlash.id : "idle";

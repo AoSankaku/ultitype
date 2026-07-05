@@ -149,6 +149,7 @@ export function ContinuousChallengeTextStack({
 }) {
   const hasSeparateDisplay = display !== guide;
   const centerMarkerPosition = getCenterMarkerPosition(romajiTarget, input);
+  const preserveHiddenRomajiAnchor = !showRomajiMarker;
   const centerMarkerKey = createCenterScrollMeasurementKey({
     englishFontFamily,
     input,
@@ -293,6 +294,7 @@ export function ContinuousChallengeTextStack({
               showRomajiMarker,
               romajiMarkerMode,
               enSpaceDisplay,
+              preserveHiddenRomajiAnchor,
             )
             : renderGuideCharacters(
               guide,

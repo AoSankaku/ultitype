@@ -444,6 +444,14 @@
   color: var(--warn);
 }
 
+.dangerActions {
+  display: flex;
+  max-width: 520px;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 8px;
+}
+
 .dangerButton {
   display: inline-flex;
   min-height: 42px;
@@ -455,6 +463,11 @@
   color: var(--warn);
   padding: 9px 14px;
   font-weight: 900;
+}
+
+.secondaryDangerButton {
+  border-color: color-mix(in srgb, var(--warn) 48%, var(--line));
+  background: transparent;
 }
 
 .dangerButton:hover,
@@ -793,6 +806,14 @@
 @media (max-width: 720px) {
   .settingsRow {
       grid-template-columns: 1fr;
+    }
+
+  .dangerActions {
+      justify-content: stretch;
+    }
+
+  .dangerButton {
+      width: 100%;
     }
 
   .romajiMethodControls {

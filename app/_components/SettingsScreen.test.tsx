@@ -86,7 +86,7 @@ describe("SettingsScreen", () => {
       "次の課題の表示文字数",
     ]);
     expect(getCategoryItemLabels(markup, "danger-settings")).toEqual([
-      "ローカルデータをすべて削除",
+      "データと設定を消去",
     ]);
   });
 
@@ -135,5 +135,14 @@ describe("SettingsScreen", () => {
     expect(otherMarkup).toContain("短文練習モードで次に出る課題文の冒頭を表示する");
     expect(otherMarkup).toContain('aria-label="次の課題の表示文字数"');
     expect(otherMarkup).toContain('value="8"');
+  });
+
+  test("shows separate destructive actions for user data, settings, and both", () => {
+    const markup = renderSettingsScreen();
+    const dangerMarkup = getCategoryMarkup(markup, "danger-settings");
+
+    expect(dangerMarkup).toContain('data-clear-scope="user-data"');
+    expect(dangerMarkup).toContain('data-clear-scope="settings"');
+    expect(dangerMarkup).toContain('data-clear-scope="all"');
   });
 });

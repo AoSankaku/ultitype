@@ -6,6 +6,7 @@ import {
   ChevronUp,
   MonitorCog,
   Moon,
+  RotateCcw,
   Settings,
   Sun,
   Trash2,
@@ -13,7 +14,7 @@ import {
 import { clampInteger } from "../_lib/challenge-utils";
 import { css } from "../_lib/css-module";
 import { useChromeActiveTabMuted, useTypingSounds } from "../_lib/typing-sounds";
-import type { AppSettings } from "../_lib/types";
+import type { AppSettings, LocalDataClearScope } from "../_lib/types";
 import { SelectSoundLink } from "./SelectSoundLink";
 import styles from "./SettingsScreen.module.css";
 
@@ -22,7 +23,13 @@ type SettingsScreenProps = {
   settings: AppSettings;
   onBack: () => void;
   onChange: (settings: Partial<AppSettings>) => void;
-  onClearLocalData: () => void;
+  onClearLocalData: (scope: LocalDataClearScope) => void;
+};
+
+const clearLocalDataConfirmMessages: Record<LocalDataClearScope, string> = {
+  "user-data": "スコアと履歴だけを削除します。設定は残します。よろしいですか？",
+  settings: "設定をすべて初期値に戻します。スコアと履歴は残します。よろしいですか？",
+  all: "スコア、履歴、設定をすべて削除します。よろしいですか？",
 };
 
 export function SettingsScreen({
@@ -71,9 +78,9 @@ export function SettingsScreen({
     });
   }
 
-  function handleClearLocalData() {
-    if (window.confirm("ローカルデータをすべて削除します。よろしいですか？")) {
-      onClearLocalData();
+  function handleClearLocalData(scope: LocalDataClearScope) {
+    if (window.confirm(clearLocalDataConfirmMessages[scope])) {
+      onClearLocalData(scope);
     }
   }
 
@@ -366,13 +373,38 @@ export function SettingsScreen({
           <div className={css(styles, "settings-category-list")}>
             <section className={css(styles, "settings-row danger-row")} aria-labelledby="clear-local-data-setting">
               <div>
-                <h4 id="clear-local-data-setting">ローカルデータをすべて削除</h4>
-                <p>スコア、履歴、設定をこのブラウザから削除する</p>
+                <h4 id="clear-local-data-setting">データと設定を消去</h4>
+                <p>ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ</p>
               </div>
-              <button className={css(styles, "danger-button")} onClick={handleClearLocalData} type="button">
-                <Trash2 size={17} />
-                削除
-              </button>
+              <div className={css(styles, "danger-actions")}>
+                <button
+                  className={css(styles, "danger-button")}
+                  data-clear-scope="user-data"
+                  onClick={() => handleClearLocalData("user-data")}
+                  type="button"
+                >
+                  <Trash2 size={17} />
+                  ユーザーデータ
+                </button>
+                <button
+                  className={css(styles, "danger-button secondary-danger-button")}
+                  data-clear-scope="settings"
+                  onClick={() => handleClearLocalData("settings")}
+                  type="button"
+                >
+                  <RotateCcw size={17} />
+                  設定を初期化
+                </button>
+                <button
+                  className={css(styles, "danger-button")}
+                  data-clear-scope="all"
+                  onClick={() => handleClearLocalData("all")}
+                  type="button"
+                >
+                  <Trash2 size={17} />
+                  両方
+                </button>
+              </div>
             </section>
           </div>
         </section>

@@ -8,7 +8,7 @@ import {
   storageKey,
   topDisplayMetricOptions,
 } from "./constants";
-import type { AppSettings, StoredState } from "./types";
+import type { AppSettings, LocalDataClearScope, StoredState } from "./types";
 
 let cachedStoredState: StoredState | null = null;
 
@@ -26,6 +26,32 @@ export function cacheStoredState(storedState: StoredState) {
 
 export function resetStoredStateCache() {
   cachedStoredState = null;
+}
+
+export function createClearedStoredState(
+  storedState: StoredState,
+  scope: LocalDataClearScope,
+): StoredState {
+  if (scope === "settings") {
+    return {
+      ...storedState,
+      settings: { ...initialSettings },
+    };
+  }
+
+  const withoutUserData = {
+    ...storedState,
+    bestPracticeScore: 0,
+    bestProductionScore: 0,
+    sessions: [],
+  };
+
+  return scope === "all"
+    ? {
+        ...withoutUserData,
+        settings: { ...initialSettings },
+      }
+    : withoutUserData;
 }
 
 export function normalizeAppSettings(settings: AppSettings): AppSettings {

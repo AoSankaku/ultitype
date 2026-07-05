@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { initialStoredState } from "./constants";
 import {
   cacheStoredState,
+  createClearedStoredState,
   getInitialStoredState,
   normalizeStoredState,
   resetStoredStateCache,
@@ -46,6 +47,92 @@ describe("stored state persistence", () => {
     cacheStoredState(loadedState);
 
     expect(getInitialStoredState()).toEqual(loadedState);
+  });
+
+  test("clears only user data while preserving settings", () => {
+    const stored = {
+      ...initialStoredState,
+      bestPracticeScore: 1200,
+      bestProductionScore: 2400,
+      sessions: [
+        {
+          modeId: "practice-accuracy" as const,
+          challengeLanguage: "ja" as const,
+          score: 1200,
+          rank: "A0",
+          accuracy: 0.98,
+          keysPerSecond: 4.2,
+          createdAt: "2026-07-05T00:00:00.000Z",
+        },
+      ],
+      settings: {
+        ...initialStoredState.settings,
+        theme: "light" as const,
+        soundVolume: 0.25,
+      },
+    };
+
+    expect(createClearedStoredState(stored, "user-data")).toEqual({
+      ...stored,
+      bestPracticeScore: 0,
+      bestProductionScore: 0,
+      sessions: [],
+    });
+  });
+
+  test("resets only settings while preserving user data", () => {
+    const stored = {
+      ...initialStoredState,
+      bestPracticeScore: 1200,
+      bestProductionScore: 2400,
+      sessions: [
+        {
+          modeId: "practice-accuracy" as const,
+          challengeLanguage: "ja" as const,
+          score: 1200,
+          rank: "A0",
+          accuracy: 0.98,
+          keysPerSecond: 4.2,
+          createdAt: "2026-07-05T00:00:00.000Z",
+        },
+      ],
+      settings: {
+        ...initialStoredState.settings,
+        theme: "light" as const,
+        soundVolume: 0.25,
+      },
+    };
+
+    expect(createClearedStoredState(stored, "settings")).toEqual({
+      ...stored,
+      settings: initialStoredState.settings,
+    });
+  });
+
+  test("clears user data and resets settings together", () => {
+    const stored = {
+      ...initialStoredState,
+      bestPracticeScore: 1200,
+      bestProductionScore: 2400,
+      sessions: [
+        {
+          modeId: "practice-accuracy" as const,
+          challengeLanguage: "ja" as const,
+          score: 1200,
+          rank: "A0",
+          accuracy: 0.98,
+          keysPerSecond: 4.2,
+          createdAt: "2026-07-05T00:00:00.000Z",
+        },
+      ],
+      settings: {
+        ...initialStoredState.settings,
+        theme: "light" as const,
+        soundVolume: 0.25,
+      },
+    };
+
+    expect(createClearedStoredState(stored, "all")).toEqual(initialStoredState);
   });
 
   test("fills the strict mistake display setting when loading older stored state", () => {

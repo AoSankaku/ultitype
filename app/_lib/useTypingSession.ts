@@ -45,6 +45,7 @@ import {
 } from "./constants";
 import {
   cacheStoredState,
+  createClearedStoredState,
   getInitialStoredState,
   normalizeAppSettings,
   readStoredState,
@@ -68,6 +69,7 @@ import type {
   ChallengeLanguage,
   DirectKeyEvent,
   FinishReason,
+  LocalDataClearScope,
   MistakeFlash,
   ProductionDuration,
   RuntimeStats,
@@ -101,6 +103,22 @@ export type UseTypingSessionOptions = {
 
 export function shouldPrepareInitialTypingSession(screen: Screen) {
   return screen === "typing";
+}
+
+function removeUltitypeLocalStorage(scope: LocalDataClearScope) {
+  if (scope === "user-data") {
+    return;
+  }
+
+  for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
+    const key = window.localStorage.key(index);
+    if (
+      key?.startsWith("ultitype:") &&
+      (scope === "all" || key !== storageKey)
+    ) {
+      window.localStorage.removeItem(key);
+    }
+  }
 }
 
 const directCodeKeyMap: Record<string, [normal: string, shifted: string]> = {
@@ -1149,28 +1167,17 @@ export function useTypingSession({
     }));
   }
 
-  function clearLocalData() {
-    for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
-      const key = window.localStorage.key(index);
-      if (key?.startsWith("ultitype:")) {
-        window.localStorage.removeItem(key);
-      }
-    }
+  function clearLocalData(scope: LocalDataClearScope = "all") {
+    removeUltitypeLocalStorage(scope);
 
-    skipNextPersistRef.current = true;
-    const nextStored = {
-      ...getInitialStoredState(),
-      bestPracticeScore: 0,
-      bestProductionScore: 0,
-      sessions: [],
-      settings: { ...initialSettings },
-    };
+    skipNextPersistRef.current = scope === "all";
+    const nextStored = createClearedStoredState(stored, scope);
     cacheStoredState(nextStored);
     setStored(nextStored);
     setModeId("practice-accuracy");
     setChallengeLanguage("ja");
     setProductionDuration(300);
-    resetSession();
+    resetSession("ja");
     setScreen("mode-select");
   }
 

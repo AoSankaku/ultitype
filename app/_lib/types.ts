@@ -48,6 +48,7 @@ export type TargetDisplayElementId =
   | "hiraganaInputProgress"
   | "romaji";
 export type FinishReason = "completed" | "retired";
+export type LocalDataClearScope = "user-data" | "settings" | "all";
 export type Screen = "mode-select" | "typing";
 export type ProductionDuration = 300 | 600;
 export type EnSpaceDisplay = "glyph" | "underscore" | "box";

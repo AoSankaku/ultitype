@@ -99,6 +99,10 @@ export type UseTypingSessionOptions = {
   initialScreen?: Screen;
 };
 
+export function shouldPrepareInitialTypingSession(screen: Screen) {
+  return screen === "typing";
+}
+
 const directCodeKeyMap: Record<string, [normal: string, shifted: string]> = {
   Backquote: ["`", "~"],
   BracketLeft: ["[", "{"],
@@ -606,6 +610,7 @@ export function useTypingSession({
   const [hasLoadedStoredState, setHasLoadedStoredState] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const skipNextPersistRef = useRef(false);
+  const initialTypingSessionPreparedRef = useRef(false);
   const playTypingSound = useTypingSounds(stored.settings);
 
   const mode = modes.find((item) => item.id === modeId) ?? modes[0];
@@ -915,6 +920,18 @@ export function useTypingSession({
   useEffect(() => {
     document.documentElement.dataset.theme = stored.settings.theme;
   }, [stored.settings.theme]);
+
+  useEffect(() => {
+    if (
+      initialTypingSessionPreparedRef.current ||
+      !shouldPrepareInitialTypingSession(initialScreen)
+    ) {
+      return;
+    }
+
+    initialTypingSessionPreparedRef.current = true;
+    resetSession(initialChallengeLanguage);
+  }, [initialChallengeLanguage, initialScreen]);
 
   useEffect(() => {
     if (!startedAt || isFinished) {

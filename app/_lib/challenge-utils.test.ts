@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { modes } from "@/src/lib/typing";
 import {
   createOrderedIndexes,
   createShuffledIndexes,
@@ -52,5 +53,24 @@ describe("practice challenge order", () => {
 
     expect(getModeChallengeIndex("production", 0, 3, order)).toBe(2);
     expect(getNextModeChallengeIndex("production", 2, 3, order, upcomingOrder)).toBe(1);
+  });
+
+  test("prevents back-to-back cycle boundary repeats in speed practice", () => {
+    const speedMode = modes.find((mode) => mode.id === "practice-speed");
+    const currentOrder = [2, 0, 1];
+    const upcomingOrder = createShuffledIndexes(3, () => 0, currentOrder.at(-1));
+
+    expect(speedMode?.group).toBe("practice");
+    expect(currentOrder.at(-1)).toBe(1);
+    expect(upcomingOrder[0]).not.toBe(currentOrder.at(-1));
+    expect(
+      getNextModeChallengeIndex(
+        speedMode?.group ?? "practice",
+        2,
+        3,
+        currentOrder,
+        upcomingOrder,
+      ),
+    ).toBe(upcomingOrder[0]);
   });
 });

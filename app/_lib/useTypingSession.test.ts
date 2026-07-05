@@ -13,6 +13,7 @@ import {
   shouldSubmitImeProductionInputOnEnter,
   getDirectInputKey,
   getDirectChallengeBoundaryText,
+  shouldPrepareInitialTypingSession,
   shouldAutoRetireSession,
 } from "./useTypingSession";
 import type { DirectKeyEvent, KeyStabilitySample } from "./types";
@@ -97,6 +98,13 @@ describe("getDirectChallengeBoundaryText", () => {
         text: "",
       }),
     ).toBe("");
+  });
+});
+
+describe("initial typing session preparation", () => {
+  test("prepares direct route typing screens before user input can start", () => {
+    expect(shouldPrepareInitialTypingSession("typing")).toBe(true);
+    expect(shouldPrepareInitialTypingSession("mode-select")).toBe(false);
   });
 });
 

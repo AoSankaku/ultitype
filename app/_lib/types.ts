@@ -58,7 +58,7 @@ export type MistakeFlash = {
 };
 export type DirectKeyEvent = Pick<
   globalThis.KeyboardEvent,
-  "code" | "key" | "preventDefault" | "shiftKey"
+  "code" | "key" | "preventDefault" | "repeat" | "shiftKey"
 >;
 
 export type AppSettings = {

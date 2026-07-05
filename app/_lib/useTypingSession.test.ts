@@ -13,6 +13,7 @@ import {
   shouldSubmitImeProductionInputOnEnter,
   getDirectInputKey,
   getDirectChallengeBoundaryText,
+  getNextEscapeRetirePressCount,
   shouldPrepareInitialTypingSession,
   shouldAutoRetireSession,
 } from "./useTypingSession";
@@ -23,6 +24,7 @@ function keyEvent(input: Partial<DirectKeyEvent>): DirectKeyEvent {
     code: "",
     key: "",
     preventDefault: () => undefined,
+    repeat: false,
     shiftKey: false,
     ...input,
   };
@@ -105,6 +107,43 @@ describe("initial typing session preparation", () => {
   test("prepares direct route typing screens before user input can start", () => {
     expect(shouldPrepareInitialTypingSession("typing")).toBe(true);
     expect(shouldPrepareInitialTypingSession("mode-select")).toBe(false);
+  });
+});
+
+describe("forced retire shortcut", () => {
+  test("retires on the third Escape press", () => {
+    expect(getNextEscapeRetirePressCount({ currentCount: 0, key: "Escape" })).toEqual({
+      count: 1,
+      shouldRetire: false,
+    });
+    expect(getNextEscapeRetirePressCount({ currentCount: 1, key: "Escape" })).toEqual({
+      count: 2,
+      shouldRetire: false,
+    });
+    expect(getNextEscapeRetirePressCount({ currentCount: 2, key: "Escape" })).toEqual({
+      count: 3,
+      shouldRetire: true,
+    });
+  });
+
+  test("resets the shortcut count when another key is pressed", () => {
+    expect(getNextEscapeRetirePressCount({ currentCount: 2, key: "a" })).toEqual({
+      count: 0,
+      shouldRetire: false,
+    });
+  });
+
+  test("does not count repeated Escape keydown events from a held key", () => {
+    expect(
+      getNextEscapeRetirePressCount({
+        currentCount: 1,
+        key: "Escape",
+        repeat: true,
+      }),
+    ).toEqual({
+      count: 1,
+      shouldRetire: false,
+    });
   });
 });
 

@@ -105,6 +105,37 @@ export function shouldPrepareInitialTypingSession(screen: Screen) {
   return screen === "typing";
 }
 
+export function getNextEscapeRetirePressCount({
+  currentCount,
+  key,
+  repeat = false,
+}: {
+  currentCount: number;
+  key: string;
+  repeat?: boolean;
+}) {
+  if (key !== "Escape") {
+    return {
+      count: 0,
+      shouldRetire: false,
+    };
+  }
+
+  if (repeat) {
+    return {
+      count: currentCount,
+      shouldRetire: false,
+    };
+  }
+
+  const count = currentCount + 1;
+
+  return {
+    count,
+    shouldRetire: count >= 3,
+  };
+}
+
 function removeUltitypeLocalStorage(scope: LocalDataClearScope) {
   if (scope === "user-data") {
     return;
@@ -627,6 +658,7 @@ export function useTypingSession({
   const [mistakeFlash, setMistakeFlash] = useState<MistakeFlash | null>(null);
   const [hasLoadedStoredState, setHasLoadedStoredState] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const escapeRetirePressCountRef = useRef(0);
   const skipNextPersistRef = useRef(false);
   const initialTypingSessionPreparedRef = useRef(false);
   const playTypingSound = useTypingSounds(stored.settings);
@@ -1033,6 +1065,7 @@ export function useTypingSession({
     setImeEmptyEnterDebt(0);
     setCommittedInputBeforeComposition(null);
     setMistakeFlash(null);
+    escapeRetirePressCountRef.current = 0;
     window.requestAnimationFrame(() => {
       inputRef.current?.focus({ preventScroll: true });
     });
@@ -1059,6 +1092,7 @@ export function useTypingSession({
     setImeEmptyEnterDebt(0);
     setCommittedInputBeforeComposition(null);
     setMistakeFlash(null);
+    escapeRetirePressCountRef.current = 0;
   }
 
   function finishSession(reason: FinishReason = "completed") {
@@ -1220,8 +1254,40 @@ export function useTypingSession({
     });
   }
 
+  function handleEscapeRetireShortcut(
+    event: Pick<DirectKeyEvent, "key" | "preventDefault" | "repeat">,
+  ) {
+    if (!startedAt || isFinished || isProductionBlocked || screen !== "typing") {
+      escapeRetirePressCountRef.current = 0;
+      return false;
+    }
+
+    const result = getNextEscapeRetirePressCount({
+      currentCount: escapeRetirePressCountRef.current,
+      key: event.key,
+      repeat: event.repeat,
+    });
+
+    escapeRetirePressCountRef.current = result.shouldRetire ? 0 : result.count;
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+    }
+
+    if (result.shouldRetire) {
+      finishSession("retired");
+      return true;
+    }
+
+    return event.key === "Escape";
+  }
+
   function handleDirectKeyDown(event: DirectKeyEvent) {
     if (acceptsTextInput || isFinished) {
+      return;
+    }
+
+    if (handleEscapeRetireShortcut(event)) {
       return;
     }
 
@@ -1330,6 +1396,10 @@ export function useTypingSession({
 
   function handleImeKeyDown(event: ReactKeyboardEvent<HTMLTextAreaElement>) {
     if (!acceptsTextInput || isFinished) {
+      return;
+    }
+
+    if (handleEscapeRetireShortcut(event)) {
       return;
     }
 

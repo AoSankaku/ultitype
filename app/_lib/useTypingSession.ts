@@ -837,6 +837,7 @@ export function useTypingSession({
         mistakes: stats.mistakes + (currentImeMetricDeltas?.mistakes ?? 0),
         intervals: stats.intervals,
         accuracyExponent: mode.accuracyExponent,
+        scoreMultiplier: mode.scoreMultiplier,
         scoreDurationSeconds:
           stored.settings.rankCalculationMode === "actual" ? durationSeconds : undefined,
         useFlowMultiplier: mode.id === "practice-flow",
@@ -848,6 +849,7 @@ export function useTypingSession({
       currentImeMetricDeltas,
       currentPromptCharacters,
       mode.accuracyExponent,
+      mode.scoreMultiplier,
       mode.id,
       stats,
       stored.settings.rankCalculationMode,

@@ -14,6 +14,7 @@ export type TypingMode = {
   shortLabel: string;
   durationSeconds: number;
   accuracyExponent: number;
+  scoreMultiplier?: number;
   lockMistakes: boolean;
   requiresIme: boolean;
   description: string;
@@ -49,6 +50,7 @@ export const modes: TypingMode[] = [
     shortLabel: "速度",
     durationSeconds: 120,
     accuracyExponent: 1.5,
+    scoreMultiplier: 0.9,
     lockMistakes: false,
     requiresIme: false,
     description: "正確率の重みを軽くし、速度の限界を測る練習。",
@@ -92,6 +94,7 @@ export type MetricsInput = {
   mistakes: number;
   intervals: number[];
   accuracyExponent: number;
+  scoreMultiplier?: number;
   useFlowMultiplier?: boolean;
 };
 
@@ -1082,8 +1085,13 @@ export function calculateMetrics(input: MetricsInput): Metrics {
   const paceMs = calculateAverage(input.intervals);
   const consistency = calculateConsistency(input.intervals);
   const flowMultiplier = input.useFlowMultiplier ? consistency : 1;
+  const scoreMultiplier = input.scoreMultiplier ?? 1;
   const score =
-    scoreKeysPerSecond * 1000 * Math.pow(accuracy, input.accuracyExponent) * flowMultiplier;
+    scoreKeysPerSecond *
+    1000 *
+    Math.pow(accuracy, input.accuracyExponent) *
+    flowMultiplier *
+    scoreMultiplier;
 
   return {
     keysPerSecond,

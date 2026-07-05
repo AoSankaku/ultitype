@@ -122,6 +122,23 @@ describe("calculateMetrics", () => {
     expect(metrics.score).toBeCloseTo(500);
   });
 
+  test("applies an optional score multiplier after the base score formula", () => {
+    const metrics = calculateMetrics({
+      elapsedSeconds: 10,
+      keystrokes: 60,
+      kanaCharacters: 0,
+      promptCharacters: 0,
+      characterAttempts: 60,
+      correctCharacters: 60,
+      mistakes: 0,
+      intervals: [],
+      accuracyExponent: 3,
+      scoreMultiplier: 0.9,
+    });
+
+    expect(metrics.score).toBeCloseTo(5_400);
+  });
+
   test("counts production romaji estimates with the shortest accepted spelling", () => {
     expect(countShortestRomajiKeystrokes("shi^teita")).toBe(8);
   });
@@ -930,5 +947,19 @@ describe("shouldAcceptTextInput", () => {
     expect(results["practice-flow"]).toBe(false);
     expect(results["practice-speed"]).toBe(false);
     expect(results["production-ime-off"]).toBe(false);
+  });
+});
+
+describe("practice mode scoring", () => {
+  test("applies a 0.9 score multiplier only to speed practice", () => {
+    const scoreMultipliers = Object.fromEntries(
+      modes.map((mode) => [mode.id, mode.scoreMultiplier ?? 1]),
+    );
+
+    expect(scoreMultipliers["practice-speed"]).toBe(0.9);
+    expect(scoreMultipliers["practice-accuracy"]).toBe(1);
+    expect(scoreMultipliers["practice-flow"]).toBe(1);
+    expect(scoreMultipliers["production-ime-off"]).toBe(1);
+    expect(scoreMultipliers["production-ime-on"]).toBe(1);
   });
 });

@@ -94,6 +94,7 @@ export type MetricsInput = {
   mistakes: number;
   intervals: number[];
   accuracyExponent: number;
+  accuracyCalculation?: "correct-characters" | "pure-characters";
   scoreMultiplier?: number;
   useFlowMultiplier?: boolean;
 };
@@ -1071,6 +1072,17 @@ function uniqueStrings<T extends string>(values: T[]): T[] {
   return Array.from(new Set(values));
 }
 
+export function calculatePureCharacterAccuracy(
+  promptCharacters: number,
+  mistakes: number,
+): number {
+  if (promptCharacters === 0) {
+    return 1;
+  }
+
+  return clamp((promptCharacters - mistakes) / promptCharacters, 0, 1);
+}
+
 export function calculateMetrics(input: MetricsInput): Metrics {
   const elapsed = Math.max(input.elapsedSeconds, 0.001);
   const keysPerSecond = input.keystrokes / elapsed;
@@ -1079,9 +1091,11 @@ export function calculateMetrics(input: MetricsInput): Metrics {
   const scoreElapsed = Math.max(input.scoreDurationSeconds ?? input.elapsedSeconds, 0.001);
   const scoreKeysPerSecond = input.keystrokes / scoreElapsed;
   const accuracy =
-    input.characterAttempts === 0
-      ? 1
-      : clamp(input.correctCharacters / input.characterAttempts, 0, 1);
+    input.accuracyCalculation === "pure-characters"
+      ? calculatePureCharacterAccuracy(input.promptCharacters, input.mistakes)
+      : input.characterAttempts === 0
+        ? 1
+        : clamp(input.correctCharacters / input.characterAttempts, 0, 1);
   const paceMs = calculateAverage(input.intervals);
   const consistency = calculateConsistency(input.intervals);
   const flowMultiplier = input.useFlowMultiplier ? consistency : 1;

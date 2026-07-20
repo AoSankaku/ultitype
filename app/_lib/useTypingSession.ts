@@ -25,6 +25,7 @@ import {
   type RomajiInputTarget,
   applyDirectKey,
   calculateMetrics,
+  calculatePureCharacterAccuracy,
   countPreferredRomajiProgressKeystrokes,
   countShortestRomajiKeystrokes,
   countCorrectDirectCharacters,
@@ -891,6 +892,7 @@ export function useTypingSession({
         mistakes: stats.mistakes + (currentImeMetricDeltas?.mistakes ?? 0),
         intervals: stats.intervals,
         accuracyExponent: mode.accuracyExponent,
+        accuracyCalculation: mode.requiresIme ? "pure-characters" : "correct-characters",
         scoreMultiplier: mode.scoreMultiplier,
         scoreDurationSeconds:
           stored.settings.rankCalculationMode === "actual" ? durationSeconds : undefined,
@@ -903,6 +905,7 @@ export function useTypingSession({
       currentImeMetricDeltas,
       currentPromptCharacters,
       mode.accuracyExponent,
+      mode.requiresIme,
       mode.scoreMultiplier,
       mode.id,
       stats,
@@ -916,9 +919,10 @@ export function useTypingSession({
     : countCorrectDirectCharacters(input, currentInputTarget);
   const currentAccuracy =
     currentImeScore
-      ? currentImeScore.completedTargetLength > 0
-        ? currentImeScore.correctCharacters / currentImeScore.completedTargetLength
-        : 1
+      ? calculatePureCharacterAccuracy(
+          currentImeScore.completedTargetLength,
+          currentImeScore.mistakes,
+        )
       : input.length > 0
         ? currentCorrect / input.length
         : 1;

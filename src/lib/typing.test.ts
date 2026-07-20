@@ -40,6 +40,42 @@ describe("calculateMetrics", () => {
     expect(metrics.score).toBeCloseTo(5103);
   });
 
+  test("uses test characters minus mistakes for IME production accuracy and score", () => {
+    const metrics = calculateMetrics({
+      elapsedSeconds: 10,
+      keystrokes: 100,
+      kanaCharacters: 100,
+      promptCharacters: 100,
+      characterAttempts: 104,
+      correctCharacters: 96,
+      mistakes: 7,
+      intervals: [],
+      accuracyExponent: 3,
+      accuracyCalculation: "pure-characters",
+    });
+
+    expect(metrics.accuracy).toBeCloseTo(0.93);
+    expect(metrics.score).toBeCloseTo(8_043.57);
+  });
+
+  test("clamps IME production accuracy to zero when mistakes exceed test characters", () => {
+    const metrics = calculateMetrics({
+      elapsedSeconds: 10,
+      keystrokes: 10,
+      kanaCharacters: 3,
+      promptCharacters: 3,
+      characterAttempts: 8,
+      correctCharacters: 3,
+      mistakes: 5,
+      intervals: [],
+      accuracyExponent: 3,
+      accuracyCalculation: "pure-characters",
+    });
+
+    expect(metrics.accuracy).toBe(0);
+    expect(metrics.score).toBe(0);
+  });
+
   test("keeps consistency usable when fast typing has natural interval variance", () => {
     const metrics = calculateMetrics({
       elapsedSeconds: 2,

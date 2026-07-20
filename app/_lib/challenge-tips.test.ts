@@ -20,11 +20,11 @@ describe("challenge tips", () => {
 
   test("selects a pre-session tip using the provided random source", () => {
     expect(getRandomPreSessionTip(() => 0)).toBe(preSessionTips[0]);
-    expect(getRandomPreSessionTip(() => 0.999999)).toBe(preSessionTips.at(-1));
+    expect(getRandomPreSessionTip(() => 0.999999)).toBe(preSessionTips.at(-1)!);
   });
 
   test("selects a post-session tip using the provided random source", () => {
     expect(getRandomPostSessionTip(() => 0)).toBe(postSessionTips[0]);
-    expect(getRandomPostSessionTip(() => 0.999999)).toBe(postSessionTips.at(-1));
+    expect(getRandomPostSessionTip(() => 0.999999)).toBe(postSessionTips.at(-1)!);
   });
 });

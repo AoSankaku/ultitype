@@ -16,6 +16,10 @@ type LegacyAppSettings = Partial<AppSettings> & {
   furiganaFontSize?: number;
 };
 
+type StoredStateInput = Omit<Partial<StoredState>, "settings"> & {
+  settings?: LegacyAppSettings;
+};
+
 export function getInitialStoredState() {
   return cachedStoredState ?? initialStoredState;
 }
@@ -153,13 +157,17 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
   };
 }
 
-export function normalizeStoredState(storedState: Partial<StoredState> | null | undefined) {
-  const storedSettings = storedState?.settings as LegacyAppSettings | undefined;
+export function normalizeStoredState(storedState: unknown) {
+  const input =
+    storedState !== null && typeof storedState === "object" && !Array.isArray(storedState)
+      ? (storedState as StoredStateInput)
+      : undefined;
+  const storedSettings = input?.settings;
   const kanjiFontSize = storedSettings?.kanjiFontSize ?? initialSettings.kanjiFontSize;
 
   return {
     ...initialStoredState,
-    ...storedState,
+    ...input,
     settings: normalizeAppSettings({
       ...initialSettings,
       ...storedSettings,
@@ -413,7 +421,7 @@ export function readStoredState(
   }
 
   try {
-    return normalizeStoredState(JSON.parse(raw) as Partial<StoredState>);
+    return normalizeStoredState(JSON.parse(raw));
   } catch {
     storage.removeItem(storageKey);
     return initialStoredState;

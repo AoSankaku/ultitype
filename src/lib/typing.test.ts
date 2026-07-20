@@ -17,6 +17,7 @@ import {
   scoreImeProductionInput,
   shouldAcceptTextInput,
 } from "./typing";
+import type { RomajiInputConfig } from "./typing";
 
 describe("calculateMetrics", () => {
   test("uses all keystrokes for keys per second and character attempts for accuracy", () => {
@@ -653,7 +654,7 @@ describe("applyDirectKey", () => {
   });
 
   test("requires selected standalone sokuon inputs before n, symbols, and end of text", () => {
-    const config = {
+    const config: RomajiInputConfig = {
       preset: "hepburn" as const,
       selections: {},
       sokuon: {

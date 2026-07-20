@@ -10,6 +10,12 @@ import {
 } from "./stored-state";
 
 describe("stored state persistence", () => {
+  test("falls back to the initial state for non-object storage data", () => {
+    expect(normalizeStoredState(null)).toEqual(initialStoredState);
+    expect(normalizeStoredState("invalid")).toEqual(initialStoredState);
+    expect(normalizeStoredState([])).toEqual(initialStoredState);
+  });
+
   test("does not persist the initial state before storage hydration finishes", () => {
     expect(
       shouldPersistStoredState({

@@ -41,5 +41,5 @@ export function getRandomPostSessionTip(random: () => number = Math.random) {
 function getRandomTip<T extends readonly string[]>(tips: T, random: () => number): T[number] {
   const index = Math.min(tips.length - 1, Math.floor(random() * tips.length));
 
-  return tips[index];
+  return tips[index]!;
 }

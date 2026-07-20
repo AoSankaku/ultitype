@@ -1228,7 +1228,6 @@ export function countImeCorrectCharacters(input: string, target: string): number
 
 export type ImeProductionScoreOptions = {
   forceComplete?: boolean;
-  requireTrailingNewline?: boolean;
 };
 
 export type ImeProductionScore = {
@@ -1311,9 +1310,7 @@ export function scoreImeProductionInput(
   options: ImeProductionScoreOptions = {},
 ): ImeProductionScore {
   const rawInputCharacters = Array.from(input);
-  const rawTargetCharacters = Array.from(
-    options.requireTrailingNewline && !target.endsWith("\n") ? `${target}\n` : target,
-  );
+  const rawTargetCharacters = Array.from(target);
   const inputCharacters = normalizeImeProductionPunctuationCharacters(rawInputCharacters);
   const targetCharacters = normalizeImeProductionPunctuationCharacters(rawTargetCharacters);
   const mixedPunctuationMistake =
@@ -1380,7 +1377,10 @@ export function scoreImeProductionInput(
     correctCharacters: bestResult.correct,
     inputLength,
     isComplete: completedTargetLength === targetLength,
-    mistakes: bestResult.cost + mixedPunctuationMistake,
+    mistakes:
+      Math.max(inputLength, completedTargetLength) -
+      bestResult.correct +
+      mixedPunctuationMistake,
     targetLength,
   };
 }

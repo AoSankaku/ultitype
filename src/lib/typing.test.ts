@@ -311,26 +311,24 @@ describe("IME submission matching", () => {
     });
   });
 
-  test("requires a newline when completing each IME production prompt", () => {
+  test("does not count the submit Enter as a trailing newline mistake", () => {
     expect(
       scoreImeProductionInput("課題文", "課題文", {
         forceComplete: true,
-        requireTrailingNewline: true,
       }),
     ).toMatchObject({
-      completedTargetLength: 4,
+      completedTargetLength: 3,
       correctCharacters: 3,
-      mistakes: 1,
+      mistakes: 0,
     });
     expect(
       scoreImeProductionInput("課題文\n", "課題文", {
         forceComplete: true,
-        requireTrailingNewline: true,
       }),
     ).toMatchObject({
-      completedTargetLength: 4,
-      correctCharacters: 4,
-      mistakes: 0,
+      completedTargetLength: 3,
+      correctCharacters: 3,
+      mistakes: 1,
     });
   });
 });

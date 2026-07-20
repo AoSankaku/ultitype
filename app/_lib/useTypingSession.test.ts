@@ -433,11 +433,27 @@ describe("current IME production metric deltas", () => {
         input: "ABCX",
       }),
     ).toMatchObject({
-      characterAttempts: 4,
+      characterAttempts: 3,
       correctCharacters: 3,
       keystrokes: 3,
       mistakes: 1,
       promptCharacters: 3,
+    });
+  });
+
+  test("uses target progress, not edit distance, for IME accuracy attempts", () => {
+    expect(
+      calculateCurrentImeMetricDeltas({
+        challengeLanguage: "en",
+        currentDisplay: "ABCDEF",
+        currentReading: "",
+        input: "ABCXDEF",
+      }),
+    ).toMatchObject({
+      characterAttempts: 6,
+      correctCharacters: 6,
+      mistakes: 1,
+      promptCharacters: 6,
     });
   });
 });
@@ -453,7 +469,7 @@ describe("timed out IME production finalization", () => {
         stats: initialStats,
       }),
     ).toMatchObject({
-      characterAttempts: 8,
+      characterAttempts: 6,
       correctCharacters: 6,
       mistakes: 2,
       promptCharacters: 6,

@@ -463,7 +463,7 @@ export function calculateCurrentImeMetricDeltas({
     keystrokes,
     kanaCharacters,
     promptCharacters: score.completedTargetLength,
-    characterAttempts: score.correctCharacters + score.mistakes,
+    characterAttempts: score.completedTargetLength,
     correctCharacters: score.correctCharacters,
     mistakes: score.mistakes,
   };
@@ -851,7 +851,6 @@ export function useTypingSession({
           input,
         }),
         currentDisplay,
-        { requireTrailingNewline: true },
       )
     : null;
   const scoringInput = getScoredImeProductionInput({
@@ -917,9 +916,8 @@ export function useTypingSession({
     : countCorrectDirectCharacters(input, currentInputTarget);
   const currentAccuracy =
     currentImeScore
-      ? currentImeScore.correctCharacters + currentImeScore.mistakes > 0
-        ? currentImeScore.correctCharacters /
-          (currentImeScore.correctCharacters + currentImeScore.mistakes)
+      ? currentImeScore.completedTargetLength > 0
+        ? currentImeScore.correctCharacters / currentImeScore.completedTargetLength
         : 1
       : input.length > 0
         ? currentCorrect / input.length
@@ -1491,7 +1489,6 @@ export function useTypingSession({
 
     const score = scoreImeProductionInput(input, currentDisplay, {
       forceComplete: true,
-      requireTrailingNewline: true,
     });
     const estimatedKeystrokes =
       challengeLanguage === "ja"
@@ -1506,8 +1503,7 @@ export function useTypingSession({
         previous.kanaCharacters +
         countMetricCharacters(challengeLanguage === "ja" ? currentReading : currentDisplay),
       promptCharacters: previous.promptCharacters + score.targetLength,
-      characterAttempts:
-        previous.characterAttempts + score.correctCharacters + score.mistakes,
+      characterAttempts: previous.characterAttempts + score.targetLength,
       correctCharacters: previous.correctCharacters + score.correctCharacters,
       mistakes: previous.mistakes + score.mistakes,
       completedPrompts: previous.completedPrompts + 1,

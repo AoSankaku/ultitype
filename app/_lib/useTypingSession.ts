@@ -661,6 +661,7 @@ export function useTypingSession({
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const [isFinished, setIsFinished] = useState(false);
+  const [finishedAt, setFinishedAt] = useState<number | null>(null);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
   const [imeError, setImeError] = useState("");
   const [imeEmptyEnterDebt, setImeEmptyEnterDebt] = useState(0);
@@ -1072,6 +1073,7 @@ export function useTypingSession({
     setStartedAt(null);
     setNow(Date.now());
     setIsFinished(false);
+    setFinishedAt(null);
     setFinishReason(null);
     setImeError("");
     setImeEmptyEnterDebt(0);
@@ -1088,6 +1090,7 @@ export function useTypingSession({
     setStartedAt(timestamp);
     setNow(timestamp);
     setIsFinished(false);
+    setFinishedAt(null);
   }
 
   function resetSession(language: ChallengeLanguage = challengeLanguage) {
@@ -1099,6 +1102,7 @@ export function useTypingSession({
     setStartedAt(null);
     setNow(Date.now());
     setIsFinished(false);
+    setFinishedAt(null);
     setFinishReason(null);
     setImeError("");
     setImeEmptyEnterDebt(0);
@@ -1112,7 +1116,9 @@ export function useTypingSession({
       return;
     }
 
+    const finishedTimestamp = Date.now();
     setIsFinished(true);
+    setFinishedAt(finishedTimestamp);
     setFinishReason(reason);
 
     const sessionScore =
@@ -1137,7 +1143,7 @@ export function useTypingSession({
       rank: sessionRank.label,
       accuracy: metrics.accuracy,
       keysPerSecond: metrics.keysPerSecond,
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(finishedTimestamp).toISOString(),
     };
 
     setStored((previous) => ({
@@ -1607,6 +1613,7 @@ export function useTypingSession({
       currentFurigana,
       currentReading,
       elapsedSeconds: startedAt ? elapsedSeconds : null,
+      finishedAt,
       currentGuide:
         currentGuide ?? (typeof currentInputTarget === "string" ? currentInputTarget : currentInputTarget.guide),
       currentRomajiTarget,

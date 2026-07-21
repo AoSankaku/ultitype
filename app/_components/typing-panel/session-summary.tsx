@@ -3,13 +3,10 @@
 import {
   ArrowLeft,
   CheckCircle2,
-  Crosshair,
   Lock,
   Play,
   RotateCcw,
   Timer,
-  Waves,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -52,6 +49,7 @@ import {
   topDisplayMetricOptions,
 } from "../../_lib/constants";
 import { getVisibleSessionRank } from "../../_lib/session-rank-visibility";
+import { modeIcons } from "../../_lib/mode-icons";
 import { type SoundSettings, useTypingSounds } from "../../_lib/typing-sounds";
 import type {
   ChallengeLanguage,
@@ -228,16 +226,7 @@ export function getSessionModeIcon(mode: TypingMode) {
     return null;
   }
 
-  switch (mode.id) {
-    case "practice-accuracy":
-      return Crosshair;
-    case "practice-flow":
-      return Waves;
-    case "practice-speed":
-      return Zap;
-    default:
-      return null;
-  }
+  return modeIcons[mode.id];
 }
 
 export function CorrectionDebtIndicator({ debt }: { debt: number }) {

@@ -284,6 +284,52 @@ describe("TypingPanel", () => {
     expect(`${finishedMarkup}${retiredMarkup}`).not.toMatch(/[繧縺蜈譛荳邨髢隱鬘譁蟄蠑蝣蛟諠陦謇鬆蜉蜍蛻繝遉譎謌菫霑螳逕逅遘郢驍]/);
   });
 
+  test("shows the share result between Live Analysis and Tips after completion", () => {
+    const markup = renderTypingPanel({
+      currentRank: getRank(7654),
+      finishReason: "completed",
+      finishedAt: new Date(2026, 6, 22, 21, 5).getTime(),
+      isFinished: true,
+      metrics: {
+        accuracy: 0.987,
+        consistency: 0.94,
+        kanaCharactersPerSecond: 6.25,
+        keysPerSecond: 6.25,
+        paceMs: 160,
+        promptCharactersPerSecond: 0,
+        score: 7654,
+      },
+      mode: modes.find((mode) => mode.id === "practice-flow")!,
+      stats: {
+        ...initialStats,
+        completedPrompts: 42,
+      },
+    });
+
+    expect(markup).toContain('aria-label="SNS share result"');
+    expect(markup).toContain("Misskey");
+    expect(markup).toContain("Mastodon");
+    expect(markup).toContain("X (Twitter)");
+    expect(markup).toContain("Share API");
+    expect(markup).toContain("文言をコピー");
+    expect(markup.indexOf('aria-label="Live Analysis"')).toBeLessThan(
+      markup.indexOf('aria-label="SNS share result"'),
+    );
+    expect(markup.indexOf('aria-label="SNS share result"')).toBeLessThan(
+      markup.indexOf('aria-label="post-session tip"'),
+    );
+  });
+
+  test("does not offer a share card for retired sessions", () => {
+    const markup = renderTypingPanel({
+      finishReason: "retired",
+      finishedAt: new Date(2026, 6, 22, 21, 5).getTime(),
+      isFinished: true,
+    });
+
+    expect(markup).not.toContain('aria-label="SNS share result"');
+  });
+
   test("shows the full in-progress rank in actual calculation mode", () => {
     const actualMarkup = renderTypingPanel({
       currentRank: getRank(4280),

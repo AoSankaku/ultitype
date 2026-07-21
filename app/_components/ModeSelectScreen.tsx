@@ -1,11 +1,12 @@
 "use client";
 
-import { Crosshair, Gauge, Keyboard, Languages, Lock, Waves, Zap } from "lucide-react";
+import { Gauge, Lock } from "lucide-react";
 import Link from "next/link";
 import { modes, type ModeId, type TypingMode } from "@/src/lib/typing";
 import { challengeLanguages } from "../_lib/constants";
 import { css } from "../_lib/css-module";
 import { getModePath, getModeSelectPath } from "../_lib/mode-routes";
+import { modeIcons } from "../_lib/mode-icons";
 import {
   ALPHA_PRODUCTION_LOCK_MESSAGE,
   type ProductionModeId,
@@ -14,14 +15,6 @@ import {
 import { type SoundSettings, useTypingSounds } from "../_lib/typing-sounds";
 import type { ChallengeLanguage, ProductionDuration } from "../_lib/types";
 import styles from "./ModeSelectScreen.module.css";
-
-const modeIcons = {
-  "practice-accuracy": Crosshair,
-  "practice-flow": Waves,
-  "practice-speed": Zap,
-  "production-ime-off": Keyboard,
-  "production-ime-on": Languages,
-} satisfies Record<ModeId, typeof Gauge>;
 
 type ModeSelectScreenProps = {
   challengeLanguage: ChallengeLanguage;

@@ -88,6 +88,7 @@ export type TypingPanelProps = {
   currentRomajiTarget: RomajiInputTarget | null;
   currentRank: Rank;
   elapsedSeconds: number | null;
+  finishedAt?: number | null;
   finishReason: FinishReason | null;
   imeError: string;
   input: string;

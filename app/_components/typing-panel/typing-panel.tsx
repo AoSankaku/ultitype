@@ -16,6 +16,7 @@ import styles from "../TypingPanel.module.css";
 import { productionImeInputWidthStorageKey } from "./common";
 import { calculateCenteredProductionImeInputWidth, clampProductionImeInputWidth, getDirectInputFocusRetryDelays, shouldStickProductionImeInputToBottom } from "./ime-input";
 import { createCompletedInputProgress, createInputProgress } from "./input-progress";
+import { ResultShareCard } from "./result-share-card";
 import { ChallengeAnalysis, ChallengeTip, CorrectionDebtIndicator, createTopDisplayMetrics, getSessionModeIcon } from "./session-summary";
 import { LockedPanel, TypingPanelHeader, TypingPanelMeters, TypingPanelResultBand } from "./typing-panel-frame";
 import { TypingTargetView } from "./typing-target-view";
@@ -34,6 +35,7 @@ export function TypingPanel({
   currentRomajiTarget,
   currentRank,
   elapsedSeconds,
+  finishedAt = null,
   finishReason,
   imeError,
   input,
@@ -428,11 +430,13 @@ export function TypingPanel({
           />
           ) : null}
 
-          <ChallengeTip
-            completedPrompts={stats.completedPrompts}
-            isFinished={isFinished}
-            startedAt={startedAt}
-          />
+          {!isFinished ? (
+            <ChallengeTip
+              completedPrompts={stats.completedPrompts}
+              isFinished={isFinished}
+              startedAt={startedAt}
+            />
+          ) : null}
 
           <CorrectionDebtIndicator debt={correctionDebt} />
 
@@ -444,6 +448,25 @@ export function TypingPanel({
             metrics={metrics}
             stats={stats}
           />
+
+          {isFinished && finishReason === "completed" && finishedAt !== null ? (
+            <ResultShareCard
+              challengeLanguage={challengeLanguage}
+              finishedAt={finishedAt}
+              metrics={metrics}
+              mode={mode}
+              rank={currentRank.label}
+              stats={stats}
+            />
+          ) : null}
+
+          {isFinished ? (
+            <ChallengeTip
+              completedPrompts={stats.completedPrompts}
+              isFinished={isFinished}
+              startedAt={startedAt}
+            />
+          ) : null}
 
           {!isProductionImeOn ? (
           <TypingInputField

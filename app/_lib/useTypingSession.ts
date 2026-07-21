@@ -212,6 +212,16 @@ export function getDirectInputKey(event: DirectKeyEvent): string | null {
   return null;
 }
 
+export function countNewProductionRomajiMetricKeystrokes(
+  scoredKeystrokes: number,
+  previousPredictedKeystrokes: number,
+  nextPredictedKeystrokes: number,
+) {
+  return scoredKeystrokes > 0
+    ? Math.max(0, nextPredictedKeystrokes - previousPredictedKeystrokes)
+    : 0;
+}
+
 export function getDirectChallengeBoundaryText({
   challengeLanguage,
   requiresIme,
@@ -1359,7 +1369,11 @@ export function useTypingSession({
             currentShortestRomajiTarget,
             input + key,
           );
-      metricKeystrokes = Math.max(0, nextPredictedKeystrokes - previousPredictedKeystrokes);
+      metricKeystrokes = countNewProductionRomajiMetricKeystrokes(
+        result.scoredKeystrokes,
+        previousPredictedKeystrokes,
+        nextPredictedKeystrokes,
+      );
     }
 
     playTypingSound(didMistype ? "mistake" : "normal");

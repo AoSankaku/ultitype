@@ -770,6 +770,8 @@ describe("applyDirectKey", () => {
     expect(backspace.scoredKeystrokes).toBe(0);
     expect(retyped.scoredKeystrokes).toBe(0);
     expect(completed.scoredKeystrokes).toBe(1);
+    expect(completed.state.characterAttempts).toBe(2);
+    expect(completed.state.correctCharacters).toBe(2);
     expect(completed.state.completedPrompts).toBe(1);
     expect(completed.state.scoredInputLength).toBe(0);
   });

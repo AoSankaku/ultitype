@@ -758,8 +758,8 @@ export function applyDirectKey({
       scoredInputLength: completed
         ? 0
         : Math.max(state.scoredInputLength, nextInput.length),
-      characterAttempts: state.characterAttempts + 1,
-      correctCharacters: state.correctCharacters + 1,
+      characterAttempts: state.characterAttempts + scoredKeystrokes,
+      correctCharacters: state.correctCharacters + scoredKeystrokes,
       completedPrompts: completed ? state.completedPrompts + 1 : state.completedPrompts,
     },
     scoredKeystrokes,

@@ -5,6 +5,7 @@ import {
   calculateCurrentImeMetricDeltas,
   finalizeTimedOutImeProductionStats,
   countTrailingMistypes,
+  countNewProductionRomajiMetricKeystrokes,
   getImeEmptyEnterLockAction,
   getScoredImeProductionInput,
   getVisibleCorrectionDebt,
@@ -61,6 +62,13 @@ describe("getDirectInputKey", () => {
   test("ignores navigation and unknown non-printable keys", () => {
     expect(getDirectInputKey(keyEvent({ code: "ShiftLeft", key: "Shift" }))).toBeNull();
     expect(getDirectInputKey(keyEvent({ code: "Convert", key: "Process" }))).toBeNull();
+  });
+});
+
+describe("production romaji metric keystrokes", () => {
+  test("does not restore metric keystrokes for an already scored position", () => {
+    expect(countNewProductionRomajiMetricKeystrokes(0, 0, 1)).toBe(0);
+    expect(countNewProductionRomajiMetricKeystrokes(1, 0, 1)).toBe(1);
   });
 });
 

@@ -112,7 +112,7 @@ Object.defineProperty(globalThis, "document", {
   value: { documentElement: { dataset: {} } },
 });
 
-const [{ storageKey, initialStoredState }, { useTypingSession }] = await Promise.all([
+const [{ storageKey, initialStoredState }, { calculateCurrentImeMetricDeltas, useTypingSession }] = await Promise.all([
   import("../constants"),
   import("../useTypingSession"),
 ]);
@@ -120,6 +120,15 @@ localStorage.setItem(storageKey, JSON.stringify({
   ...initialStoredState,
   bestPracticeScore: 6000,
 }));
+
+const scenario = process.argv[2] ?? "plain";
+const challengeLanguage = scenario === "plain" ? "en" : "ja";
+const sessionOptions = {
+  initialChallengeLanguage: challengeLanguage as "ja" | "en",
+  initialModeId: "production-ime-on" as const,
+  initialProductionDuration: 300 as const,
+  initialScreen: "typing" as const,
+};
 
 function renderUntilStable(hook: () => unknown) {
   let result: unknown;
@@ -141,42 +150,64 @@ function renderUntilStable(hook: () => unknown) {
   throw new Error("Mock React hook did not stabilize after 30 renders");
 }
 
-let session = renderUntilStable(() => useTypingSession({
-  initialChallengeLanguage: "en",
-  initialModeId: "production-ime-on",
-  initialProductionDuration: 300,
-  initialScreen: "typing",
-})) as ReturnType<typeof useTypingSession>;
-const typing = session.typingPanelProps;
-const targetCharacters = Array.from(typing.currentDisplay);
-const wrongCharacter = targetCharacters[10] === "X" ? "Q" : "X";
-const input = [...targetCharacters.slice(0, 10), wrongCharacter].join("");
-typing.onImeInput(input);
+const renderSession = () => renderUntilStable(() => useTypingSession(sessionOptions)) as ReturnType<typeof useTypingSession>;
+let session = renderSession();
+const target = session.typingPanelProps.currentDisplay;
+const targetCharacters = Array.from(target);
+let committedInput: string;
+let input: string;
 
-session = renderUntilStable(() => useTypingSession({
-  initialChallengeLanguage: "en",
-  initialModeId: "production-ime-on",
-  initialProductionDuration: 300,
-  initialScreen: "typing",
-})) as ReturnType<typeof useTypingSession>;
+if (scenario === "plain") {
+  const wrongCharacter = targetCharacters[10] === "X" ? "Q" : "X";
+  committedInput = [...targetCharacters.slice(0, 10), wrongCharacter].join("");
+  input = committedInput;
+  session.typingPanelProps.onImeInput(input);
+  session = renderSession();
+} else if (scenario === "composition-empty") {
+  committedInput = "";
+  input = targetCharacters.slice(0, 3).join("");
+  session.typingPanelProps.onImeCompositionStart(committedInput);
+  session = renderSession();
+  session.typingPanelProps.onImeInput(input);
+  session = renderSession();
+} else {
+  if (targetCharacters.length < 21) {
+    throw new Error("Japanese production challenge must have at least 21 display characters");
+  }
+  committedInput = targetCharacters.slice(0, 10).join("");
+  const wrongCharacter = targetCharacters[20] === "X" ? "Q" : "X";
+  input = [...targetCharacters.slice(0, 20), wrongCharacter].join("");
+  session.typingPanelProps.onImeInput(committedInput);
+  session = renderSession();
+  session.typingPanelProps.onImeCompositionStart(committedInput);
+  session = renderSession();
+  session.typingPanelProps.onImeInput(input);
+  session = renderSession();
+}
 
 clock += 300_000;
 for (const callback of intervalCallbacks.values()) {
   callback();
 }
-session = renderUntilStable(() => useTypingSession({
-  initialChallengeLanguage: "en",
-  initialModeId: "production-ime-on",
-  initialProductionDuration: 300,
-  initialScreen: "typing",
-})) as ReturnType<typeof useTypingSession>;
+session = renderSession();
 
+const panel = session.typingPanelProps;
 const output = {
+  committedInput,
+  currentAccuracy: panel.currentAccuracy,
+  currentRank: panel.currentRank.label,
+  expectedDeltas: calculateCurrentImeMetricDeltas({
+    challengeLanguage,
+    currentDisplay: panel.currentDisplay,
+    currentReading: panel.currentReading,
+    input: panel.scoringInput,
+  }),
   input,
-  target: typing.currentDisplay,
+  target,
   stats: session.stats,
   metrics: session.metrics,
   session: session.sessions[0],
-  isFinished: session.typingPanelProps.isFinished,
+  scoringInput: panel.scoringInput,
+  isFinished: panel.isFinished,
 };
 process.stdout.write(`${JSON.stringify(output)}\n`);

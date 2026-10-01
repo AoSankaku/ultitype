@@ -1168,7 +1168,7 @@ export function useTypingSession({
           challengeLanguage,
           currentDisplay,
           currentReading,
-          input,
+          input: scoringInput,
           stats: previous,
         }),
       );

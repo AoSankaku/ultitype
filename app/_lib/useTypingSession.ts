@@ -877,17 +877,18 @@ export function useTypingSession({
         input: scoringInput,
       })
     : null;
-  const currentKanaCharacters = getCurrentKanaCharacters({
-    challengeLanguage,
-    currentReading,
-    currentRomajiTarget,
-    input,
-    modeRequiresIme: mode.requiresIme,
-    targetLength: mode.requiresIme ? Array.from(currentDisplay).length : currentDisplay.length,
-    targetProgress: currentImeScore?.completedTargetLength ?? 0,
-  });
-  const currentPromptCharacters =
-    mode.requiresIme && currentImeScore ? currentImeScore.completedTargetLength : 0;
+  const currentKanaCharacters = mode.requiresIme
+    ? (currentImeMetricDeltas?.kanaCharacters ?? 0)
+    : getCurrentKanaCharacters({
+        challengeLanguage,
+        currentReading,
+        currentRomajiTarget,
+        input,
+        modeRequiresIme: false,
+        targetLength: currentDisplay.length,
+        targetProgress: 0,
+      });
+  const currentPromptCharacters = currentImeMetricDeltas?.promptCharacters ?? 0;
 
   const metrics = useMemo(
     () =>

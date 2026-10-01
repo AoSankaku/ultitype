@@ -7,7 +7,7 @@ import type {
   KeyboardEvent,
   PointerEvent,
 } from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { css } from "../../_lib/css-module";
 import { getVisibleSessionRank } from "../../_lib/session-rank-visibility";
 import { useTypingSounds } from "../../_lib/typing-sounds";
@@ -23,6 +23,7 @@ import { LockedPanel, TypingPanelHeader, TypingPanelMeters, TypingPanelResultBan
 import { TypingTargetView } from "./typing-target-view";
 import { ProductionImeInputResizeSession, TypingPanelProps } from "./types";
 import { TypingInputField } from "./typing-input-field";
+import { useProductionImeInputWidth } from "./use-production-ime-input-width";
 
 export function TypingPanel({
   acceptsTextInput,
@@ -137,8 +138,9 @@ export function TypingPanel({
   const productionImeInputShellRef = useRef<HTMLDivElement | null>(null);
   const productionImeLastKeyRef = useRef<string | null>(null);
   const productionImeResizeSessionRef = useRef<ProductionImeInputResizeSession | null>(null);
-  const productionImeInputWidthObservedRef = useRef(false);
-  const [productionImeInputWidth, setProductionImeInputWidth] = useState<number | null>(null);
+  const [productionImeInputWidth, setProductionImeInputWidth] = useProductionImeInputWidth(
+    isProductionImeOn, productionImeInputShellRef,
+  );
   const scorePrefix =
     rankCalculationMode === "projected" && !isFinished && remainingSeconds > 0 ? "\u2248 " : "";
   const scoreLabel = `${scorePrefix}${Math.round(metrics.score).toLocaleString()} pts`;
@@ -177,47 +179,6 @@ export function TypingPanel({
       textArea.scrollTop = textArea.scrollHeight;
     }
   }, [acceptsTextInput, input, inputRef, isProductionImeOn]);
-
-  useLayoutEffect(() => {
-    if (!isProductionImeOn || typeof ResizeObserver === "undefined") {
-      return;
-    }
-
-    const shell = productionImeInputShellRef.current;
-    if (!shell) {
-      return;
-    }
-
-    productionImeInputWidthObservedRef.current = false;
-    const resizeObserver = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) {
-        return;
-      }
-
-      const borderBoxSize = Array.isArray(entry.borderBoxSize)
-        ? entry.borderBoxSize[0]
-        : entry.borderBoxSize;
-      const measuredWidth = borderBoxSize?.inlineSize ?? entry.contentRect.width;
-      const nextWidth = clampProductionImeInputWidth(measuredWidth);
-      if (nextWidth === null) {
-        return;
-      }
-
-      if (!productionImeInputWidthObservedRef.current) {
-        productionImeInputWidthObservedRef.current = true;
-        return;
-      }
-
-      setProductionImeInputWidth((currentWidth) =>
-        currentWidth === nextWidth ? currentWidth : nextWidth,
-      );
-      writeLocalStorageItem(productionImeInputWidthStorageKey, String(nextWidth));
-    });
-
-    resizeObserver.observe(shell);
-    return () => resizeObserver.disconnect();
-  }, [inputRef, isProductionImeOn]);
 
   function handleBackToModeSelect() {
     playTypingSound("back");

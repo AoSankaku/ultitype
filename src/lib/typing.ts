@@ -1287,16 +1287,7 @@ function getMinimumImeProductionPrefixLength(inputCharacters: string[], targetCh
 }
 
 function normalizeImeProductionPunctuationCharacter(character: string) {
-  switch (character) {
-    case ",":
-    case "、":
-      return "、";
-    case ".":
-    case "。":
-      return "。";
-    default:
-      return character;
-  }
+  return normalizeJapanesePunctuation(character);
 }
 
 function normalizeImeProductionPunctuationCharacters(characters: string[]) {
@@ -1310,7 +1301,7 @@ function countMixedImeProductionPunctuationMistake(characters: string[]) {
   for (const character of characters) {
     if (character === "、" || character === "。") {
       hasJapanesePunctuation = true;
-    } else if (character === "," || character === ".") {
+    } else if ([",", ".", "，", "．"].includes(character)) {
       hasWesternPunctuation = true;
     }
   }

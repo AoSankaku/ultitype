@@ -331,6 +331,31 @@ describe("IME submission matching", () => {
     });
   });
 
+  test("accepts full-width punctuation in live and submitted IME scoring", () => {
+    for (const forceComplete of [false, true]) {
+      for (const [input, target] of [
+        ["A，B．C，D", "A、B。C、D"],
+        ["A、B。C、D", "A，B．C，D"],
+        ["A，B．C，D", "A,B.C,D"],
+        ["A,B.C,D", "A，B．C，D"],
+        ["A･B", "A・B"],
+      ]) {
+        expect(scoreImeProductionInput(input, target, { forceComplete })).toMatchObject({
+          completedTargetLength: target.length,
+          correctCharacters: target.length,
+          mistakes: 0,
+        });
+      }
+    }
+  });
+
+  test("keeps the mixed Japanese and Western punctuation penalty for full-width variants", () => {
+    expect(scoreImeProductionInput("A，B。C，D", "A、B。C、D")).toMatchObject({
+      correctCharacters: 7,
+      mistakes: 1,
+    });
+  });
+
   test("counts transposed IME text by the involved character range", () => {
     expect(scoreImeProductionInput("にも瞬間", "瞬間にも")).toMatchObject({
       completedTargetLength: 4,

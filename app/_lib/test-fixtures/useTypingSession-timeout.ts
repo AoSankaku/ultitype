@@ -1,4 +1,5 @@
 import { mock } from "bun:test";
+import type { UseTypingSessionOptions } from "../useTypingSession";
 
 type HookSlot = {
   value?: unknown;
@@ -87,6 +88,7 @@ const localStorage = {
 };
 
 const intervalCallbacks = new Map<number, () => void>();
+const eventListeners = new Map<string, Set<(event: any) => void>>();
 let nextTimerId = 1;
 const windowMock = {
   localStorage,
@@ -101,8 +103,14 @@ const windowMock = {
     return id;
   },
   clearTimeout: (_id: number) => undefined,
-  addEventListener: (_type: string, _listener: (event: unknown) => void) => undefined,
-  removeEventListener: (_type: string, _listener: (event: unknown) => void) => undefined,
+  addEventListener: (type: string, listener: (event: any) => void) => {
+    const listeners = eventListeners.get(type) ?? new Set();
+    listeners.add(listener);
+    eventListeners.set(type, listeners);
+  },
+  removeEventListener: (type: string, listener: (event: any) => void) => {
+    eventListeners.get(type)?.delete(listener);
+  },
   requestAnimationFrame: (callback: () => void) => callback(),
 };
 
@@ -112,20 +120,31 @@ Object.defineProperty(globalThis, "document", {
   value: { documentElement: { dataset: {} } },
 });
 
-const [{ storageKey, initialStoredState }, { calculateCurrentImeMetricDeltas, useTypingSession }] = await Promise.all([
+const [
+  { storageKey, initialStoredState },
+  { calculateCurrentImeMetricDeltas, useTypingSession },
+] = await Promise.all([
   import("../constants"),
   import("../useTypingSession"),
 ]);
+const scenario = process.argv[2] ?? "plain";
+const isCompositionScenario = scenario === "composition-japanese" || scenario === "composition-empty";
+const isImeRetireScenario = scenario === "retire-ime";
+const isDirectScenario = scenario.startsWith("retire-direct") || scenario === "timeout-race";
+const challengeLanguage = scenario === "plain" || isDirectScenario ? "en" : "ja";
+const initialModeId = isDirectScenario ? "production-ime-off" : "production-ime-on";
 localStorage.setItem(storageKey, JSON.stringify({
   ...initialStoredState,
   bestPracticeScore: 6000,
+  settings: {
+    ...initialStoredState.settings,
+    idleRetireSeconds: scenario === "timeout-race" ? 300 : 0,
+  },
 }));
 
-const scenario = process.argv[2] ?? "plain";
-const challengeLanguage = scenario === "plain" ? "en" : "ja";
-const sessionOptions = {
+const sessionOptions: UseTypingSessionOptions = {
   initialChallengeLanguage: challengeLanguage as "ja" | "en",
-  initialModeId: "production-ime-on" as const,
+  initialModeId,
   initialProductionDuration: 300 as const,
   initialScreen: "typing" as const,
 };
@@ -150,12 +169,51 @@ function renderUntilStable(hook: () => unknown) {
   throw new Error("Mock React hook did not stabilize after 30 renders");
 }
 
-const renderSession = () => renderUntilStable(() => useTypingSession(sessionOptions)) as ReturnType<typeof useTypingSession>;
+const renderSession = () =>
+  renderUntilStable(() => useTypingSession(sessionOptions)) as ReturnType<typeof useTypingSession>;
 let session = renderSession();
 const target = session.typingPanelProps.currentDisplay;
 const targetCharacters = Array.from(target);
 let committedInput: string;
 let input: string;
+let preFinishScore: number | null = null;
+let postReset: Record<string, unknown> | null = null;
+let retiredState: Record<string, unknown> | null = null;
+
+function dispatchKey(key: string) {
+  const event = {
+    key,
+    code: "",
+    repeat: false,
+    shiftKey: key.length === 1 && key.toUpperCase() === key,
+    preventDefault: () => undefined,
+  };
+  for (const listener of eventListeners.get("keydown") ?? []) {
+    listener(event);
+  }
+}
+
+function tickIntervals() {
+  for (const callback of [...intervalCallbacks.values()]) {
+    callback();
+  }
+}
+
+function retireWithEscape() {
+  for (let count = 0; count < 3; count += 1) {
+    if (isDirectScenario) {
+      dispatchKey("Escape");
+    } else {
+      session.typingPanelProps.onImeKeyDown({
+        key: "Escape",
+        shiftKey: false,
+        repeat: false,
+        preventDefault: () => undefined,
+      } as never);
+    }
+    session = renderSession();
+  }
+}
 
 if (scenario === "plain") {
   const wrongCharacter = targetCharacters[10] === "X" ? "Q" : "X";
@@ -170,7 +228,7 @@ if (scenario === "plain") {
   session = renderSession();
   session.typingPanelProps.onImeInput(input);
   session = renderSession();
-} else {
+} else if (scenario === "composition-japanese") {
   if (targetCharacters.length < 21) {
     throw new Error("Japanese production challenge must have at least 21 display characters");
   }
@@ -183,13 +241,85 @@ if (scenario === "plain") {
   session = renderSession();
   session.typingPanelProps.onImeInput(input);
   session = renderSession();
+} else if (isDirectScenario) {
+  const directTarget = session.typingPanelProps.currentGuide;
+  if (typeof directTarget !== "string" || directTarget.length === 0) {
+    throw new Error("Expected an English direct target for the retirement scenario");
+  }
+  committedInput = directTarget;
+  input = Array.from(directTarget)[0] ?? "";
+  dispatchKey(input);
+  session = renderSession();
+
+  if (scenario === "retire-direct") {
+    clock += 10_000;
+    tickIntervals();
+    session = renderSession();
+  } else if (scenario === "timeout-race") {
+    clock += 300_000;
+    tickIntervals();
+    session = renderSession();
+  }
+
+  preFinishScore = session.metrics.score;
+  if (scenario !== "timeout-race") {
+    retireWithEscape();
+    retiredState = {
+      finishReason: session.typingPanelProps.finishReason,
+      isFinished: session.typingPanelProps.isFinished,
+      metrics: session.metrics,
+      session: session.sessions[0],
+      visibleRank: session.typingPanelProps.currentRank.label,
+    };
+  }
+
+  if (scenario === "retire-direct-cap-reset") {
+    session.typingPanelProps.onResetSession();
+    session = renderSession();
+    const resetMetrics = session.metrics;
+    postReset = {
+      isFinished: session.typingPanelProps.isFinished,
+      score: resetMetrics.score,
+      rank: session.typingPanelProps.currentRank.label,
+      sessionCount: session.sessions.length,
+    };
+
+    const nextTarget = session.typingPanelProps.currentGuide;
+    if (typeof nextTarget !== "string" || nextTarget.length === 0) {
+      throw new Error("Expected a direct target after reset");
+    }
+    dispatchKey(Array.from(nextTarget)[0] ?? "");
+    session = renderSession();
+    clock += 10_000;
+    tickIntervals();
+    session = renderSession();
+  }
+} else if (isImeRetireScenario) {
+  committedInput = targetCharacters.slice(0, 10).join("");
+  input = committedInput;
+  session.typingPanelProps.onImeInput(input);
+  session = renderSession();
+  clock += 5_000;
+  tickIntervals();
+  session = renderSession();
+  preFinishScore = session.metrics.score;
+  retireWithEscape();
+  retiredState = {
+    finishReason: session.typingPanelProps.finishReason,
+    isFinished: session.typingPanelProps.isFinished,
+    metrics: session.metrics,
+    session: session.sessions[0],
+    visibleRank: session.typingPanelProps.currentRank.label,
+  };
+} else {
+  throw new Error(`Unknown lifecycle fixture scenario: ${scenario}`);
 }
 
-clock += 300_000;
-for (const callback of intervalCallbacks.values()) {
-  callback();
+if (scenario === "plain" || isCompositionScenario) {
+  clock += 300_000;
+  tickIntervals();
+  session = renderSession();
 }
-session = renderSession();
 
 const panel = session.typingPanelProps;
 const output = {
@@ -204,9 +334,16 @@ const output = {
   }),
   input,
   target,
+  preFinishScore,
   stats: session.stats,
   metrics: session.metrics,
   session: session.sessions[0],
+  sessions: session.sessions,
+  sessionCount: session.sessions.length,
+  finishReason: panel.finishReason,
+  retiredState,
+  postReset,
+  visibleRank: panel.currentRank.label,
   scoringInput: panel.scoringInput,
   isFinished: panel.isFinished,
 };

@@ -37,6 +37,7 @@ import {
   modes,
   scoreImeProductionInput,
   shouldAcceptTextInput,
+  type Metrics,
 } from "@/src/lib/typing";
 import {
   ignoredKeys,
@@ -663,6 +664,7 @@ export function useTypingSession({
   const [isFinished, setIsFinished] = useState(false);
   const [finishedAt, setFinishedAt] = useState<number | null>(null);
   const [finishReason, setFinishReason] = useState<FinishReason | null>(null);
+  const [finishedMetrics, setFinishedMetrics] = useState<Metrics | null>(null);
   const [imeError, setImeError] = useState("");
   const [imeEmptyEnterDebt, setImeEmptyEnterDebt] = useState(0);
   const [committedInputBeforeComposition, setCommittedInputBeforeComposition] =
@@ -671,6 +673,7 @@ export function useTypingSession({
   const [hasLoadedStoredState, setHasLoadedStoredState] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const escapeRetirePressCountRef = useRef(0);
+  const hasFinishedSessionRef = useRef(false);
   const skipNextPersistRef = useRef(false);
   const initialTypingSessionPreparedRef = useRef(false);
   const playTypingSound = useTypingSounds(stored.settings);
@@ -925,7 +928,8 @@ export function useTypingSession({
     ],
   );
 
-  const currentRank = getRank(metrics.score);
+  const visibleMetrics = finishedMetrics ?? metrics;
+  const currentRank = getRank(visibleMetrics.score);
   const currentCorrect = currentImeScore
     ? currentImeScore.correctCharacters
     : countCorrectDirectCharacters(input, currentInputTarget);
@@ -1066,6 +1070,8 @@ export function useTypingSession({
   }
 
   function prepareSession() {
+    hasFinishedSessionRef.current = false;
+    setFinishedMetrics(null);
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
@@ -1088,6 +1094,8 @@ export function useTypingSession({
 
   function beginSession() {
     const timestamp = Date.now();
+    hasFinishedSessionRef.current = false;
+    setFinishedMetrics(null);
     setStartedAt(timestamp);
     setNow(timestamp);
     setIsFinished(false);
@@ -1095,6 +1103,8 @@ export function useTypingSession({
   }
 
   function resetSession(language: ChallengeLanguage = challengeLanguage) {
+    hasFinishedSessionRef.current = false;
+    setFinishedMetrics(null);
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
@@ -1113,55 +1123,11 @@ export function useTypingSession({
   }
 
   function finishSession(reason: FinishReason = "completed") {
-    if (isFinished) {
+    if (hasFinishedSessionRef.current || isFinished) {
       return;
     }
 
-    const finishedTimestamp = Date.now();
-    setIsFinished(true);
-    setFinishedAt(finishedTimestamp);
-    setFinishReason(reason);
-
-    const sessionScore =
-      reason === "retired" ? applyAutoRetireScorePenalty(metrics.score) : metrics.score;
-    const sessionRank = getRank(sessionScore);
-
-    if (reason !== "retired") {
-      playTypingSound(
-        getFinishSoundKind({
-          modeGroup: mode.group,
-          score: sessionScore,
-          bestPracticeScore: stored.bestPracticeScore,
-          bestProductionScore: stored.bestProductionScore,
-        }),
-      );
-    }
-
-    const session: StoredSession = {
-      modeId,
-      challengeLanguage,
-      score: sessionScore,
-      rank: sessionRank.label,
-      accuracy: metrics.accuracy,
-      keysPerSecond: metrics.keysPerSecond,
-      createdAt: new Date(finishedTimestamp).toISOString(),
-    };
-
-    setStored((previous) => ({
-      settings: previous.settings,
-      bestPracticeScore:
-        mode.group === "practice"
-          ? Math.max(previous.bestPracticeScore, sessionScore)
-          : previous.bestPracticeScore,
-      bestProductionScore:
-        mode.group === "production"
-          ? Math.max(previous.bestProductionScore, sessionScore)
-          : previous.bestProductionScore,
-      sessions: [session, ...previous.sessions].slice(0, 8),
-    }));
-  }
-
-  function finishTimedOutSession() {
+    hasFinishedSessionRef.current = true;
     if (acceptsTextInput) {
       setStats((previous) =>
         finalizeTimedOutImeProductionStats({
@@ -1174,7 +1140,54 @@ export function useTypingSession({
       );
       setImeEmptyEnterDebt(0);
     }
+    const finishedTimestamp = Date.now();
+    setIsFinished(true);
+    setFinishedAt(finishedTimestamp);
+    setFinishReason(reason);
 
+    const sessionMetrics: Metrics = {
+      ...metrics,
+      score: reason === "retired" ? applyAutoRetireScorePenalty(metrics.score) : metrics.score,
+    };
+    setFinishedMetrics(sessionMetrics);
+    const sessionRank = getRank(sessionMetrics.score);
+
+    if (reason !== "retired") {
+      playTypingSound(
+        getFinishSoundKind({
+          modeGroup: mode.group,
+          score: sessionMetrics.score,
+          bestPracticeScore: stored.bestPracticeScore,
+          bestProductionScore: stored.bestProductionScore,
+        }),
+      );
+    }
+
+    const session: StoredSession = {
+      modeId,
+      challengeLanguage,
+      score: sessionMetrics.score,
+      rank: sessionRank.label,
+      accuracy: sessionMetrics.accuracy,
+      keysPerSecond: sessionMetrics.keysPerSecond,
+      createdAt: new Date(finishedTimestamp).toISOString(),
+    };
+
+    setStored((previous) => ({
+      settings: previous.settings,
+      bestPracticeScore:
+        mode.group === "practice"
+          ? Math.max(previous.bestPracticeScore, sessionMetrics.score)
+          : previous.bestPracticeScore,
+      bestProductionScore:
+        mode.group === "production"
+          ? Math.max(previous.bestProductionScore, sessionMetrics.score)
+          : previous.bestProductionScore,
+      sessions: [session, ...previous.sessions].slice(0, 8),
+    }));
+  }
+
+  function finishTimedOutSession() {
     finishSession();
   }
 
@@ -1628,7 +1641,7 @@ export function useTypingSession({
       isProductionBlocked,
       productionBlockReason,
       mistakeFlash: mistakeFlash?.input === input ? mistakeFlash : null,
-      metrics,
+      metrics: visibleMetrics,
       mode,
       nextChallengeDisplay: mode.requiresIme
         ? nextImeChallenge
@@ -1709,7 +1722,7 @@ export function useTypingSession({
     },
     bestPracticeScore: stored.bestPracticeScore,
     bestProductionScore: stored.bestProductionScore,
-    metrics,
+    metrics: visibleMetrics,
     stats,
     changeChallengeLanguage,
     clearLocalData,

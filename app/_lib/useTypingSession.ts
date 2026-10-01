@@ -179,8 +179,12 @@ const directCodeKeyMap: Record<string, [normal: string, shifted: string]> = {
   Slash: ["/", "?"],
 };
 
+function isDirectInputShortcut(event: DirectKeyEvent) {
+  return (event.ctrlKey || event.metaKey) && !event.getModifierState?.("AltGraph");
+}
+
 export function getDirectInputKey(event: DirectKeyEvent): string | null {
-  if (ignoredKeys.has(event.key)) {
+  if (isDirectInputShortcut(event) || ignoredKeys.has(event.key)) {
     return null;
   }
 
@@ -1315,7 +1319,7 @@ export function useTypingSession({
   }
 
   function handleDirectKeyDown(event: DirectKeyEvent) {
-    if (acceptsTextInput || isFinished) {
+    if (acceptsTextInput || isFinished || isDirectInputShortcut(event)) {
       return;
     }
 

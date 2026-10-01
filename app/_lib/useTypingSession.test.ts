@@ -32,6 +32,22 @@ function keyEvent(input: Partial<DirectKeyEvent>): DirectKeyEvent {
 }
 
 describe("getDirectInputKey", () => {
+  test("ignores browser shortcuts instead of scoring their printable keys", () => {
+    for (const modifiers of [{ ctrlKey: true }, { metaKey: true }]) {
+      for (const key of ["r", "c", "l", "Backspace"]) {
+        expect(getDirectInputKey(Object.assign(keyEvent({ key, code: "KeyR" }), modifiers))).toBeNull();
+      }
+    }
+  });
+
+  test("allows printable AltGraph input used by international keyboard layouts", () => {
+    expect(getDirectInputKey(Object.assign(keyEvent({ key: "@", code: "KeyQ" }), {
+      ctrlKey: true,
+      altKey: true,
+      getModifierState: (modifier: string) => modifier === "AltGraph",
+    }))).toBe("@");
+  });
+
   test("uses printable key values when IME is off", () => {
     expect(getDirectInputKey(keyEvent({ code: "KeyN", key: "n" }))).toBe("n");
     expect(getDirectInputKey(keyEvent({ code: "Backspace", key: "Backspace" }))).toBe(

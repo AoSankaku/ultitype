@@ -59,7 +59,7 @@ export type MistakeFlash = {
 export type DirectKeyEvent = Pick<
   globalThis.KeyboardEvent,
   "code" | "key" | "preventDefault" | "repeat" | "shiftKey"
->;
+> & Partial<Pick<globalThis.KeyboardEvent, "ctrlKey" | "metaKey" | "getModifierState">>;
 
 export type AppSettings = {
   showKanjiDisplay: boolean;

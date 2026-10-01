@@ -8,7 +8,8 @@ import {
   storageKey,
   topDisplayMetricOptions,
 } from "./constants";
-import type { AppSettings, LocalDataClearScope, StoredState } from "./types";
+import { modes } from "@/src/lib/typing";
+import type { AppSettings, LocalDataClearScope, StoredSession, StoredState } from "./types";
 
 let cachedStoredState: StoredState | null = null;
 
@@ -168,6 +169,9 @@ export function normalizeStoredState(storedState: unknown) {
   return {
     ...initialStoredState,
     ...input,
+    bestPracticeScore: normalizeStoredScore(input?.bestPracticeScore),
+    bestProductionScore: normalizeStoredScore(input?.bestProductionScore),
+    sessions: normalizeStoredSessions(input?.sessions),
     settings: normalizeAppSettings({
       ...initialSettings,
       ...storedSettings,
@@ -278,6 +282,35 @@ export function normalizeStoredState(storedState: unknown) {
       },
     }),
   };
+}
+
+function isNonnegativeFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function normalizeStoredScore(value: unknown) {
+  return isNonnegativeFiniteNumber(value) ? value : 0;
+}
+
+function isStoredSession(value: unknown): value is StoredSession {
+  if (value === null || typeof value !== "object" || Array.isArray(value)) {
+    return false;
+  }
+  const session = value as Record<string, unknown>;
+  return (
+    modes.some((mode) => mode.id === session.modeId) &&
+    typeof session.rank === "string" && session.rank.trim().length > 0 &&
+    isNonnegativeFiniteNumber(session.score) &&
+    isNonnegativeFiniteNumber(session.accuracy) && session.accuracy <= 1 &&
+    isNonnegativeFiniteNumber(session.keysPerSecond) &&
+    typeof session.createdAt === "string" && Number.isFinite(Date.parse(session.createdAt)) &&
+    (session.challengeLanguage === undefined ||
+      session.challengeLanguage === "ja" || session.challengeLanguage === "en")
+  );
+}
+
+function normalizeStoredSessions(value: unknown): StoredSession[] {
+  return Array.isArray(value) ? value.filter(isStoredSession).slice(0, 8) : [];
 }
 
 function normalizeFontSize(value: number, fallback: number) {

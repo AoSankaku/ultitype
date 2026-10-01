@@ -10,6 +10,55 @@ import {
 } from "./stored-state";
 
 describe("stored state persistence", () => {
+  const validSession = {
+    modeId: "practice-accuracy" as const,
+    score: 1200,
+    rank: "F1",
+    accuracy: 0.98,
+    keysPerSecond: 4.2,
+    createdAt: "2026-07-05T00:00:00.000Z",
+  };
+
+  test("recovers malformed session collections without losing valid settings", () => {
+    for (const sessions of [null, {}, "invalid", 42]) {
+      const stored = normalizeStoredState({ sessions, settings: { theme: "light" } });
+      expect(stored.sessions).toEqual([]);
+      expect(stored.settings.theme).toBe("light");
+    }
+  });
+
+  test("drops invalid history records while preserving valid and legacy sessions", () => {
+    const invalidRecords = [
+      null, [], "invalid", {},
+      ...Object.entries({
+        modeId: "unknown-mode", rank: null, score: "1200", accuracy: 2,
+        keysPerSecond: -1, createdAt: "not-a-date", challengeLanguage: "fr",
+      }).map(([key, value]) => ({ ...validSession, [key]: value })),
+      { ...validSession, score: Number.NaN },
+      { ...validSession, keysPerSecond: Number.POSITIVE_INFINITY },
+    ];
+    const englishSession = { ...validSession, challengeLanguage: "en" };
+    expect(normalizeStoredState({
+      sessions: [validSession, ...invalidRecords, englishSession],
+    }).sessions).toEqual([validSession, englishSession]);
+  });
+
+  test("bounds loaded history to the eight recent sessions", () => {
+    const sessions = Array.from({ length: 12 }, (_, index) => ({
+      ...validSession, score: 1200 + index,
+    }));
+    expect(normalizeStoredState({ sessions }).sessions).toEqual(sessions.slice(0, 8));
+  });
+
+  test("recovers invalid best scores instead of propagating invalid metrics", () => {
+    for (const value of [null, "1200", -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const stored = normalizeStoredState({ bestPracticeScore: value, bestProductionScore: value });
+      expect(stored.bestPracticeScore).toBe(0);
+      expect(stored.bestProductionScore).toBe(0);
+    }
+    expect(normalizeStoredState({ bestPracticeScore: 6000 }).bestPracticeScore).toBe(6000);
+  });
+
   test("falls back to the initial state for non-object storage data", () => {
     expect(normalizeStoredState(null)).toEqual(initialStoredState);
     expect(normalizeStoredState("invalid")).toEqual(initialStoredState);

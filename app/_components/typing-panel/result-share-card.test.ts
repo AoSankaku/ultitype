@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { modes } from "@/src/lib/typing";
 import {
+  getCanvasBlob,
   getResultCardMetrics,
   getResultImageFilename,
   getResultScoreFontSize,
@@ -22,6 +23,34 @@ const result: ShareResult = {
 };
 
 describe("result sharing", () => {
+  test("waits for asynchronous PNG encoding before sharing an uncached image", async () => {
+    let encoded: BlobCallback | undefined;
+    const canvas = {
+      toBlob(callback: BlobCallback, type?: string) {
+        expect(type).toBe("image/png");
+        encoded = callback;
+      },
+    } as HTMLCanvasElement;
+    let settled = false;
+    const pending = getCanvasBlob(canvas).then((blob) => {
+      settled = true;
+      return blob;
+    });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    const png = new Blob(["png"], { type: "image/png" });
+    encoded!(png);
+    expect(await pending).toBe(png);
+  });
+
+  test("handles missing canvases and unsuccessful PNG encoding", async () => {
+    expect(await getCanvasBlob(null)).toBeNull();
+    const canvas = {
+      toBlob(callback: BlobCallback) { callback(null); },
+    } as HTMLCanvasElement;
+    expect(await getCanvasBlob(canvas)).toBeNull();
+  });
+
   test("builds a reusable result post template", () => {
     const text = getResultShareText(result);
 

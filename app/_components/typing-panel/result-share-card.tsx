@@ -394,8 +394,14 @@ function paintRankBadge(
   context.drawImage(badgeCanvas, x, y, width, height);
 }
 
-function getCanvasBlob(canvas: HTMLCanvasElement | null) {
-  return new Promise<Blob | null>((resolve) => canvas?.toBlob(resolve, "image/png") ?? resolve(null));
+export function getCanvasBlob(canvas: HTMLCanvasElement | null) {
+  return new Promise<Blob | null>((resolve) => {
+    if (!canvas) {
+      resolve(null);
+      return;
+    }
+    canvas.toBlob(resolve, "image/png");
+  });
 }
 
 function downloadBlob(blob: Blob, filename: string) {

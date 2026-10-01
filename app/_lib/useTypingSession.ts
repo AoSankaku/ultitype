@@ -80,6 +80,7 @@ import type {
   StoredState,
 } from "./types";
 import { getFinishSoundKind, useTypingSounds } from "./typing-sounds";
+import { getBrowserLocalStorage, removeLocalStorageItems, writeLocalStorageItem } from "./browser-storage";
 
 type KeyStabilityInput = {
   key: string;
@@ -140,18 +141,12 @@ export function getNextEscapeRetirePressCount({
 
 function removeUltitypeLocalStorage(scope: LocalDataClearScope) {
   if (scope === "user-data") {
-    return;
+    return true;
   }
 
-  for (let index = window.localStorage.length - 1; index >= 0; index -= 1) {
-    const key = window.localStorage.key(index);
-    if (
-      key?.startsWith("ultitype:") &&
-      (scope === "all" || key !== storageKey)
-    ) {
-      window.localStorage.removeItem(key);
-    }
-  }
+  return removeLocalStorageItems((key) =>
+    key.startsWith("ultitype:") && (scope === "all" || key !== storageKey),
+  );
 }
 
 const directCodeKeyMap: Record<string, [normal: string, shifted: string]> = {
@@ -966,7 +961,7 @@ export function useTypingSession({
       : "";
 
   useEffect(() => {
-    const nextStored = readStoredState(window.localStorage);
+    const nextStored = readStoredState(getBrowserLocalStorage());
     cacheStoredState(nextStored);
     setStored(nextStored);
     setHasLoadedStoredState(true);
@@ -985,8 +980,8 @@ export function useTypingSession({
       return;
     }
 
-    cacheStoredState(stored);
-    window.localStorage.setItem(storageKey, JSON.stringify(stored));
+    const persisted = writeLocalStorageItem(storageKey, JSON.stringify(stored));
+    cacheStoredState(stored, persisted);
   }, [hasLoadedStoredState, stored]);
 
   useEffect(() => {
@@ -1238,11 +1233,11 @@ export function useTypingSession({
   }
 
   function clearLocalData(scope: LocalDataClearScope = "all") {
-    removeUltitypeLocalStorage(scope);
+    const removed = removeUltitypeLocalStorage(scope);
 
-    skipNextPersistRef.current = scope === "all";
+    skipNextPersistRef.current = scope === "all" && removed;
     const nextStored = createClearedStoredState(stored, scope);
-    cacheStoredState(nextStored);
+    cacheStoredState(nextStored, scope === "all" ? removed : undefined);
     setStored(nextStored);
     setModeId("practice-accuracy");
     setChallengeLanguage("ja");

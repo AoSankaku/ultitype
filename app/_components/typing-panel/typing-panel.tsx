@@ -11,6 +11,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { css } from "../../_lib/css-module";
 import { getVisibleSessionRank } from "../../_lib/session-rank-visibility";
 import { useTypingSounds } from "../../_lib/typing-sounds";
+import { writeLocalStorageItem } from "../../_lib/browser-storage";
 import styles from "../TypingPanel.module.css";
 
 import { productionImeInputWidthStorageKey } from "./common";
@@ -211,7 +212,7 @@ export function TypingPanel({
       setProductionImeInputWidth((currentWidth) =>
         currentWidth === nextWidth ? currentWidth : nextWidth,
       );
-      window.localStorage.setItem(productionImeInputWidthStorageKey, String(nextWidth));
+      writeLocalStorageItem(productionImeInputWidthStorageKey, String(nextWidth));
     });
 
     resizeObserver.observe(shell);
@@ -267,7 +268,7 @@ export function TypingPanel({
     setProductionImeInputWidth((currentWidth) =>
       currentWidth === nextWidth ? currentWidth : nextWidth,
     );
-    window.localStorage.setItem(productionImeInputWidthStorageKey, String(nextWidth));
+    writeLocalStorageItem(productionImeInputWidthStorageKey, String(nextWidth));
   }
 
   function handleProductionImeResizePointerDown(event: PointerEvent<HTMLButtonElement>) {
@@ -314,12 +315,9 @@ export function TypingPanel({
     });
     productionImeResizeSessionRef.current = null;
     setProductionImeInputWidth(nextWidth);
-    window.localStorage.setItem(productionImeInputWidthStorageKey, String(nextWidth));
+    writeLocalStorageItem(productionImeInputWidthStorageKey, String(nextWidth));
     event.currentTarget.releasePointerCapture(event.pointerId);
   }
-
-
-
   return (
     <section
       className={css(styles, "practice-panel", acceptsTextInput ? "ime-panel" : "direct-panel", isPreview ? "preview-panel" : "")}

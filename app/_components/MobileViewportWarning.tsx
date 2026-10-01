@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { css } from "../_lib/css-module";
+import { readLocalStorageItem, writeLocalStorageItem } from "../_lib/browser-storage";
 import styles from "./MobileViewportWarning.module.css";
 
 export const mobileViewportWarningStorageKey = "ultitype:mobile-viewport-warning-dismissed";
@@ -76,7 +77,7 @@ export function MobileViewportWarning() {
 
     updateViewportStyle();
     setIsNarrowViewport(mediaQuery.matches);
-    setDismissed(window.localStorage.getItem(mobileViewportWarningStorageKey) === "true");
+    setDismissed(readLocalStorageItem(mobileViewportWarningStorageKey) === "true");
 
     const handleViewportChange = (event: MediaQueryListEvent) => {
       setIsNarrowViewport(event.matches);
@@ -102,7 +103,7 @@ export function MobileViewportWarning() {
 
   function closeWarning() {
     if (dismissOnClose) {
-      window.localStorage.setItem(mobileViewportWarningStorageKey, "true");
+      writeLocalStorageItem(mobileViewportWarningStorageKey, "true");
       setDismissed(true);
     } else {
       setIsNarrowViewport(false);

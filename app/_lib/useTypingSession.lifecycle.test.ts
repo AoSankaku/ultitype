@@ -59,16 +59,21 @@ type LifecycleResult = {
     session: LifecycleResult["session"];
     visibleRank: string;
   } | null;
+  afterNavigation: {
+    sessionCount: number;
+    score: number;
+    theme: string;
+  } | null;
 };
 
-function runFixture(scenario?: string) {
+function runFixture(scenario?: string, storageFailure = "") {
   const fixturePath = `${import.meta.dir}/test-fixtures/useTypingSession-timeout.ts`;
   const child = spawnSync(
     process.execPath,
     scenario ? ["run", fixturePath, scenario] : ["run", fixturePath],
     {
       encoding: "utf8",
-      env: { ...process.env, NODE_ENV: "development" },
+      env: { ...process.env, NODE_ENV: "development", ULTITYPE_TEST_STORAGE_FAILURE: storageFailure },
       timeout: 15_000,
     },
   );
@@ -78,6 +83,12 @@ function runFixture(scenario?: string) {
 }
 
 describe("useTypingSession timeout lifecycle", () => {
+  test("keeps results and settings across navigation when storage writes fail", () => {
+    const result = runFixture(undefined, "quota");
+    expect(result.afterNavigation!.sessionCount).toBe(1);
+    expect(result.afterNavigation!.score).toBe(result.session.score);
+    expect(result.afterNavigation!.theme).toBe("light");
+  });
   test("counts committed IME input once in the final metrics and saved result", () => {
     const result = runFixture();
     const expectedPromptCharacters = 10;

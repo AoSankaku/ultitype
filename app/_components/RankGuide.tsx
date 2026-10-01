@@ -14,6 +14,7 @@ import {
 } from "../_lib/rank-guide";
 import { css } from "../_lib/css-module";
 import { cacheStoredState, getInitialStoredState, readStoredState } from "../_lib/stored-state";
+import { getBrowserLocalStorage } from "../_lib/browser-storage";
 import type { StoredState } from "../_lib/types";
 import { RankBadgeCanvas } from "./RankBadgeCanvas";
 import styles from "./RankGuide.module.css";
@@ -22,7 +23,7 @@ export function RankGuide() {
   const [stored, setStored] = useState<StoredState>(getInitialStoredState);
 
   useEffect(() => {
-    const nextStored = readStoredState(window.localStorage);
+    const nextStored = readStoredState(getBrowserLocalStorage());
     cacheStoredState(nextStored);
     setStored(nextStored);
   }, []);

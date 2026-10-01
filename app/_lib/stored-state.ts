@@ -12,6 +12,7 @@ import { modes } from "@/src/lib/typing";
 import type { AppSettings, LocalDataClearScope, StoredSession, StoredState } from "./types";
 
 let cachedStoredState: StoredState | null = null;
+let hasUnpersistedStoredState = false;
 
 type LegacyAppSettings = Partial<AppSettings> & {
   furiganaFontSize?: number;
@@ -25,12 +26,14 @@ export function getInitialStoredState() {
   return cachedStoredState ?? initialStoredState;
 }
 
-export function cacheStoredState(storedState: StoredState) {
+export function cacheStoredState(storedState: StoredState, persisted?: boolean) {
   cachedStoredState = storedState;
+  if (persisted !== undefined) hasUnpersistedStoredState = !persisted;
 }
 
 export function resetStoredStateCache() {
   cachedStoredState = null;
+  hasUnpersistedStoredState = false;
 }
 
 export function createClearedStoredState(
@@ -446,9 +449,17 @@ function normalizeTargetDisplayOrder(value: AppSettings["targetDisplayOrder"]) {
 }
 
 export function readStoredState(
-  storage: Pick<Storage, "getItem" | "removeItem">,
+  storage: Pick<Storage, "getItem" | "removeItem"> | null,
 ): StoredState {
-  const raw = storage.getItem(storageKey);
+  // A readable but stale value must not overwrite edits whose last write failed.
+  if (hasUnpersistedStoredState && cachedStoredState) return cachedStoredState;
+  if (!storage) return getInitialStoredState();
+  let raw: string | null;
+  try {
+    raw = storage.getItem(storageKey);
+  } catch {
+    return getInitialStoredState();
+  }
   if (!raw) {
     return initialStoredState;
   }
@@ -456,7 +467,11 @@ export function readStoredState(
   try {
     return normalizeStoredState(JSON.parse(raw));
   } catch {
-    storage.removeItem(storageKey);
+    try {
+      storage.removeItem(storageKey);
+    } catch {
+      // Storage may be readable but deny deletion. The in-memory fallback still works.
+    }
     return initialStoredState;
   }
 }

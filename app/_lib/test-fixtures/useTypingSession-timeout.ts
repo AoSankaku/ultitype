@@ -148,6 +148,9 @@ const sessionOptions: UseTypingSessionOptions = {
   initialProductionDuration: 300 as const,
   initialScreen: "typing" as const,
 };
+if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
+  localStorage.setItem = () => { throw new DOMException("Full", "QuotaExceededError"); };
+}
 
 function renderUntilStable(hook: () => unknown) {
   let result: unknown;
@@ -172,6 +175,10 @@ function renderUntilStable(hook: () => unknown) {
 const renderSession = () =>
   renderUntilStable(() => useTypingSession(sessionOptions)) as ReturnType<typeof useTypingSession>;
 let session = renderSession();
+if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
+  session.updateSettings({ theme: "light" });
+  session = renderSession();
+}
 const target = session.typingPanelProps.currentDisplay;
 const targetCharacters = Array.from(target);
 let committedInput: string;
@@ -322,7 +329,18 @@ if (scenario === "plain" || isCompositionScenario) {
 }
 
 const panel = session.typingPanelProps;
+let afterNavigation: Record<string, unknown> | null = null;
+if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
+  hookSlots.length = 0;
+  const remounted = renderSession();
+  afterNavigation = {
+    sessionCount: remounted.sessions.length,
+    score: remounted.sessions[0]?.score,
+    theme: remounted.settings.theme,
+  };
+}
 const output = {
+  afterNavigation,
   committedInput,
   currentAccuracy: panel.currentAccuracy,
   currentRank: panel.currentRank.label,

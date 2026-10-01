@@ -5,6 +5,7 @@ import {
   createClearedStoredState,
   getInitialStoredState,
   normalizeStoredState,
+  readStoredState,
   resetStoredStateCache,
   shouldPersistStoredState,
 } from "./stored-state";
@@ -57,6 +58,48 @@ describe("stored state persistence", () => {
       expect(stored.bestProductionScore).toBe(0);
     }
     expect(normalizeStoredState({ bestPracticeScore: 6000 }).bestPracticeScore).toBe(6000);
+  });
+
+  test("keeps cached results if reading storage fails without deleting stored data", () => {
+    const cached = { ...initialStoredState, bestPracticeScore: 6000 };
+    cacheStoredState(cached);
+    let removed = false;
+    try {
+      expect(readStoredState({
+        getItem() { throw new Error("unavailable"); },
+        removeItem() { removed = true; },
+      })).toEqual(cached);
+      expect(removed).toBe(false);
+    } finally {
+      resetStoredStateCache();
+    }
+  });
+
+  test("recovers corrupt JSON even if removing the corrupt value fails", () => {
+    expect(readStoredState({
+      getItem: () => "{invalid-json",
+      removeItem() { throw new Error("delete unavailable"); },
+    })).toEqual(initialStoredState);
+  });
+
+  test("prefers unsaved in-memory changes over stale readable storage after navigation", () => {
+    const latest = { ...initialStoredState, bestPracticeScore: 7000 };
+    const older = { ...initialStoredState, bestPracticeScore: 6000 };
+    try {
+      cacheStoredState(latest, false);
+      expect(readStoredState({
+        getItem: () => JSON.stringify(older), removeItem: () => undefined,
+      })).toEqual(latest);
+      // A hydration cache update must not mark still-unsaved data as persisted.
+      cacheStoredState(getInitialStoredState());
+      expect(readStoredState({
+        getItem: () => JSON.stringify(older), removeItem: () => undefined,
+      })).toEqual(latest);
+      cacheStoredState(latest, true);
+      expect(readStoredState({
+        getItem: () => JSON.stringify(older), removeItem: () => undefined,
+      })).toEqual(older);
+    } finally { resetStoredStateCache(); }
   });
 
   test("falls back to the initial state for non-object storage data", () => {

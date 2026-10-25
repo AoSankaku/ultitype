@@ -243,7 +243,8 @@ export function InputSettingsSections({ settings, onChange }: InputSettingsSecti
 
   function updateLineHeight(key: LineHeightSettingKey, value: string) {
     const parsed = Number.parseFloat(value);
-    const lineHeight = Number.isNaN(parsed) ? 1.45 : Math.min(2.5, Math.max(0.8, parsed));
+    const fallback = key === "productionLongTextLineHeight" ? 2.1 : 1.45;
+    const lineHeight = Number.isNaN(parsed) ? fallback : Math.min(2.5, Math.max(0.8, parsed));
 
     onChange({ [key]: Math.round(lineHeight * 100) / 100 } as Partial<AppSettings>);
   }

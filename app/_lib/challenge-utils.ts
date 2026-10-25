@@ -5,14 +5,25 @@ import {
   englishDirectShortChallenges,
 } from "@/src/lib/challenges";
 import type { ModeGroup } from "@/src/lib/typing";
+import { getChallengeTheme } from "@/src/lib/challenge-themes";
+import type { ChallengeThemeId } from "./challenge-theme-schedule";
 import type { ChallengeLanguage } from "./types";
 
-export function getDirectChallenges(language: ChallengeLanguage, group: ModeGroup) {
+export function getDirectChallenges(
+  language: ChallengeLanguage,
+  group: ModeGroup,
+  themeId: ChallengeThemeId = "typing-tips",
+) {
   if (language === "en") {
     return group === "practice" ? englishDirectShortChallenges : englishDirectLongChallenges;
   }
 
-  return group === "practice" ? directShortChallenges : directLongChallenges;
+  if (themeId === "typing-tips") {
+    return group === "practice" ? directShortChallenges : directLongChallenges;
+  }
+
+  const theme = getChallengeTheme(themeId);
+  return group === "practice" ? theme.shortChallenges : theme.longChallenges;
 }
 
 export function removeRomajiVisualSpaces(value: string) {

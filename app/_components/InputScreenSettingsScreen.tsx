@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import mockJapaneseText from "@/src/lib/challenge-data/_mock/ja-mock.txt" with { type: "text" };
 import {
   createJapaneseDirectChallenges,
+  directLongChallenges,
   parseJapaneseChallengeText,
 } from "@/src/lib/challenges";
 import { createRomajiInputTarget, getRank, modes } from "@/src/lib/typing";
@@ -34,6 +35,9 @@ const mockChallenge =
 
 const mockChallenges = createJapaneseDirectChallenges(parseJapaneseChallengeText(mockJapaneseText));
 const availableMockChallenges = mockChallenges.length > 0 ? mockChallenges : [mockChallenge];
+const availableLongPreviewChallenges =
+  directLongChallenges.length > 0 ? directLongChallenges : availableMockChallenges;
+const productionImeOffMode = modes.find((mode) => mode.id === "production-ime-off")!;
 
 type StickyPreviewLayout = {
   height: number | null;
@@ -145,6 +149,7 @@ export function InputScreenSettingsScreen({
   const mockTickAtRef = useRef<number | null>(null);
   const [mockElapsedMs, setMockElapsedMs] = useState(initialMockElapsedMs);
   const [mockPlaybackMode, setMockPlaybackMode] = useState<"slow" | "fast" | "paused">("slow");
+  const [previewLength, setPreviewLength] = useState<"short" | "long">("short");
   const isMockPaused = mockPlaybackMode === "paused";
   const currentKeysPerSecond = mockPlaybackMode === "fast" ? 10 : 5;
   const mockSpeedMultiplier = mockPlaybackMode === "fast" ? 2 : 1;
@@ -152,7 +157,9 @@ export function InputScreenSettingsScreen({
     height: null,
     scale: 1,
   });
-  const mockChallengeItems = availableMockChallenges.map((challenge) => {
+  const previewChallenges =
+    previewLength === "long" ? availableLongPreviewChallenges : availableMockChallenges;
+  const mockChallengeItems = previewChallenges.map((challenge) => {
     const romajiSource = challenge.romajiSource ?? challenge.input;
     const romajiTarget = createRomajiInputTarget(romajiSource, {
       preset: settings.romajiInputPreset,
@@ -203,6 +210,13 @@ export function InputScreenSettingsScreen({
   }
 
   function handleResetMockPlayback() {
+    updateMockElapsedMs(initialMockElapsedMs);
+    mockTickAtRef.current = Date.now();
+    setMockPlaybackMode("slow");
+  }
+
+  function handlePreviewLengthChange(nextPreviewLength: "short" | "long") {
+    setPreviewLength(nextPreviewLength);
     updateMockElapsedMs(initialMockElapsedMs);
     mockTickAtRef.current = Date.now();
     setMockPlaybackMode("slow");
@@ -280,6 +294,20 @@ export function InputScreenSettingsScreen({
       </div>
 
       <section className={css(styles, "input-screen-settings-preview")} aria-label="input screen mock">
+        <div className={css(styles, "input-screen-settings-preview-controls")}>
+          <label htmlFor="challenge-preview-length">プレビューの課題文</label>
+          <select
+            aria-label="プレビューの課題文"
+            id="challenge-preview-length"
+            onChange={(event) =>
+              handlePreviewLengthChange(event.currentTarget.value as "short" | "long")
+            }
+            value={previewLength}
+          >
+            <option value="short">短文</option>
+            <option value="long">長文</option>
+          </select>
+        </div>
         <div className={css(styles, "input-screen-settings-preview-sticky")} style={stickyPreviewStyle}>
           <div
             className={css(styles, "input-screen-settings-preview-scale")}
@@ -317,7 +345,7 @@ export function InputScreenSettingsScreen({
                 promptCharactersPerSecond: 0,
                 score: 500,
               }}
-              mode={modes[0]!}
+              mode={previewLength === "long" ? productionImeOffMode : modes[0]!}
               nextChallengeDisplay={nextMockItem.challenge.display}
               nextChallengeFurigana={nextMockItem.challenge.furigana ?? []}
               nextChallengeGuide={nextMockItem.romajiTarget.guide}
@@ -364,6 +392,7 @@ export function InputScreenSettingsScreen({
               romajiLineHeight={settings.romajiLineHeight}
               romajiMarginBottom={settings.romajiMarginBottom}
               productionLongTextLineCount={settings.productionLongTextLineCount}
+              productionLongTextLineHeight={settings.productionLongTextLineHeight}
               soundSettings={settings}
               startedAt={Date.now() - 16000}
               rankCalculationMode={settings.rankCalculationMode}

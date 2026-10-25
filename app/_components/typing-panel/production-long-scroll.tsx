@@ -208,7 +208,7 @@ export function getProductionLongLineHeight(element: HTMLElement) {
   }
 
   const fontSize = Number.parseFloat(style.fontSize);
-  return Number.isFinite(fontSize) && fontSize > 0 ? fontSize * 1.45 : 0;
+  return Number.isFinite(fontSize) && fontSize > 0 ? fontSize * 2.1 : 0;
 }
 
 export function getProductionLongSpacerOffsetLines(marker: HTMLElement, lineHeight: number) {

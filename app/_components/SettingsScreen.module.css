@@ -790,6 +790,33 @@
     var(--bg);
 }
 
+.inputScreenSettingsPreviewControls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.inputScreenSettingsPreviewControls select {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  padding: 6px 10px;
+  font: inherit;
+  font-weight: 900;
+}
+
+.inputScreenSettingsPreviewControls select:focus-visible {
+  border-color: var(--accent);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .inputScreenSettingsPreviewSticky {
   position: relative;
   width: 100%;

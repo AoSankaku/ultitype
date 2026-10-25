@@ -1,0 +1,63 @@
+.themeSelector,
+.weeklyTheme {
+  width: min(1040px, 100%);
+  margin: 0 auto;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 12px;
+}
+
+.themeLabel {
+  display: grid;
+  max-width: 420px;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.themeSelect {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+  color: var(--text);
+  padding: 7px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.themeSelect:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.themeSelector p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.weeklyTheme {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.weeklyTheme strong {
+  color: var(--text);
+}
+
+.weeklyTheme span {
+  margin-left: 6px;
+}
+
+@media (max-width: 600px) {
+  .themeSelector,
+  .weeklyTheme {
+    padding: 9px;
+  }
+}

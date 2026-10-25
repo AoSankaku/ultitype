@@ -581,6 +581,38 @@ describe("stored state persistence", () => {
     expect(clampedHigh.settings.productionLongTextLineCount).toBe(12);
   });
 
+  test("fills and clamps the production long text line height when loading stored state", () => {
+    const migrated = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        productionLongTextLineHeight: undefined,
+      },
+    });
+    const preserved = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        productionLongTextLineHeight: 2.3,
+      },
+    });
+    const clampedLow = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        productionLongTextLineHeight: 0.1,
+      },
+    });
+    const clampedHigh = normalizeStoredState({
+      settings: {
+        ...initialStoredState.settings,
+        productionLongTextLineHeight: 9,
+      },
+    });
+
+    expect(migrated.settings.productionLongTextLineHeight).toBe(2.1);
+    expect(preserved.settings.productionLongTextLineHeight).toBe(2.3);
+    expect(clampedLow.settings.productionLongTextLineHeight).toBe(0.8);
+    expect(clampedHigh.settings.productionLongTextLineHeight).toBe(2.5);
+  });
+
   test("turns furigana display off when kanji display is off in stored settings", () => {
     const stored = normalizeStoredState({
       settings: {

@@ -550,7 +550,40 @@ export function countPreferredRomajiProgressKeystrokes(
   return completedKeystrokes + currentKeystrokes;
 }
 
-export function getRomajiInputProgress(target: RomajiInputTarget, input: string) {
+type RomajiInputProgress = {
+  accepted: boolean;
+  completed: boolean;
+  completedTokens: number;
+  selectedOptions: string[];
+  currentOption: string | null;
+  currentOptionOffset: number;
+  currentTokenIndex: number;
+};
+
+const ROMAJI_PROGRESS_CACHE_LIMIT = 4;
+// Targets are immutable input graphs. Recreate them when source or rules change;
+// weak keys let graphs from earlier challenges be collected.
+const romajiProgressCache = new WeakMap<
+  RomajiInputTarget,
+  Map<string, RomajiInputProgress>
+>();
+
+export function getRomajiInputProgress(target: RomajiInputTarget, input: string): RomajiInputProgress {
+  let targetCache = romajiProgressCache.get(target);
+  const cachedProgress = targetCache?.get(input);
+  if (targetCache && cachedProgress) {
+    // Exact-input hits are common while rendering the guide and scoring the same key.
+    // Refresh insertion order to keep the four most recently used prefixes/results.
+    targetCache.delete(input);
+    targetCache.set(input, cachedProgress);
+    return copyRomajiInputProgress(cachedProgress);
+  }
+
+  if (!targetCache) {
+    targetCache = new Map();
+    romajiProgressCache.set(target, targetCache);
+  }
+
   type ActiveState = {
     tokenIndex: number;
     option: string | null;
@@ -614,7 +647,7 @@ export function getRomajiInputProgress(target: RomajiInputTarget, input: string)
 
     states = dedupeRomajiStates(nextStates);
     if (states.length === 0) {
-      return {
+      const rejectedProgress: RomajiInputProgress = {
         accepted: false,
         completed: false,
         completedTokens: 0,
@@ -623,12 +656,14 @@ export function getRomajiInputProgress(target: RomajiInputTarget, input: string)
         currentOptionOffset: 0,
         currentTokenIndex: 0,
       };
+      cacheRomajiInputProgress(targetCache, input, rejectedProgress);
+      return copyRomajiInputProgress(rejectedProgress);
     }
   }
 
   const bestState = selectBestRomajiState(states);
 
-  return {
+  const progress: RomajiInputProgress = {
     accepted: true,
     completed: states.some(
       (state) => state.option === null && state.tokenIndex >= target.tokens.length,
@@ -639,6 +674,28 @@ export function getRomajiInputProgress(target: RomajiInputTarget, input: string)
     currentOptionOffset: bestState.option ? bestState.offset : 0,
     currentTokenIndex: bestState.tokenIndex,
   };
+  cacheRomajiInputProgress(targetCache, input, progress);
+  return copyRomajiInputProgress(progress);
+}
+
+function cacheRomajiInputProgress(
+  cache: Map<string, RomajiInputProgress>,
+  input: string,
+  progress: RomajiInputProgress,
+) {
+  // Keep a private snapshot. Callers have historically been able to mutate the
+  // returned array without affecting later results.
+  cache.set(input, { ...progress, selectedOptions: [...progress.selectedOptions] });
+  if (cache.size > ROMAJI_PROGRESS_CACHE_LIMIT) {
+    const oldestInput = cache.keys().next().value;
+    if (oldestInput !== undefined) {
+      cache.delete(oldestInput);
+    }
+  }
+}
+
+function copyRomajiInputProgress(progress: RomajiInputProgress): RomajiInputProgress {
+  return { ...progress, selectedOptions: [...progress.selectedOptions] };
 }
 
 export function getRomajiGuideDisplay(target: RomajiInputTarget, input: string) {
@@ -1057,6 +1114,10 @@ function dedupeRomajiStates<
     selectedOptions: string[];
   },
 >(states: T[]) {
+  if (states.length < 2) {
+    return states;
+  }
+
   const seen = new Set<string>();
   return states.filter((state) => {
     const key = `${state.tokenIndex}:${state.option ?? ""}:${state.offset}:${state.selectedOptions.join("\u0000")}`;

@@ -144,6 +144,10 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
       settings.productionLongTextLineCount,
       initialSettings.productionLongTextLineCount,
     ),
+    productionLongTextLineHeight: normalizeLineHeight(
+      settings.productionLongTextLineHeight,
+      initialSettings.productionLongTextLineHeight,
+    ),
     nextChallengePreviewLength: normalizePreviewLength(
       settings.nextChallengePreviewLength,
       initialSettings.nextChallengePreviewLength,
@@ -247,6 +251,9 @@ export function normalizeStoredState(storedState: unknown) {
       productionLongTextLineCount:
         storedSettings?.productionLongTextLineCount ??
         initialSettings.productionLongTextLineCount,
+      productionLongTextLineHeight:
+        storedSettings?.productionLongTextLineHeight ??
+        initialSettings.productionLongTextLineHeight,
       strictMistakeDisplayMode:
         storedSettings?.strictMistakeDisplayMode ??
         initialSettings.strictMistakeDisplayMode,

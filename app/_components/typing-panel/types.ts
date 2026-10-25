@@ -144,6 +144,7 @@ export type TypingPanelProps = {
   romajiLineHeight: number;
   romajiMarginBottom: number;
   productionLongTextLineCount: number;
+  productionLongTextLineHeight: number;
   soundSettings: SoundSettings;
   startedAt: number | null;
   stats: RuntimeStats;

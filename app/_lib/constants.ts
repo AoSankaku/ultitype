@@ -211,6 +211,7 @@ export const initialSettings: AppSettings = {
   romajiLineHeight: 1.45,
   romajiMarginBottom: 0,
   productionLongTextLineCount: 5,
+  productionLongTextLineHeight: 2.1,
   romajiInputPreset: "hepburn",
   romajiInputSelections: {},
   allowSplitYoon: true,

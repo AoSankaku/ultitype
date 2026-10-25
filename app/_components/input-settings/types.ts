@@ -37,7 +37,8 @@ export type LineHeightSettingKey =
   | "furiganaLineHeight"
   | "hiraganaLineHeight"
   | "hiraganaInputProgressLineHeight"
-  | "romajiLineHeight";
+  | "romajiLineHeight"
+  | "productionLongTextLineHeight";
 
 export type MarginBottomSettingKey =
   | "kanjiMarginBottom"

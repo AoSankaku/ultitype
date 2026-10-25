@@ -185,6 +185,19 @@ export function RomajiOtherInputScreenSettings({ controller }: { controller: Inp
                 unit="行"
                 value={settings.productionLongTextLineCount}
               />
+              <NumericSettingRow
+                ariaLabel="production long text line height"
+                defaultValue={initialSettings.productionLongTextLineHeight}
+                description="長文モードの漢字文だけに適用する行間"
+                id="production-long-text-line-height-setting"
+                label="長文モードの行間"
+                max={2.5}
+                min={0.8}
+                onChange={(value) => updateLineHeight("productionLongTextLineHeight", value)}
+                step={0.05}
+                unit="倍"
+                value={settings.productionLongTextLineHeight}
+              />
               <section className={css(styles, "settings-row")} aria-labelledby="strict-mistake-display-setting">
                 <div>
                   <h4 id="strict-mistake-display-setting">正確無比の誤入力表示</h4>

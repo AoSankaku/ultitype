@@ -14,6 +14,8 @@ import {
 } from "../_lib/release-gates";
 import { type SoundSettings, useTypingSounds } from "../_lib/typing-sounds";
 import type { ChallengeLanguage, ProductionDuration } from "../_lib/types";
+import type { ChallengeThemeId } from "../_lib/challenge-theme-schedule";
+import { ChallengeThemeSelector } from "./ChallengeThemeSelector";
 import styles from "./ModeSelectScreen.module.css";
 
 type ModeSelectScreenProps = {
@@ -22,9 +24,14 @@ type ModeSelectScreenProps = {
   productionDurations: readonly ProductionDuration[];
   productionPlayableModes: ProductionModePlayability;
   productionUnlocked: boolean;
+  selectedChallengeThemeId?: ChallengeThemeId;
+  weeklyChallengeThemeId?: ChallengeThemeId;
+  challengeThemeOverride?: boolean;
+  challengeThemeSelectorEnabled?: boolean;
   soundSettings: SoundSettings;
   onChangeChallengeLanguage: (language: ChallengeLanguage) => void;
   onProductionDurationChange: (duration: ProductionDuration) => void;
+  onSelectChallengeTheme?: (themeId: ChallengeThemeId | null) => void;
   onSelectMode?: (modeId: ModeId) => void;
 };
 
@@ -34,9 +41,14 @@ export function ModeSelectScreen({
   productionDurations,
   productionPlayableModes,
   productionUnlocked,
+  selectedChallengeThemeId,
+  weeklyChallengeThemeId,
+  challengeThemeOverride = false,
+  challengeThemeSelectorEnabled = false,
   soundSettings,
   onChangeChallengeLanguage,
   onProductionDurationChange,
+  onSelectChallengeTheme,
   onSelectMode,
 }: ModeSelectScreenProps) {
   const playTypingSound = useTypingSounds(soundSettings);
@@ -89,6 +101,16 @@ export function ModeSelectScreen({
         </div>
         <p>練習モードまたは本番モードを選択してください。</p>
       </div>
+
+      {challengeLanguage === "ja" && selectedChallengeThemeId && weeklyChallengeThemeId ? (
+        <ChallengeThemeSelector
+          isDevelopment={challengeThemeSelectorEnabled}
+          isThemeOverride={challengeThemeOverride}
+          selectedThemeId={selectedChallengeThemeId}
+          weeklyThemeId={weeklyChallengeThemeId}
+          onSelectTheme={onSelectChallengeTheme ?? (() => undefined)}
+        />
+      ) : null}
 
       </div>
 

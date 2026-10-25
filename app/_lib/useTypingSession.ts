@@ -16,10 +16,8 @@ import {
   createJapaneseReadingGuideParts,
   englishLongChallenges,
   kanaReadingToRomaji,
-  longChallengeFurigana,
-  longChallengeReadings,
-  longChallenges,
 } from "@/src/lib/challenges";
+import { getChallengeTheme } from "@/src/lib/challenge-themes";
 import {
   type ModeId,
   type RomajiInputTarget,
@@ -79,6 +77,12 @@ import type {
   StoredSession,
   StoredState,
 } from "./types";
+import {
+  canApplyChallengeTheme,
+  getWeeklyChallengeThemeId,
+  type ChallengeThemeId,
+} from "./challenge-theme-schedule";
+import { useChallengeTheme } from "./use-challenge-theme";
 import { getFinishSoundKind, useTypingSounds } from "./typing-sounds";
 import { getBrowserLocalStorage, removeLocalStorageItems, writeLocalStorageItem } from "./browser-storage";
 
@@ -628,17 +632,21 @@ export function useTypingSession({
   initialProductionDuration = 300,
   initialScreen = "mode-select",
 }: UseTypingSessionOptions = {}) {
+  const themeSelection = useChallengeTheme();
   const initialPracticeChallengeOrder = createOrderedIndexes(
-    getDirectChallenges(initialChallengeLanguage, "practice").length,
+    getDirectChallenges(initialChallengeLanguage, "practice", themeSelection.selectedThemeId).length,
   );
   const initialProductionChallengeOrder = createOrderedIndexes(
-    getDirectChallenges(initialChallengeLanguage, "production").length,
+    getDirectChallenges(initialChallengeLanguage, "production", themeSelection.selectedThemeId).length,
   );
   const [stored, setStored] = useState<StoredState>(getInitialStoredState);
   const [modeId, setModeId] = useState<ModeId>(initialModeId);
   const [screen, setScreen] = useState<Screen>(initialScreen);
   const [challengeLanguage, setChallengeLanguage] =
     useState<ChallengeLanguage>(initialChallengeLanguage);
+  const [activeChallengeThemeId, setActiveChallengeThemeId] = useState<ChallengeThemeId>(
+    themeSelection.selectedThemeId,
+  );
   const [productionDuration, setProductionDuration] =
     useState<ProductionDuration>(initialProductionDuration);
   const [challengeIndex, setChallengeIndex] = useState(0);
@@ -683,7 +691,8 @@ export function useTypingSession({
   const elapsedSeconds = startedAt ? Math.min((now - startedAt) / 1000, durationSeconds) : 0;
   const remainingSeconds = durationSeconds - elapsedSeconds;
   const productionUnlocked = isProductionUnlocked(stored.bestPracticeScore);
-  const directChallenges = getDirectChallenges(challengeLanguage, mode.group);
+  const directChallenges = getDirectChallenges(challengeLanguage, mode.group, activeChallengeThemeId);
+  const activeChallengeTheme = getChallengeTheme(activeChallengeThemeId);
   const directChallengeOrder =
     mode.group === "practice" ? practiceChallengeOrder : productionChallengeOrder;
   const nextDirectChallengeOrder =
@@ -709,9 +718,17 @@ export function useTypingSession({
     nextDirectChallengeOrder,
   );
   const nextDirectChallenge = directChallenges[nextDirectChallengeIndex] ?? null;
-  const imeChallenges = challengeLanguage === "ja" ? longChallenges : englishLongChallenges;
-  const currentImeChallenge = imeChallenges[directChallengeIndex] ?? "";
-  const nextImeChallenge = imeChallenges[nextDirectChallengeIndex] ?? "";
+  const imeChallenges = challengeLanguage === "ja"
+    ? activeChallengeTheme.longChallenges
+    : englishLongChallenges;
+  const currentImeChallenge = imeChallenges[directChallengeIndex];
+  const nextImeChallenge = imeChallenges[nextDirectChallengeIndex];
+  const currentImeDisplay = typeof currentImeChallenge === "string"
+    ? currentImeChallenge
+    : (currentImeChallenge?.display ?? "");
+  const nextImeDisplay = typeof nextImeChallenge === "string"
+    ? nextImeChallenge
+    : (nextImeChallenge?.display ?? "");
   const currentDirectGuideSource = currentDirectChallenge.guide ?? currentDirectChallenge.input;
   const currentDirectRomajiSource =
     currentDirectChallenge.romajiSource ?? currentDirectGuideSource;
@@ -719,8 +736,8 @@ export function useTypingSession({
     nextDirectChallenge?.guide ?? nextDirectChallenge?.input ?? "";
   const nextDirectRomajiSource =
     nextDirectChallenge?.romajiSource ?? nextDirectGuideSource;
-  const currentRomajiTarget =
-    challengeLanguage === "ja" && !mode.requiresIme
+  const currentRomajiTarget = useMemo(
+    () => challengeLanguage === "ja" && !mode.requiresIme
       ? createRomajiInputTarget(currentDirectRomajiSource, {
           preset: stored.settings.romajiInputPreset,
           selections: stored.settings.romajiInputSelections,
@@ -729,9 +746,23 @@ export function useTypingSession({
           specialSelections: stored.settings.specialRomajiInputSelections,
           sokuon: stored.settings.sokuonInput,
         })
-      : null;
-  const currentShortestRomajiTarget =
-    challengeLanguage === "ja" && !mode.requiresIme
+      : null,
+    [
+      challengeLanguage,
+      mode.requiresIme,
+      activeChallengeThemeId,
+      directChallengeIndex,
+      currentDirectRomajiSource,
+      stored.settings.romajiInputPreset,
+      stored.settings.romajiInputSelections,
+      stored.settings.allowSplitYoon,
+      stored.settings.specialRomajiInputPreset,
+      stored.settings.specialRomajiInputSelections,
+      stored.settings.sokuonInput,
+    ],
+  );
+  const currentShortestRomajiTarget = useMemo(
+    () => challengeLanguage === "ja" && !mode.requiresIme
       ? createRomajiInputTarget(currentDirectRomajiSource, {
           preset: "shortest",
           selections: {},
@@ -740,9 +771,17 @@ export function useTypingSession({
           specialPreset: "integrated",
           specialSelections: {},
         })
-      : null;
-  const nextRomajiTarget =
-    challengeLanguage === "ja" && !mode.requiresIme && nextDirectChallenge
+      : null,
+    [
+      challengeLanguage,
+      mode.requiresIme,
+      activeChallengeThemeId,
+      directChallengeIndex,
+      currentDirectRomajiSource,
+    ],
+  );
+  const nextRomajiTarget = useMemo(
+    () => challengeLanguage === "ja" && !mode.requiresIme && nextDirectChallenge
       ? createRomajiInputTarget(nextDirectRomajiSource, {
           preset: stored.settings.romajiInputPreset,
           selections: stored.settings.romajiInputSelections,
@@ -751,9 +790,24 @@ export function useTypingSession({
           specialSelections: stored.settings.specialRomajiInputSelections,
           sokuon: stored.settings.sokuonInput,
         })
-      : null;
+      : null,
+    [
+      challengeLanguage,
+      mode.requiresIme,
+      activeChallengeThemeId,
+      nextDirectChallenge,
+      nextDirectChallengeIndex,
+      nextDirectRomajiSource,
+      stored.settings.romajiInputPreset,
+      stored.settings.romajiInputSelections,
+      stored.settings.allowSplitYoon,
+      stored.settings.specialRomajiInputPreset,
+      stored.settings.specialRomajiInputSelections,
+      stored.settings.sokuonInput,
+    ],
+  );
   const currentDisplay = mode.requiresIme
-    ? currentImeChallenge
+    ? currentImeDisplay
     : getDirectChallengeBoundaryText({
         challengeLanguage,
         requiresIme: mode.requiresIme,
@@ -762,13 +816,13 @@ export function useTypingSession({
   const currentFurigana =
     challengeLanguage === "ja"
       ? mode.requiresIme
-        ? (longChallengeFurigana[directChallengeIndex % longChallengeFurigana.length] ?? [])
+        ? (typeof currentImeChallenge === "string" ? [] : (currentImeChallenge?.furigana ?? []))
         : (currentDirectChallenge.furigana ?? [])
       : [];
   const currentRawReading =
     challengeLanguage === "ja"
       ? mode.requiresIme
-        ? (longChallengeReadings[directChallengeIndex % longChallengeReadings.length] ?? "")
+        ? (typeof currentImeChallenge === "string" ? "" : (currentImeChallenge?.reading ?? ""))
         : (currentDirectChallenge.reading ?? "")
       : "";
   const currentReading = currentRawReading;
@@ -777,7 +831,7 @@ export function useTypingSession({
       ? (nextDirectChallenge?.reading ?? "")
       : "";
   const currentInputTarget = mode.requiresIme
-    ? currentImeChallenge
+    ? currentImeDisplay
     : (currentRomajiTarget ??
       getDirectChallengeBoundaryText({
         challengeLanguage,
@@ -798,8 +852,11 @@ export function useTypingSession({
   const currentProductionPlayable =
     mode.group === "production" ? productionPlayableModes[mode.id as ProductionModeId] : true;
 
-  function randomizePracticeChallengeOrder(language: ChallengeLanguage = challengeLanguage) {
-    const nextOrder = createShuffledIndexes(getDirectChallenges(language, "practice").length);
+  function randomizePracticeChallengeOrder(
+    language: ChallengeLanguage = challengeLanguage,
+    themeId: ChallengeThemeId = activeChallengeThemeId,
+  ) {
+    const nextOrder = createShuffledIndexes(getDirectChallenges(language, "practice", themeId).length);
 
     setPracticeChallengeOrder(nextOrder);
     setNextPracticeChallengeOrder(
@@ -807,8 +864,11 @@ export function useTypingSession({
     );
   }
 
-  function randomizeProductionChallengeOrder(language: ChallengeLanguage = challengeLanguage) {
-    const nextOrder = createShuffledIndexes(getDirectChallenges(language, "production").length);
+  function randomizeProductionChallengeOrder(
+    language: ChallengeLanguage = challengeLanguage,
+    themeId: ChallengeThemeId = activeChallengeThemeId,
+  ) {
+    const nextOrder = createShuffledIndexes(getDirectChallenges(language, "production", themeId).length);
 
     setProductionChallengeOrder(nextOrder);
     setNextProductionChallengeOrder(
@@ -816,9 +876,12 @@ export function useTypingSession({
     );
   }
 
-  function randomizeChallengeOrders(language: ChallengeLanguage = challengeLanguage) {
-    randomizePracticeChallengeOrder(language);
-    randomizeProductionChallengeOrder(language);
+  function randomizeChallengeOrders(
+    language: ChallengeLanguage = challengeLanguage,
+    themeId: ChallengeThemeId = activeChallengeThemeId,
+  ) {
+    randomizePracticeChallengeOrder(language, themeId);
+    randomizeProductionChallengeOrder(language, themeId);
   }
 
   function advanceChallenge() {
@@ -969,6 +1032,39 @@ export function useTypingSession({
 
   useEffect(() => {
     if (
+      !canApplyChallengeTheme(challengeLanguage, startedAt !== null) ||
+      activeChallengeThemeId === themeSelection.selectedThemeId
+    ) {
+      return;
+    }
+
+    const nextThemeId = themeSelection.selectedThemeId;
+    const nextPracticeOrder = createShuffledIndexes(
+      getDirectChallenges("ja", "practice", nextThemeId).length,
+    );
+    const nextProductionOrder = createShuffledIndexes(
+      getDirectChallenges("ja", "production", nextThemeId).length,
+    );
+    setActiveChallengeThemeId(nextThemeId);
+    setChallengeIndex(0);
+    setPreviousDirectChallenge(null);
+    setPracticeChallengeOrder(nextPracticeOrder);
+    setNextPracticeChallengeOrder(
+      createShuffledIndexes(nextPracticeOrder.length, Math.random, nextPracticeOrder.at(-1)),
+    );
+    setProductionChallengeOrder(nextProductionOrder);
+    setNextProductionChallengeOrder(
+      createShuffledIndexes(nextProductionOrder.length, Math.random, nextProductionOrder.at(-1)),
+    );
+  }, [
+    activeChallengeThemeId,
+    challengeLanguage,
+    startedAt,
+    themeSelection.selectedThemeId,
+  ]);
+
+  useEffect(() => {
+    if (
       !shouldPersistStoredState({
         hasLoadedStoredState,
         skipNextPersist: skipNextPersistRef.current,
@@ -1069,13 +1165,17 @@ export function useTypingSession({
   }
 
   function prepareSession() {
+    const nextThemeId = challengeLanguage === "ja"
+      ? themeSelection.selectedThemeId
+      : activeChallengeThemeId;
+    setActiveChallengeThemeId(nextThemeId);
     hasFinishedSessionRef.current = false;
     setFinishedMetrics(null);
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
     setPreviousDirectChallenge(null);
-    randomizeChallengeOrders();
+    randomizeChallengeOrders(challengeLanguage, nextThemeId);
     setStartedAt(null);
     setNow(Date.now());
     setIsFinished(false);
@@ -1101,14 +1201,18 @@ export function useTypingSession({
     setFinishedAt(null);
   }
 
-  function resetSession(language: ChallengeLanguage = challengeLanguage) {
+  function resetSession(
+    language: ChallengeLanguage = challengeLanguage,
+    themeId: ChallengeThemeId = themeSelection.selectedThemeId,
+  ) {
+    setActiveChallengeThemeId(themeId);
     hasFinishedSessionRef.current = false;
     setFinishedMetrics(null);
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
     setPreviousDirectChallenge(null);
-    randomizeChallengeOrders(language);
+    randomizeChallengeOrders(language, themeId);
     setStartedAt(null);
     setNow(Date.now());
     setIsFinished(false);
@@ -1222,6 +1326,20 @@ export function useTypingSession({
     resetSession(nextLanguage);
   }
 
+  function selectChallengeTheme(themeId: ChallengeThemeId | null) {
+    if (
+      challengeLanguage !== "ja" ||
+      screen !== "mode-select" ||
+      !themeSelection.isThemeSelectorEnabled
+    ) {
+      return;
+    }
+
+    const nextThemeId = themeId ?? getWeeklyChallengeThemeId(new Date(Date.now()));
+    themeSelection.selectTheme(themeId);
+    resetSession("ja", nextThemeId);
+  }
+
   function updateSettings(nextSettings: Partial<AppSettings>) {
     setStored((previous) => ({
       ...previous,
@@ -1234,6 +1352,13 @@ export function useTypingSession({
 
   function clearLocalData(scope: LocalDataClearScope = "all") {
     const removed = removeUltitypeLocalStorage(scope);
+    const resetThemeId = scope === "user-data"
+      ? themeSelection.selectedThemeId
+      : getWeeklyChallengeThemeId(new Date(Date.now()));
+
+    if (scope !== "user-data") {
+      themeSelection.selectTheme(null);
+    }
 
     skipNextPersistRef.current = scope === "all" && removed;
     const nextStored = createClearedStoredState(stored, scope);
@@ -1242,7 +1367,7 @@ export function useTypingSession({
     setModeId("practice-accuracy");
     setChallengeLanguage("ja");
     setProductionDuration(300);
-    resetSession("ja");
+    resetSession("ja", resetThemeId);
     setScreen("mode-select");
   }
 
@@ -1610,6 +1735,10 @@ export function useTypingSession({
     bestPracticeRank,
     bestProductionRank,
     challengeLanguage,
+    selectedChallengeThemeId: themeSelection.selectedThemeId,
+    weeklyChallengeThemeId: themeSelection.weeklyThemeId,
+    challengeThemeOverride: themeSelection.isThemeOverride,
+    challengeThemeSelectorEnabled: themeSelection.isThemeSelectorEnabled,
     currentAccuracy,
     productionDuration,
     productionPlayableModes,
@@ -1643,7 +1772,7 @@ export function useTypingSession({
       metrics: visibleMetrics,
       mode,
       nextChallengeDisplay: mode.requiresIme
-        ? nextImeChallenge
+        ? nextImeDisplay
         : getDirectChallengeBoundaryText({
             challengeLanguage,
             requiresIme: mode.requiresIme,
@@ -1651,7 +1780,7 @@ export function useTypingSession({
           }),
       nextChallengeFurigana:
         mode.requiresIme && challengeLanguage === "ja"
-          ? (longChallengeFurigana[nextDirectChallengeIndex % longChallengeFurigana.length] ?? [])
+          ? (typeof nextImeChallenge === "string" ? [] : (nextImeChallenge?.furigana ?? []))
           : (nextDirectChallenge?.furigana ?? []),
       nextChallengeGuide:
         nextRomajiTarget?.guide ??
@@ -1702,6 +1831,7 @@ export function useTypingSession({
       romajiLineHeight: stored.settings.romajiLineHeight,
       romajiMarginBottom: stored.settings.romajiMarginBottom,
       productionLongTextLineCount: stored.settings.productionLongTextLineCount,
+      productionLongTextLineHeight: stored.settings.productionLongTextLineHeight,
       soundSettings: stored.settings,
       startedAt,
       stats,
@@ -1724,6 +1854,7 @@ export function useTypingSession({
     metrics: visibleMetrics,
     stats,
     changeChallengeLanguage,
+    selectChallengeTheme,
     clearLocalData,
     selectMode,
     setProductionDuration,

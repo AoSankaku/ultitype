@@ -403,6 +403,8 @@
 }
 
 .productionLongBody {
+  --target-kanji-line-height: var(--target-production-long-line-height, 2.1);
+
   position: relative;
   height: calc(var(--target-kanji-font-size, 32px) * var(--target-kanji-line-height, 1.45) * var(--target-production-long-lines, 5));
   overflow: hidden;

@@ -93,6 +93,7 @@ export function TypingPanel({
   romajiLineHeight,
   romajiMarginBottom,
   productionLongTextLineCount,
+  productionLongTextLineHeight,
   soundSettings,
   startedAt,
   stats,
@@ -344,6 +345,7 @@ export function TypingPanel({
             previousChallengeReading={previousChallengeReading}
             previousInputProgress={previousInputProgress}
             productionLongTextLineCount={productionLongTextLineCount}
+            productionLongTextLineHeight={productionLongTextLineHeight}
             romajiFontSize={romajiFontSize}
             romajiLineHeight={romajiLineHeight}
             romajiMarginBottom={romajiMarginBottom}

@@ -463,13 +463,16 @@ describe("InputScreenSettingsScreen", () => {
     const markup = renderInputScreenSettingsScreen();
     const inputScreenMarkup = getCategoryMarkup(markup, "input-screen-settings");
 
-    expect(Array.from(inputScreenMarkup.matchAll(/class="number-control/g))).toHaveLength(13);
-    expect(Array.from(inputScreenMarkup.matchAll(/class="number-stepper"/g))).toHaveLength(13);
+    expect(Array.from(inputScreenMarkup.matchAll(/class="number-control/g))).toHaveLength(14);
+    expect(Array.from(inputScreenMarkup.matchAll(/class="number-stepper"/g))).toHaveLength(14);
     expect(inputScreenMarkup).toContain('aria-label="kanji font size を増やす"');
     expect(inputScreenMarkup).toContain('aria-label="furigana font scale を減らす"');
     expect(inputScreenMarkup).toContain('aria-label="romaji bottom spacing を増やす"');
     expect(inputScreenMarkup).toContain(
       'aria-label="long text kanji area height を増やす"',
+    );
+    expect(inputScreenMarkup).toContain(
+      'aria-label="production long text line height を増やす"',
     );
   });
 
@@ -492,7 +495,7 @@ describe("InputScreenSettingsScreen", () => {
     );
 
     expect(Array.from(inputScreenMarkup.matchAll(/class="number-reset-button"/g))).toHaveLength(
-      13,
+      14,
     );
     expect(kanjiFontSizeMarkup).toContain('aria-label="kanji font size を初期値に戻す"');
     expect(kanjiFontSizeMarkup).not.toContain('class="number-reset-button" disabled=""');
@@ -535,6 +538,36 @@ describe("InputScreenSettingsScreen", () => {
     expect(rowMarkup).toContain('value="6"');
     expect(rowMarkup).toContain("<span>行</span>");
     expect(previewMarkup).toContain("--target-production-long-lines:6");
+  });
+
+  test("shows the long-text line-height setting and applies it to the preview style", () => {
+    const markup = renderInputScreenSettingsScreen({
+      ...initialSettings,
+      productionLongTextLineHeight: 2.25,
+    });
+    const inputScreenMarkup = getCategoryMarkup(markup, "input-screen-settings");
+    const rowMarkup = getSettingRowMarkup(
+      inputScreenMarkup,
+      "production-long-text-line-height-setting",
+    );
+    const previewMarkup = getPreviewMarkup(markup);
+
+    expect(rowMarkup).toContain("長文モードの行間");
+    expect(rowMarkup).toContain('aria-label="production long text line height"');
+    expect(rowMarkup).toContain('min="0.8"');
+    expect(rowMarkup).toContain('max="2.5"');
+    expect(rowMarkup).toContain('step="0.05"');
+    expect(rowMarkup).toContain('value="2.25"');
+    expect(previewMarkup).toContain("--target-production-long-line-height:2.25");
+  });
+
+  test("offers short and long challenge previews with short selected by default", () => {
+    const markup = renderInputScreenSettingsScreen();
+
+    expect(markup).toContain('<label for="challenge-preview-length">プレビューの課題文</label>');
+    expect(markup).toContain('<select aria-label="プレビューの課題文"');
+    expect(markup).toContain('<option value="short" selected="">短文</option>');
+    expect(markup).toContain('<option value="long">長文</option>');
   });
 
   test("shows next challenge preview mode choices with split slide selected by default", () => {

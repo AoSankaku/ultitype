@@ -49,6 +49,7 @@ type TypingTargetViewProps = Pick<
   | "previousChallengeGuide"
   | "previousChallengeReading"
   | "productionLongTextLineCount"
+  | "productionLongTextLineHeight"
   | "romajiFontSize"
   | "romajiLineHeight"
   | "romajiMarginBottom"
@@ -117,6 +118,7 @@ export function TypingTargetView({
   previousChallengeReading,
   previousInputProgress,
   productionLongTextLineCount,
+  productionLongTextLineHeight,
   romajiFontSize,
   romajiLineHeight,
   romajiMarginBottom,
@@ -204,6 +206,7 @@ export function TypingTargetView({
     "--target-romaji-line-height": `${romajiLineHeight}`,
     "--target-romaji-margin-bottom": `${romajiMarginBottom}px`,
     "--target-production-long-lines": `${productionLongTextLineCount}`,
+    "--target-production-long-line-height": `${productionLongTextLineHeight}`,
   } as CSSProperties;
 
   return (

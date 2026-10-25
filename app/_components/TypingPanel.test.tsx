@@ -97,6 +97,7 @@ function renderTypingPanel(overrides: Partial<TypingPanelProps> = {}) {
     romajiLineHeight: initialSettings.romajiLineHeight,
     romajiMarginBottom: initialSettings.romajiMarginBottom,
     productionLongTextLineCount: initialSettings.productionLongTextLineCount,
+    productionLongTextLineHeight: initialSettings.productionLongTextLineHeight,
     soundSettings: initialSettings,
     startedAt: null,
     stats: initialStats,

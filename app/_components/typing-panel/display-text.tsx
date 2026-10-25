@@ -265,7 +265,7 @@ export function createDisplayMarkerTextParts(text: string) {
 
     if (
       part?.kind === "reading" &&
-      part.text === "っ" &&
+      (part.text === "っ" || part.text === "ッ") &&
       nextPart?.kind === "reading"
     ) {
       markerParts.push({

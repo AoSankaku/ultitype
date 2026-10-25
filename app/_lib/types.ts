@@ -93,6 +93,7 @@ export type AppSettings = {
   romajiLineHeight: number;
   romajiMarginBottom: number;
   productionLongTextLineCount: number;
+  productionLongTextLineHeight: number;
   romajiInputPreset: RomajiInputPreset;
   romajiInputSelections: Partial<Record<StandardRomajiVariantId, RomajiVariantSelection>>;
   allowSplitYoon: boolean;

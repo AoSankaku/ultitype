@@ -29,9 +29,14 @@ export function ModeSelectPage({
           productionDurations={productionDurations}
           productionPlayableModes={session.productionPlayableModes}
           productionUnlocked={session.productionUnlocked}
+          selectedChallengeThemeId={session.selectedChallengeThemeId}
+          weeklyChallengeThemeId={session.weeklyChallengeThemeId}
+          challengeThemeOverride={session.challengeThemeOverride}
+          challengeThemeSelectorEnabled={session.challengeThemeSelectorEnabled}
           soundSettings={session.settings}
           onChangeChallengeLanguage={session.changeChallengeLanguage}
           onProductionDurationChange={session.setProductionDuration}
+          onSelectChallengeTheme={session.selectChallengeTheme}
         />
       )}
     </AppShell>

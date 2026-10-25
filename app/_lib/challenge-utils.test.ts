@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { modes } from "@/src/lib/typing";
+import { getChallengeTheme } from "@/src/lib/challenge-themes";
 import {
   createOrderedIndexes,
   createShuffledIndexes,
@@ -7,6 +8,7 @@ import {
   getNextModeChallengeIndex,
   getNextOrderedChallengeIndex,
   getOrderedChallengeIndex,
+  getDirectChallenges,
 } from "./challenge-utils";
 
 describe("practice challenge order", () => {
@@ -72,5 +74,23 @@ describe("practice challenge order", () => {
         upcomingOrder,
       ),
     ).toBe(upcomingOrder[0]);
+  });
+});
+
+describe("theme challenge lookup", () => {
+  test("selects the theme prompts for Japanese practice and production", () => {
+    const theme = getChallengeTheme("conveyor-sushi");
+
+    expect(getDirectChallenges("ja", "practice", "conveyor-sushi")).toBe(theme.shortChallenges);
+    expect(getDirectChallenges("ja", "production", "conveyor-sushi")).toBe(theme.longChallenges);
+  });
+
+  test("keeps existing English challenge sets regardless of the Japanese theme", () => {
+    expect(getDirectChallenges("en", "practice", "fish-types")).toBe(
+      getDirectChallenges("en", "practice"),
+    );
+    expect(getDirectChallenges("en", "production", "ramen-history")).toBe(
+      getDirectChallenges("en", "production"),
+    );
   });
 });

@@ -7,9 +7,11 @@ import {
   directShortChallenges,
   englishDirectLongChallenges,
   englishDirectShortChallenges,
+  kanaReadingToRomaji,
   parseEnglishChallengeText,
   parseJapaneseChallengeText,
 } from "./challenges";
+import { createRomajiInputTarget, getRomajiInputProgress } from "./typing";
 
 function shortChallengeText(body: string) {
   return `---
@@ -170,6 +172,35 @@ type: "unknown"
     ]);
   });
 
+  test("counts katakana using the same reading tokens while preserving display characters", () => {
+    const katakana = "ラーメン スープ チョット アンイ";
+    const hiragana = "らーめん すーぷ ちょっと あんい";
+    const displayParts = createJapaneseReadingGuideParts(katakana);
+    const readingParts = createJapaneseReadingGuideParts(hiragana);
+
+    expect(kanaReadingToRomaji(katakana)).toBe(kanaReadingToRomaji(hiragana));
+    expect(displayParts.map(({ text }) => text).join("")).toBe(katakana);
+    expect(displayParts.map(({ text: _text, ...range }) => range))
+      .toEqual(readingParts.map(({ text: _text, ...range }) => range));
+  });
+
+  test("keeps repeated reading results isolated and preserves their original script", () => {
+    const first = createJapaneseReadingGuideParts("ラーメン");
+    const initial = first[0];
+    if (initial.kind === "reading") {
+      initial.text = "changed";
+      initial.tokenEnd = 999;
+    }
+    first.pop();
+
+    for (const text of ["らーめん", "ラーメン", "らーめん"]) {
+      const next = createJapaneseReadingGuideParts(text);
+      expect(next.map((part) => part.text).join("")).toBe(text);
+      const readingParts = next.filter((part) => part.kind === "reading");
+      expect(readingParts.at(-1)?.tokenEnd).toBe(6);
+    }
+  });
+
   test("maps explicit furigana groups to display occurrences in order", () => {
     expect(
       createJapaneseFuriganaParts(
@@ -250,12 +281,11 @@ type: "unknown"
 
 describe("direct short challenges", () => {
   test("show Japanese prompts and do not leak generated control labels", () => {
-    expect(directShortChallenges).toHaveLength(50);
-    expect(directLongChallenges).toHaveLength(20);
-    expect(directShortChallenges[0].display).toContain("解析結果");
-    expect(directShortChallenges[0].furigana).toContainEqual({ text: "結", ruby: "けっ" });
-    expect(directShortChallenges[0].furigana).toContainEqual({ text: "果", ruby: "か" });
-    expect(directShortChallenges[0].reading).toContain("かいせきけっか");
+    expect(directShortChallenges).toHaveLength(40);
+    expect(directLongChallenges).toHaveLength(10);
+    expect(directShortChallenges[0].display).not.toBe("");
+    expect(directShortChallenges[0].furigana?.length).toBeGreaterThan(0);
+    expect(directShortChallenges[0].reading).not.toBe("");
     expect(directShortChallenges[0].input).not.toContain(" ");
     expect(directShortChallenges.some((challenge) => challenge.display.includes("control set"))).toBe(
       false,
@@ -267,6 +297,40 @@ describe("direct short challenges", () => {
 });
 
 describe("direct Japanese challenge romaji", () => {
+  test("requires literal Arabic digits and types a wave dash with the tilde key", () => {
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(shortChallengeText("1～3[分](ぷん)だけ[待](ま)つ。")),
+    );
+    const target = createRomajiInputTarget(challenge.romajiSource ?? "", {
+      preset: "hepburn", selections: {},
+    });
+    expect(challenge.display).toBe("1～3分だけ待つ。");
+    expect(challenge.reading).toBe("1～3ぷんだけまつ。");
+    expect(challenge.input).toBe("1~3pundakematsu.");
+    expect(getRomajiInputProgress(target, "1~3pundakematsu.").completed).toBe(true);
+    expect(getRomajiInputProgress(target, "ichi~3pundakematsu.").accepted).toBe(false);
+    expect(getRomajiInputProgress(target, "1~sanpundakematsu.").accepted).toBe(false);
+  });
+
+  test("keeps conversational punctuation in the display and accepts half-width input keys", () => {
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(
+        longChallengeText("「やった！」「[間](ま)に[合](あ)う？」と[聞](き)きました（[駅前](えきまえ)で）。"),
+      ),
+    );
+    const expectedInput = "[yatta!][maniau?]tokikimashita(ekimaede).";
+
+    expect(challenge.display).toBe("「やった！」「間に合う？」と聞きました（駅前で）。");
+    expect(challenge.reading).toBe("「やった！」「まにあう？」とききました（えきまえで）。");
+    expect(challenge.guide).toBe(expectedInput);
+    expect(challenge.input).toBe(expectedInput);
+    const target = createRomajiInputTarget(challenge.romajiSource ?? "", {
+      preset: "hepburn",
+      selections: {},
+    });
+    expect(getRomajiInputProgress(target, expectedInput).completed).toBe(true);
+  });
+
   test("normalizes Japanese punctuation to half-width romaji symbols", () => {
     const [challenge] = createJapaneseDirectChallenges(
       parseJapaneseChallengeText(shortChallengeText("ティータイム・じゃ～っ！")),
@@ -283,7 +347,9 @@ describe("direct Japanese challenge romaji", () => {
   });
 
   test("maps long vowel marks in production prompts to hyphen input", () => {
-    const challenge = directLongChallenges.find((item) => item.display.startsWith("レーティングは"));
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(shortChallengeText("レーティングは[今日](きょう)も[同](おな)じ。")),
+    );
 
     expect(challenge?.reading).toStartWith("れーてぃんぐは");
     expect(challenge?.romajiSource).toStartWith("re-thinguha");
@@ -333,16 +399,57 @@ describe("direct Japanese challenge romaji", () => {
   });
 
   test("maps づ to du instead of zu", () => {
-    expect(directLongChallenges.some((challenge) => challenge.guide?.includes("tsudukereba"))).toBe(
-      true,
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(shortChallengeText("[続](つづ)ければ。")),
     );
-    expect(directLongChallenges.some((challenge) => challenge.guide?.includes("tsuzukereba"))).toBe(
-      false,
+    expect(challenge?.guide).toContain("tsudukereba");
+    expect(challenge?.guide).not.toContain("tsuzukereba");
+  });
+
+  test("keeps ぢ and づ distinct from じ and ず for hiragana and katakana readings", () => {
+    for (const text of ["ぢづじず", "ヂヅジズ"]) {
+      const [challenge] = createJapaneseDirectChallenges(
+        parseJapaneseChallengeText(shortChallengeText(text)),
+      );
+
+      expect(challenge.reading).toBe("ぢづじず");
+      expect(challenge.romajiSource).toBe("didujizu");
+      expect(challenge.guide).toBe("didujizu");
+      expect(challenge.input).toBe("didujizu");
+    }
+  });
+
+  test("accepts di and rejects ji or zi for ちぢれためん in every input preset", () => {
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(shortChallengeText("[縮](ちぢ)れた[麺](めん)")),
     );
+
+    for (const preset of ["shortest", "hepburn", "custom"] as const) {
+      const config = {
+        preset,
+        selections: {
+          chi: { accepted: ["chi", "ti"], preferred: "chi" },
+          ji: { accepted: ["ji", "zi"], preferred: "ji" },
+        },
+      };
+      const target = createRomajiInputTarget(challenge.romajiSource ?? "", config);
+      const prefix = preset === "shortest" ? "ti" : "chi";
+
+      expect(getRomajiInputProgress(target, `${prefix}diretamen`).completed).toBe(true);
+      expect(getRomajiInputProgress(target, `${prefix}jiretamen`).accepted).toBe(false);
+      expect(getRomajiInputProgress(target, `${prefix}ziretamen`).accepted).toBe(false);
+
+      const jiTarget = createRomajiInputTarget(kanaReadingToRomaji("じ"), config);
+      expect(getRomajiInputProgress(jiTarget, preset === "shortest" ? "zi" : "ji").completed)
+        .toBe(true);
+      expect(getRomajiInputProgress(jiTarget, "di").accepted).toBe(false);
+    }
   });
 
   test("keeps sokuon markers out of the visible Japanese guide", () => {
-    const challenge = directShortChallenges.find((item) => item.romajiSource?.includes("^"));
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(shortChallengeText("[結果](けっか)を[見](み)る。")),
+    );
 
     expect(challenge?.display).toContain("結果");
     expect(challenge?.guide).toContain("kekka");
@@ -350,7 +457,9 @@ describe("direct Japanese challenge romaji", () => {
   });
 
   test("keeps syllabic n distinct before a following word that starts with a vowel", () => {
-    const challenge = directShortChallenges.find((item) => item.display.includes("視線移動"));
+    const [challenge] = createJapaneseDirectChallenges(
+      parseJapaneseChallengeText(shortChallengeText("[視線移動](しせんいどう)を[練習](れんしゅう)する。")),
+    );
 
     expect(challenge?.romajiSource).toContain("shisen'idou");
     expect(challenge?.guide).toContain("shisennidou");

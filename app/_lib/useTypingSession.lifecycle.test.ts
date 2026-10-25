@@ -64,16 +64,62 @@ type LifecycleResult = {
     score: number;
     theme: string;
   } | null;
+  themeLifecycle: {
+    selectedDuringSession?: string;
+    displayDuringSession?: string;
+    originalDisplay?: string;
+    selectedAfterReset?: string;
+    displayAfterReset?: string;
+    selectedBeforeRemount?: string;
+    selectedAfterRemount?: string;
+    selectedBeforeAttempt?: string;
+    selectedAfterAttempt?: string;
+    selectedAfterDeleteFailure?: string;
+    activeThemeMatchesDuringSession?: {
+      currentBelongs: boolean;
+      nextBelongs: boolean;
+      currentReadingMatches: boolean;
+    };
+    activeThemeMatchesAfterReset?: {
+      currentBelongs: boolean;
+      nextBelongs: boolean;
+      currentReadingMatches: boolean;
+    };
+    activeThemeMatchesBeforeRemount?: {
+      currentBelongs: boolean;
+      nextBelongs: boolean;
+      currentReadingMatches: boolean;
+    };
+    activeThemeMatchesAfterRemount?: {
+      currentBelongs: boolean;
+      nextBelongs: boolean;
+      currentReadingMatches: boolean;
+    };
+    activeThemeMatches?: {
+      currentBelongs: boolean;
+      nextBelongs: boolean;
+      currentReadingMatches: boolean;
+    };
+    activeThemeMatchesAfterDeleteFailure?: {
+      currentBelongs: boolean;
+      nextBelongs: boolean;
+      currentReadingMatches: boolean;
+    };
+  } | null;
 };
 
-function runFixture(scenario?: string, storageFailure = "") {
+function runFixture(
+  scenario?: string,
+  storageFailure = "",
+  nodeEnv: "development" | "production" = "development",
+) {
   const fixturePath = `${import.meta.dir}/test-fixtures/useTypingSession-timeout.ts`;
   const child = spawnSync(
     process.execPath,
     scenario ? ["run", fixturePath, scenario] : ["run", fixturePath],
     {
       encoding: "utf8",
-      env: { ...process.env, NODE_ENV: "development", ULTITYPE_TEST_STORAGE_FAILURE: storageFailure },
+      env: { ...process.env, NODE_ENV: nodeEnv, ULTITYPE_TEST_STORAGE_FAILURE: storageFailure },
       timeout: 15_000,
     },
   );
@@ -88,6 +134,80 @@ describe("useTypingSession timeout lifecycle", () => {
     expect(result.afterNavigation!.sessionCount).toBe(1);
     expect(result.afterNavigation!.score).toBe(result.session.score);
     expect(result.afterNavigation!.theme).toBe("light");
+  });
+
+  test("keeps the in-progress prompts across the weekly rollover and applies the new theme on reset", () => {
+    const result = runFixture("theme-rollover");
+    const lifecycle = result.themeLifecycle!;
+
+    expect(lifecycle.selectedDuringSession).toBe("english-learning");
+    expect(lifecycle.displayDuringSession).toBe(lifecycle.originalDisplay);
+    expect(lifecycle.activeThemeMatchesDuringSession).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
+    expect(lifecycle.selectedAfterReset).toBe("english-learning");
+    expect(lifecycle.displayAfterReset).not.toBe(lifecycle.originalDisplay);
+    expect(lifecycle.activeThemeMatchesAfterReset).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
+  });
+
+  test("restores a development theme override after the mode screen is remounted", () => {
+    const result = runFixture("theme-override");
+    expect(result.themeLifecycle?.selectedBeforeRemount).toBe("ramen-types");
+    expect(result.themeLifecycle?.selectedAfterRemount).toBe("ramen-types");
+    expect(result.themeLifecycle?.activeThemeMatchesBeforeRemount).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
+    expect(result.themeLifecycle?.activeThemeMatchesAfterRemount).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
+  });
+
+  test("keeps a new development override when saving it to browser storage fails", () => {
+    const result = runFixture("theme-override", "quota");
+    expect(result.themeLifecycle?.selectedBeforeRemount).toBe("ramen-types");
+    expect(result.themeLifecycle?.selectedAfterRemount).toBe("ramen-types");
+  });
+
+  test("keeps a development override when the browser storage property is blocked", () => {
+    const result = runFixture("theme-override-blocked", "blocked");
+    expect(result.themeLifecycle?.selectedBeforeRemount).toBe("ramen-types");
+    expect(result.themeLifecycle?.selectedAfterRemount).toBe("ramen-types");
+    expect(result.themeLifecycle?.activeThemeMatchesAfterRemount).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
+  });
+
+  test("keeps automatic selection when removing a saved override fails", () => {
+    const result = runFixture("theme-auto-override", "delete");
+    expect(result.themeLifecycle?.selectedAfterDeleteFailure).toBe("typing-tips");
+    expect(result.themeLifecycle?.activeThemeMatchesAfterDeleteFailure).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
+  });
+
+  test("ignores stored and requested theme overrides in production", () => {
+    const result = runFixture("theme-production-override", "", "production");
+    expect(result.themeLifecycle?.selectedBeforeAttempt).toBe("typing-tips");
+    expect(result.themeLifecycle?.selectedAfterAttempt).toBe("typing-tips");
+    expect(result.themeLifecycle?.activeThemeMatches).toEqual({
+      currentBelongs: true,
+      nextBelongs: true,
+      currentReadingMatches: true,
+    });
   });
   test("counts committed IME input once in the final metrics and saved result", () => {
     const result = runFixture();

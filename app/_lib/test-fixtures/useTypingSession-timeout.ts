@@ -7,6 +7,7 @@ type HookSlot = {
   cleanup?: (() => void) | void;
 };
 
+const scenario = process.argv[2] ?? "plain";
 const hookSlots: HookSlot[] = [];
 let hookIndex = 0;
 let pendingEffects: Array<{
@@ -72,7 +73,9 @@ mock.module("react", () => ({
   useState,
 }));
 
-let clock = 1_000_000;
+let clock = scenario.startsWith("theme-")
+  ? Date.parse("2026-10-26T05:50:00+09:00")
+  : 1_000_000;
 Date.now = () => clock;
 
 const localStorageValues = new Map<string, string>();
@@ -89,6 +92,7 @@ const localStorage = {
 
 const intervalCallbacks = new Map<number, () => void>();
 const eventListeners = new Map<string, Set<(event: any) => void>>();
+const documentListeners = new Map<string, Set<(event: any) => void>>();
 let nextTimerId = 1;
 const windowMock = {
   localStorage,
@@ -115,19 +119,32 @@ const windowMock = {
 };
 
 Object.defineProperty(globalThis, "window", { configurable: true, value: windowMock });
+const documentMock = {
+  documentElement: { dataset: {} },
+  visibilityState: "visible",
+  addEventListener: (type: string, listener: (event: any) => void) => {
+    const listeners = documentListeners.get(type) ?? new Set();
+    listeners.add(listener);
+    documentListeners.set(type, listeners);
+  },
+  removeEventListener: (type: string, listener: (event: any) => void) => {
+    documentListeners.get(type)?.delete(listener);
+  },
+};
 Object.defineProperty(globalThis, "document", {
   configurable: true,
-  value: { documentElement: { dataset: {} } },
+  value: documentMock,
 });
 
 const [
   { storageKey, initialStoredState },
   { calculateCurrentImeMetricDeltas, useTypingSession },
+  { getChallengeTheme },
 ] = await Promise.all([
   import("../constants"),
   import("../useTypingSession"),
+  import("@/src/lib/challenge-themes"),
 ]);
-const scenario = process.argv[2] ?? "plain";
 const isCompositionScenario = scenario === "composition-japanese" || scenario === "composition-empty";
 const isImeRetireScenario = scenario === "retire-ime";
 const isDirectScenario = scenario.startsWith("retire-direct") || scenario === "timeout-race";
@@ -146,10 +163,25 @@ const sessionOptions: UseTypingSessionOptions = {
   initialChallengeLanguage: challengeLanguage as "ja" | "en",
   initialModeId,
   initialProductionDuration: 300 as const,
-  initialScreen: "typing" as const,
+  initialScreen: scenario.startsWith("theme-") && scenario !== "theme-rollover"
+    ? "mode-select" as const
+    : "typing" as const,
 };
+const themeStorageKey = "ultitype:challenge-theme";
+if (scenario === "theme-override" || scenario === "theme-override-blocked" || scenario === "theme-auto-override") {
+  localStorage.setItem(themeStorageKey, "fish-types");
+} else if (scenario === "theme-production-override") {
+  localStorage.setItem(themeStorageKey, "fish-types");
+}
 if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
   localStorage.setItem = () => { throw new DOMException("Full", "QuotaExceededError"); };
+} else if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "delete") {
+  localStorage.removeItem = () => { throw new DOMException("Denied", "SecurityError"); };
+} else if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "blocked") {
+  Object.defineProperty(windowMock, "localStorage", {
+    configurable: true,
+    get() { throw new DOMException("Denied", "SecurityError"); },
+  });
 }
 
 function renderUntilStable(hook: () => unknown) {
@@ -181,11 +213,28 @@ if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
 }
 const target = session.typingPanelProps.currentDisplay;
 const targetCharacters = Array.from(target);
-let committedInput: string;
-let input: string;
+let committedInput = "";
+let input = "";
 let preFinishScore: number | null = null;
 let postReset: Record<string, unknown> | null = null;
 let retiredState: Record<string, unknown> | null = null;
+let themeLifecycle: Record<string, unknown> | null = null;
+
+function getThemePromptMatches(themeId: "typing-tips" | "english-learning" | "ramen-types") {
+  const theme = getChallengeTheme(themeId);
+  const panel = session.typingPanelProps;
+
+  return {
+    currentBelongs: theme.longChallenges.some(({ display }) => display === panel.currentDisplay),
+    nextBelongs: theme.longChallenges.some(({ display }) => display === panel.nextChallengeDisplay),
+    currentReadingMatches: theme.longChallenges.some(
+      ({ display, furigana, reading }) =>
+        display === panel.currentDisplay &&
+        reading === panel.currentReading &&
+        JSON.stringify(furigana) === JSON.stringify(panel.currentFurigana),
+    ),
+  };
+}
 
 function dispatchKey(key: string) {
   const event = {
@@ -222,7 +271,87 @@ function retireWithEscape() {
   }
 }
 
-if (scenario === "plain") {
+if (scenario === "theme-rollover") {
+  const originalDisplay = session.typingPanelProps.currentDisplay;
+  const firstCharacter = Array.from(originalDisplay)[0] ?? "";
+  session.typingPanelProps.onImeInput(firstCharacter);
+  session = renderSession();
+  clock = Date.parse("2026-10-26T06:00:00+09:00");
+  for (const listener of eventListeners.get("focus") ?? []) {
+    listener({ type: "focus" });
+  }
+  session = renderSession();
+  const selectedDuringSession = session.selectedChallengeThemeId;
+  const displayDuringSession = session.typingPanelProps.currentDisplay;
+  const activeThemeMatchesDuringSession = getThemePromptMatches("typing-tips");
+  session.typingPanelProps.onResetSession();
+  session = renderSession();
+  themeLifecycle = {
+    selectedDuringSession,
+    displayDuringSession,
+    originalDisplay,
+    activeThemeMatchesDuringSession,
+    selectedAfterReset: session.selectedChallengeThemeId,
+    displayAfterReset: session.typingPanelProps.currentDisplay,
+    activeThemeMatchesAfterReset: getThemePromptMatches("english-learning"),
+  };
+} else if (scenario === "theme-override") {
+  session.selectChallengeTheme("ramen-types");
+  session = renderSession();
+  const selectedBeforeRemount = session.selectedChallengeThemeId;
+  const activeThemeMatchesBeforeRemount = getThemePromptMatches("ramen-types");
+  for (const slot of hookSlots) slot.cleanup?.();
+  hookSlots.length = 0;
+  hookIndex = 0;
+  pendingEffects = [];
+  session = renderSession();
+  themeLifecycle = {
+    selectedBeforeRemount,
+    selectedAfterRemount: session.selectedChallengeThemeId,
+    activeThemeMatchesBeforeRemount,
+    activeThemeMatchesAfterRemount: getThemePromptMatches("ramen-types"),
+  };
+} else if (scenario === "theme-override-blocked") {
+  session.selectChallengeTheme("ramen-types");
+  session = renderSession();
+  const selectedBeforeRemount = session.selectedChallengeThemeId;
+  Object.defineProperty(windowMock, "localStorage", {
+    configurable: true,
+    get() { throw new DOMException("Denied", "SecurityError"); },
+  });
+  for (const slot of hookSlots) slot.cleanup?.();
+  hookSlots.length = 0;
+  hookIndex = 0;
+  pendingEffects = [];
+  session = renderSession();
+  themeLifecycle = {
+    selectedBeforeRemount,
+    selectedAfterRemount: session.selectedChallengeThemeId,
+    activeThemeMatchesAfterRemount: getThemePromptMatches("ramen-types"),
+  };
+} else if (scenario === "theme-auto-override") {
+  session.selectChallengeTheme(null);
+  session = renderSession();
+  for (const slot of hookSlots) slot.cleanup?.();
+  hookSlots.length = 0;
+  hookIndex = 0;
+  pendingEffects = [];
+  session = renderSession();
+  themeLifecycle = {
+    selectedAfterDeleteFailure: session.selectedChallengeThemeId,
+    activeThemeMatchesAfterDeleteFailure: getThemePromptMatches("typing-tips"),
+  };
+} else if (scenario === "theme-production-override") {
+  const selectedBeforeAttempt = session.selectedChallengeThemeId;
+  session.selectChallengeTheme("ramen-types");
+  session = renderSession();
+  const activeThemeMatches = getThemePromptMatches("typing-tips");
+  themeLifecycle = {
+    selectedBeforeAttempt,
+    selectedAfterAttempt: session.selectedChallengeThemeId,
+    activeThemeMatches,
+  };
+} else if (scenario === "plain") {
   const wrongCharacter = targetCharacters[10] === "X" ? "Q" : "X";
   committedInput = [...targetCharacters.slice(0, 10), wrongCharacter].join("");
   input = committedInput;
@@ -361,6 +490,7 @@ const output = {
   finishReason: panel.finishReason,
   retiredState,
   postReset,
+  themeLifecycle,
   visibleRank: panel.currentRank.label,
   scoringInput: panel.scoringInput,
   isFinished: panel.isFinished,

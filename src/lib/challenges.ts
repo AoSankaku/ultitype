@@ -355,14 +355,43 @@ type JapaneseReadingSourcePart = {
   text: string;
 };
 
+const READING_CACHE_LIMIT = 256;
+// These source parts never leave this module; public guide parts remain fresh.
+const readingSourceCache = new Map<string, JapaneseReadingSourcePart[]>();
+const readingTokenCountCache = new Map<string, number>();
+
+function readReadingCache<T>(cache: Map<string, T>, key: string) {
+  const value = cache.get(key);
+  if (value !== undefined) {
+    cache.delete(key);
+    cache.set(key, value);
+  }
+  return value;
+}
+
+function writeReadingCache<T>(cache: Map<string, T>, key: string, value: T) {
+  cache.set(key, value);
+  if (cache.size > READING_CACHE_LIMIT) {
+    const oldest = cache.keys().next().value;
+    if (oldest !== undefined) cache.delete(oldest);
+  }
+}
+
 function createJapaneseReadingSourceParts(reading: string): JapaneseReadingSourcePart[] {
+  const cachedParts = readReadingCache(readingSourceCache, reading);
+  if (cachedParts) return cachedParts;
+
   const characters = Array.from(reading);
+  // Display text can contain katakana. Use the same kana for token lookup as the
+  // input reading, while keeping the original glyphs in each display part.
+  const kanaCharacters = Array.from(normalizeKana(reading));
   const parts: JapaneseReadingSourcePart[] = [];
 
   for (let index = 0; index < characters.length; index += 1) {
     const character = characters[index] ?? "";
     const next = characters[index + 1] ?? "";
-    const pair = `${character}${next}`;
+    const kanaCharacter = kanaCharacters[index] ?? character;
+    const pair = `${kanaCharacter}${kanaCharacters[index + 1] ?? ""}`;
 
     if (/\s/.test(character)) {
       parts.push({ kind: "visual", source: character, text: character });
@@ -374,20 +403,20 @@ function createJapaneseReadingSourceParts(reading: string): JapaneseReadingSourc
       continue;
     }
 
-    if (character === "っ") {
+    if (kanaCharacter === "っ") {
       parts.push({ kind: "reading", source: sokuonSourceMarker, text: character });
       continue;
     }
 
     const pairedRomaji = kanaRomaji[pair];
     if (pairedRomaji) {
-      parts.push({ kind: "reading", source: pairedRomaji, text: pair });
+      parts.push({ kind: "reading", source: pairedRomaji, text: `${character}${next}` });
       index += 1;
       continue;
     }
 
-    if (character === "ん") {
-      const nextRomaji = resolveKanaRomaji(findNextNonSpaceCharacter(characters, index + 1));
+    if (kanaCharacter === "ん") {
+      const nextRomaji = resolveKanaRomaji(findNextNonSpaceCharacter(kanaCharacters, index + 1));
       parts.push({
         kind: "reading",
         source: nextRomaji && /^[aiueoyn]/.test(nextRomaji) ? "n'" : "n",
@@ -396,10 +425,11 @@ function createJapaneseReadingSourceParts(reading: string): JapaneseReadingSourc
       continue;
     }
 
-    const source = kanaRomaji[character] ?? character;
+    const source = kanaRomaji[kanaCharacter] ?? character;
     parts.push({ kind: "reading", source, text: character });
   }
 
+  writeReadingCache(readingSourceCache, reading, parts);
   return parts;
 }
 
@@ -408,11 +438,15 @@ function isLongVowelMark(character: string) {
 }
 
 function countRomajiInputTokens(source: string): number {
-  return createRomajiInputTarget(source, {
+  const cachedCount = readReadingCache(readingTokenCountCache, source);
+  if (cachedCount !== undefined) return cachedCount;
+  const count = createRomajiInputTarget(source, {
     allowSplitYoon: true,
     preset: "hepburn",
     selections: {},
   }).tokens.length;
+  writeReadingCache(readingTokenCountCache, source, count);
+  return count;
 }
 
 function createVisibleRomajiGuide(source: string): string {
@@ -570,7 +604,7 @@ const kanaRomaji: Record<string, string> = {
   て: "te",
   と: "to",
   だ: "da",
-  ぢ: "ji",
+  ぢ: "di",
   づ: "du",
   で: "de",
   ど: "do",
@@ -620,6 +654,11 @@ const kanaRomaji: Record<string, string> = {
   "、": ",",
   "。": ".",
   "！": "!",
+  "？": "?",
+  "「": "[",
+  "」": "]",
+  "（": "(",
+  "）": ")",
   "・": "･",
   "～": "~",
   "　": " ",

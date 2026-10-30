@@ -11,6 +11,7 @@ import type { InputProgress, TypingPanelProps } from "./types";
 
 type TypingTargetViewProps = Pick<
   TypingPanelProps,
+  | "centerScrollContext"
   | "challengeLanguage"
   | "currentDisplay"
   | "currentFurigana"
@@ -77,6 +78,7 @@ type TypingTargetViewProps = Pick<
 };
 
 export function TypingTargetView({
+  centerScrollContext,
   challengeLanguage,
   currentDisplay,
   currentFurigana,
@@ -227,6 +229,7 @@ export function TypingTargetView({
         <>{targetDisplayOrder.map((id) => imeTargetElements[id] ?? null)}</>
       ) : (
         <DirectChallengeView
+          centerScrollContext={centerScrollContext}
           display={currentDisplay}
           englishFontFamily={englishFontFamily}
           furigana={currentFurigana}

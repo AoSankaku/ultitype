@@ -28,6 +28,7 @@ import { useProductionImeInputWidth } from "./use-production-ime-input-width";
 
 export function TypingPanel({
   acceptsTextInput,
+  centerScrollContext,
   challengeLanguage,
   correctionDebt,
   currentAccuracy,
@@ -158,8 +159,8 @@ export function TypingPanel({
     romajiTarget: currentRomajiTarget,
   });
   const previousInputProgress = createCompletedInputProgress({
-    display: previousChallengeDisplay,
-    reading: previousChallengeReading,
+    display: centerScrollContext?.previous.map((challenge) => challenge.display).join("") ?? previousChallengeDisplay,
+    reading: centerScrollContext?.previous.map((challenge) => challenge.reading).join("") ?? previousChallengeReading,
   });
   useLayoutEffect(() => {
     if (!isProductionImeOn || !acceptsTextInput) {
@@ -306,6 +307,7 @@ export function TypingPanel({
       ) : (
         <>
           <TypingTargetView
+            centerScrollContext={centerScrollContext}
             challengeLanguage={challengeLanguage}
             currentDisplay={currentDisplay}
             currentFurigana={currentFurigana}

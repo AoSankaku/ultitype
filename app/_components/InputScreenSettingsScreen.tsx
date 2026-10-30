@@ -12,6 +12,7 @@ import {
 } from "@/src/lib/challenges";
 import { createRomajiInputTarget, getRank, modes } from "@/src/lib/typing";
 import { removeRomajiVisualSpaces } from "../_lib/challenge-utils";
+import { collectCenterScrollChallenges, centerScrollContextMaximumChallenges } from "../_lib/center-scroll-context";
 import { css } from "../_lib/css-module";
 import { initialStats } from "../_lib/constants";
 import type { AppSettings } from "../_lib/types";
@@ -190,6 +191,24 @@ export function InputScreenSettingsScreen({
     mockInputProgress.previousChallengeIndex === null
       ? null
       : (mockChallengeItems[mockInputProgress.previousChallengeIndex] ?? null);
+  function* mockContextItems(firstOffset: number, lastOffset: number) {
+    for (let offset = firstOffset; offset <= lastOffset; offset += 1) {
+      const index = (mockInputProgress.currentChallengeIndex + offset) % mockChallengeItems.length;
+      const item = mockChallengeItems[(index + mockChallengeItems.length) % mockChallengeItems.length]!;
+      yield {
+        display: item.challenge.display,
+        furigana: item.challenge.furigana ?? [],
+        guide: item.romajiTarget.guide,
+        reading: item.challenge.reading ?? "",
+      };
+    }
+  }
+  const mockCenterScrollContext = settings.nextChallengePreviewMode === "center-scroll" ? {
+    previous: collectCenterScrollChallenges(mockContextItems(
+      -Math.min(mockInputProgress.completedPrompts, centerScrollContextMaximumChallenges), -1,
+    ), { reverse: true }),
+    next: collectCenterScrollChallenges(mockContextItems(1, centerScrollContextMaximumChallenges)),
+  } : undefined;
   const visibleMockInput = mockInputProgress.input;
   const mockNextChallengePreview =
     settings.nextChallengePreviewMode !== "none" ? nextMockItem.challenge.display : "";
@@ -318,6 +337,7 @@ export function InputScreenSettingsScreen({
             style={previewScaleStyle}
           >
             <TypingPanel
+              centerScrollContext={mockCenterScrollContext}
               acceptsTextInput={false}
               autoFocusDirectInput={false}
               challengeLanguage="ja"

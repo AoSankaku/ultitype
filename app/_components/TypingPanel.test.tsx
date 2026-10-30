@@ -1129,6 +1129,83 @@ describe("TypingPanel", () => {
     expect(markup.indexOf("前")).toBeLessThan(markup.indexOf("今"));
   });
 
+  test.each(["practice-flow", "production-ime-off"])(
+    "continues multiple short center-scroll challenges in order in %s",
+    (modeId) => {
+      const snapshot = (display: string, reading: string, guide: string) => ({
+        display, reading, guide, furigana: [{ text: display, ruby: reading }],
+      });
+      const markup = renderTypingPanel({
+        challengeLanguage: "ja",
+        currentDisplay: "今",
+        currentFurigana: [{ text: "今", ruby: "いま" }],
+        currentGuide: "ima",
+        currentReading: "いま",
+        currentRomajiTarget: createTestRomajiTarget("ima"),
+        mode: modes.find((mode) => mode.id === modeId)!,
+        nextChallengeDisplay: "次",
+        nextChallengeGuide: "tsugi",
+        nextChallengeReading: "つぎ",
+        nextChallengePreview: "次",
+        nextChallengePreviewMode: "center-scroll",
+        previousChallengeDisplay: "前",
+        previousChallengeGuide: "mae",
+        previousChallengeReading: "まえ",
+        centerScrollContext: {
+          previous: [snapshot("先", "さき", "saki"), snapshot("前", "まえ", "mae")],
+          next: [snapshot("次", "つぎ", "tsugi"), snapshot("後", "あと", "ato")],
+        },
+        showKanjiInputProgress: true,
+        showHiraganaInputProgress: true,
+        stats: { ...initialStats, completedPrompts: 2 },
+      });
+      const line = (className: string) => {
+        const start = markup.indexOf(`class="${className} center-continuous-line"`);
+        expect(start).toBeGreaterThan(-1);
+        return markup.slice(markup.indexOf(">", start) + 1, markup.indexOf("</p>", start));
+      };
+      const text = (html: string) => html.replace(/<rt>.*?<\/rt>/g, "").replace(/<[^>]*>/g, "");
+      const readingLine = line("reading-text");
+      const inputLine = line("input-target");
+      expect(text(readingLine)).toBe("さきまえいまつぎあと");
+      expect(text(inputLine)).toBe("sakimaeimatsugiato");
+      expect(readingLine).toContain('class="char current">い</span>');
+      expect(inputLine).toContain('class="char current">i</span>');
+      expect(inputLine.match(/class="char current"/g)).toHaveLength(1);
+      expect(line("input-progress-text hiragana-input-progress-text")).toContain(
+        '<span class="center-scroll-previous-text">さきまえ</span>',
+      );
+      if (modeId === "practice-flow") {
+        expect(line("input-progress-text kanji-input-progress-text")).toContain(
+          '<span class="center-scroll-previous-text">先前</span>',
+        );
+        const displayLine = line("display-text");
+        expect(text(displayLine)).toBe("先前今次後");
+        expect(displayLine).toContain('後<rt>あと</rt>');
+      }
+    },
+  );
+
+  test("continues English center-scroll context with word boundaries and completed colors", () => {
+    const snapshot = (guide: string) => ({ display: guide, guide, furigana: [], reading: "" });
+    const markup = renderTypingPanel({
+      currentDisplay: "now ", currentGuide: "now ",
+      nextChallengeDisplay: "next ", nextChallengeGuide: "next ", nextChallengePreview: "next ",
+      nextChallengePreviewMode: "center-scroll",
+      centerScrollContext: {
+        previous: [snapshot("old "), snapshot("done ")],
+        next: [snapshot("next "), snapshot("later ")],
+      },
+      stats: { ...initialStats, completedPrompts: 2 },
+      enSpaceDisplay: "glyph",
+    });
+    const start = markup.indexOf('aria-label="input target"');
+    const inputLine = markup.slice(markup.indexOf(">", start) + 1, markup.indexOf("</p>", start));
+    expect(inputLine.replace(/<[^>]*>/g, "").replaceAll("␣", " ")).toBe("old done now next later ");
+    expect(inputLine).toContain('<span class="char correct">o</span>');
+    expect(inputLine.match(/class="char current"/g)).toHaveLength(1);
+  });
+
   test("keeps the previous center scroll input target marked correct after advancing", () => {
     const currentRomajiTarget = createTestRomajiTarget("now");
     const markup = renderTypingPanel({

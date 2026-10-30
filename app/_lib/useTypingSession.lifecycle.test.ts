@@ -2,6 +2,14 @@ import { spawnSync } from "node:child_process";
 import { describe, expect, test } from "bun:test";
 
 type LifecycleResult = {
+  centerScrollLifecycle?: {
+    actualDisplays: string[];
+    previewMatchesActual: boolean[];
+    previousDisplays: string[];
+    historyAfterReset: number;
+    contextWhenDisabledIsUndefined: boolean;
+  };
+  centerScrollContext: { previous: unknown[]; next: unknown[] } | null;
   languageLifecycle?: {
     englishUi: { app: string; practice: string };
     japaneseUi: { app: string; practice: string };
@@ -138,6 +146,16 @@ function runFixture(
 }
 
 describe("useTypingSession timeout lifecycle", () => {
+  test("keeps center-scroll context in challenge order through a shuffle and clears it on reset", () => {
+    const lifecycle = runFixture("center-scroll-context").centerScrollLifecycle!;
+
+    expect(lifecycle.actualDisplays.length).toBeGreaterThan(2);
+    expect(lifecycle.previewMatchesActual.every(Boolean)).toBe(true);
+    expect(lifecycle.previousDisplays.slice(-2)).toEqual(lifecycle.actualDisplays.slice(-2));
+    expect(lifecycle.historyAfterReset).toBe(0);
+    expect(lifecycle.contextWhenDisabledIsUndefined).toBe(true);
+  });
+
   test("persists independent app and practice languages without changing prompts", () => {
     const lifecycle = runFixture("language-settings").languageLifecycle!;
     expect(lifecycle.englishUi).toEqual({ app: "en", practice: "en" });
@@ -241,6 +259,7 @@ describe("useTypingSession timeout lifecycle", () => {
     const expectedMistakes = 1;
 
     expect(result.isFinished).toBe(true);
+    expect(result.centerScrollContext).toBeNull();
     expect(result.input).toHaveLength(expectedInputLength);
     expect(result.input.slice(0, 10)).toBe(result.target.slice(0, 10));
     expect(result.input[10]).not.toBe(result.target[10]);

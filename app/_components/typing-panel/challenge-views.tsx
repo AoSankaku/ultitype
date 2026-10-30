@@ -1,29 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Crosshair,
-  Lock,
-  Play,
-  RotateCcw,
-  Timer,
-  Waves,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
-import type {
-  ClipboardEvent,
-  CompositionEvent,
-  DragEvent,
-  FormEvent,
-  KeyboardEvent,
-  PointerEvent,
-  ReactNode,
-  RefObject,
-  CSSProperties,
-} from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import {
   formatTimer,
   getRomajiInputProgress,
@@ -77,8 +54,10 @@ import { useStableProductionImePromptScrollMarkerPosition } from "./production-i
 import { ProductionLongDisplay } from "./production-long-display";
 import { ProductionSegmentedInputStack } from "./production-segmented-input";
 import { InputProgress } from "./types";
+import type { CenterScrollContext } from "../../_lib/center-scroll-context";
 
 export function DirectChallengeView({
+  centerScrollContext,
   display,
   englishFontFamily,
   furigana,
@@ -119,6 +98,7 @@ export function DirectChallengeView({
   strictMistakeInput,
   enSpaceDisplay,
 }: {
+  centerScrollContext?: CenterScrollContext;
   display: string;
   englishFontFamily: EnglishFontFamily;
   furigana: JapaneseFuriganaEntry[];
@@ -217,6 +197,7 @@ export function DirectChallengeView({
   if (isProductionDirect) {
     return (
       <ProductionDirectChallengeView
+        centerScrollContext={centerScrollContext}
         display={display}
         englishFontFamily={englishFontFamily}
         furigana={furigana}
@@ -263,6 +244,7 @@ export function DirectChallengeView({
     return (
       <div className={css(styles, "challenge-preview-layout center-scroll")}>
         <ContinuousChallengeTextStack
+          centerScrollContext={centerScrollContext}
           display={display}
           englishFontFamily={englishFontFamily}
           furigana={furigana}
@@ -351,6 +333,7 @@ export function NextChallengePreviewLane({
 }
 
 export function ProductionDirectChallengeView({
+  centerScrollContext,
   display,
   englishFontFamily,
   furigana,
@@ -386,6 +369,7 @@ export function ProductionDirectChallengeView({
   strictMistakeInput,
   enSpaceDisplay,
 }: {
+  centerScrollContext?: CenterScrollContext;
   display: string;
   englishFontFamily: EnglishFontFamily;
   furigana: JapaneseFuriganaEntry[];
@@ -439,6 +423,7 @@ export function ProductionDirectChallengeView({
       {nextChallengePreviewMode === "center-scroll" ? (
         <div className={css(styles, "challenge-preview-layout center-scroll production-direct-inputs")}>
           <ContinuousChallengeTextStack
+            centerScrollContext={centerScrollContext}
             display=""
             englishFontFamily={englishFontFamily}
             furigana={[]}

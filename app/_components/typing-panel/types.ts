@@ -68,6 +68,7 @@ import type {
   TopDisplayMetricId,
 } from "../../_lib/types";
 import styles from "../TypingPanel.module.css";
+import type { CenterScrollContext } from "../../_lib/center-scroll-context";
 
 
 export type BlockableTextEvent =
@@ -78,6 +79,7 @@ export type BlockableTextEvent =
 
 export type TypingPanelProps = {
   acceptsTextInput: boolean;
+  centerScrollContext?: CenterScrollContext;
   challengeLanguage: ChallengeLanguage;
   correctionDebt: number;
   currentAccuracy: number;

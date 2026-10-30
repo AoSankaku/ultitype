@@ -86,6 +86,14 @@ import { useChallengeTheme } from "./use-challenge-theme";
 import { getFinishSoundKind, useTypingSounds } from "./typing-sounds";
 import { getBrowserLocalStorage, removeLocalStorageItems, writeLocalStorageItem } from "./browser-storage";
 import { clearPracticeLanguagePreference, readPracticeLanguage, rememberPracticeLanguage } from "./practice-language";
+import {
+  centerScrollContextCharacterBudget,
+  centerScrollContextMaximumChallenges,
+  createCenterScrollContext,
+  getQueuedChallengeIndexes,
+  type CenterScrollChallenge,
+  type CenterScrollContext,
+} from "./center-scroll-context";
 
 type KeyStabilityInput = {
   key: string;
@@ -95,12 +103,7 @@ type KeyStabilityInput = {
 
 type ImeEmptyEnterLockAction = "pass" | "mistake-lock" | "locked" | "unlock";
 
-type PreviousDirectChallengeSnapshot = {
-  display: string;
-  furigana: DirectChallenge["furigana"];
-  guide: string;
-  reading: string;
-};
+type PreviousDirectChallengeSnapshot = CenterScrollChallenge;
 
 export type UseTypingSessionOptions = {
   initialChallengeLanguage?: ChallengeLanguage;
@@ -666,8 +669,8 @@ export function useTypingSession({
   );
   const [input, setInput] = useState("");
   const [stats, setStats] = useState<RuntimeStats>(initialStats);
-  const [previousDirectChallenge, setPreviousDirectChallenge] =
-    useState<PreviousDirectChallengeSnapshot | null>(null);
+  const [previousDirectChallenges, setPreviousDirectChallenges] = useState<PreviousDirectChallengeSnapshot[]>([]);
+  const previousDirectChallenge = previousDirectChallenges.at(-1) ?? null;
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const [isFinished, setIsFinished] = useState(false);
@@ -808,6 +811,77 @@ export function useTypingSession({
       stored.settings.sokuonInput,
     ],
   );
+  const centerScrollContext = useMemo<CenterScrollContext | undefined>(() => {
+    if (
+      mode.requiresIme ||
+      stored.settings.nextChallengePreviewMode !== "center-scroll" ||
+      directChallenges.length === 0
+    ) {
+      return undefined;
+    }
+
+    const queuedChallengeIndexes = getQueuedChallengeIndexes({
+      challengeCount: directChallenges.length,
+      maxCount: centerScrollContextMaximumChallenges,
+      order: directChallengeOrder,
+      position: challengeIndex,
+      upcomingOrder: nextDirectChallengeOrder,
+    });
+    function* getNextChallenges() {
+      for (const index of queuedChallengeIndexes) {
+        const challenge = directChallenges[index];
+        if (!challenge) {
+          continue;
+        }
+
+        const guideSource = challenge.guide ?? challenge.input;
+        const romajiTarget = challengeLanguage === "ja"
+          ? createRomajiInputTarget(challenge.romajiSource ?? guideSource, {
+              preset: stored.settings.romajiInputPreset,
+              selections: stored.settings.romajiInputSelections,
+              allowSplitYoon: stored.settings.allowSplitYoon,
+              specialPreset: stored.settings.specialRomajiInputPreset,
+              specialSelections: stored.settings.specialRomajiInputSelections,
+              sokuon: stored.settings.sokuonInput,
+            })
+          : null;
+
+        yield {
+          display: getDirectChallengeBoundaryText({
+            challengeLanguage,
+            requiresIme: false,
+            text: challenge.display,
+          }),
+          furigana: challengeLanguage === "ja" ? (challenge.furigana ?? []) : [],
+          guide: romajiTarget?.guide ?? getDirectChallengeBoundaryText({
+            challengeLanguage,
+            requiresIme: false,
+            text: guideSource,
+          }),
+          reading: challengeLanguage === "ja" ? (challenge.reading ?? "") : "",
+        } satisfies CenterScrollChallenge;
+      }
+    }
+
+    return createCenterScrollContext(previousDirectChallenges, getNextChallenges(), {
+      characterBudget: centerScrollContextCharacterBudget,
+    });
+  }, [
+    challengeIndex,
+    challengeLanguage,
+    directChallengeOrder,
+    directChallenges,
+    mode.requiresIme,
+    nextDirectChallengeOrder,
+    previousDirectChallenges,
+    stored.settings.allowSplitYoon,
+    stored.settings.nextChallengePreviewMode,
+    stored.settings.romajiInputPreset,
+    stored.settings.romajiInputSelections,
+    stored.settings.specialRomajiInputPreset,
+    stored.settings.specialRomajiInputSelections,
+    stored.settings.sokuonInput,
+  ]);
   const currentDisplay = mode.requiresIme
     ? currentImeDisplay
     : getDirectChallengeBoundaryText({
@@ -889,7 +963,7 @@ export function useTypingSession({
   function advanceChallenge() {
     const nextChallengeIndex = challengeIndex + 1;
 
-    setPreviousDirectChallenge(
+    const completedDirectChallenge =
       !mode.requiresIme
         ? {
             display: currentDisplay,
@@ -897,8 +971,12 @@ export function useTypingSession({
             guide: currentGuide ?? currentDirectGuideSource,
             reading: currentReading,
           }
-        : null,
-    );
+        : null;
+    if (completedDirectChallenge) {
+      setPreviousDirectChallenges((previous) =>
+        [...previous, completedDirectChallenge].slice(-centerScrollContextMaximumChallenges),
+      );
+    }
 
     if (directChallenges.length > 0 && nextChallengeIndex % directChallenges.length === 0) {
       const nextOrder =
@@ -1057,7 +1135,7 @@ export function useTypingSession({
     );
     setActiveChallengeThemeId(nextThemeId);
     setChallengeIndex(0);
-    setPreviousDirectChallenge(null);
+    setPreviousDirectChallenges([]);
     setPracticeChallengeOrder(nextPracticeOrder);
     setNextPracticeChallengeOrder(
       createShuffledIndexes(nextPracticeOrder.length, Math.random, nextPracticeOrder.at(-1)),
@@ -1185,7 +1263,7 @@ export function useTypingSession({
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
-    setPreviousDirectChallenge(null);
+    setPreviousDirectChallenges([]);
     randomizeChallengeOrders(challengeLanguage, nextThemeId);
     setStartedAt(null);
     setNow(Date.now());
@@ -1222,7 +1300,7 @@ export function useTypingSession({
     setStats(initialStats);
     setInput("");
     setChallengeIndex(0);
-    setPreviousDirectChallenge(null);
+    setPreviousDirectChallenges([]);
     randomizeChallengeOrders(language, themeId);
     setStartedAt(null);
     setNow(Date.now());
@@ -1806,6 +1884,7 @@ export function useTypingSession({
         }),
       nextChallengePreview,
       nextChallengePreviewMode: stored.settings.nextChallengePreviewMode,
+      centerScrollContext,
       targetDisplayOrder: stored.settings.targetDisplayOrder,
       nextChallengeReading: nextReading,
       nextChallengeRomajiTarget: nextRomajiTarget,

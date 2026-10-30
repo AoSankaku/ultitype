@@ -140,22 +140,28 @@ const [
   { storageKey, initialStoredState },
   { calculateCurrentImeMetricDeltas, useTypingSession },
   { getChallengeTheme },
+  { getDirectChallenges },
 ] = await Promise.all([
   import("../constants"),
   import("../useTypingSession"),
   import("@/src/lib/challenge-themes"),
+  import("../challenge-utils"),
 ]);
 const isCompositionScenario = scenario === "composition-japanese" || scenario === "composition-empty";
 const isImeRetireScenario = scenario === "retire-ime";
 const isDirectScenario = scenario.startsWith("retire-direct") || scenario === "timeout-race";
-const challengeLanguage = scenario === "plain" || isDirectScenario || scenario === "language-settings" ? "en" : "ja";
-const initialModeId = isDirectScenario ? "production-ime-off" : "production-ime-on";
+const isCenterScrollScenario = scenario === "center-scroll-context";
+const challengeLanguage = scenario === "plain" || isDirectScenario || scenario === "language-settings" || isCenterScrollScenario ? "en" : "ja";
+const initialModeId = isCenterScrollScenario ? "practice-accuracy" : isDirectScenario ? "production-ime-off" : "production-ime-on";
 localStorage.setItem(storageKey, JSON.stringify({
   ...initialStoredState,
   bestPracticeScore: 6000,
   settings: {
     ...initialStoredState.settings,
     idleRetireSeconds: scenario === "timeout-race" ? 300 : 0,
+    nextChallengePreviewMode: isCenterScrollScenario
+      ? "center-scroll"
+      : initialStoredState.settings.nextChallengePreviewMode,
   },
 }));
 
@@ -207,6 +213,45 @@ function renderUntilStable(hook: () => unknown) {
 const renderSession = () =>
   renderUntilStable(() => useTypingSession(sessionOptions)) as ReturnType<typeof useTypingSession>;
 let session = renderSession();
+if (isCenterScrollScenario) {
+  const challengeCount = getDirectChallenges("en", "practice").length;
+  const actualDisplays: string[] = [];
+  const previewMatchesActual: boolean[] = [];
+
+  for (let index = 0; index < challengeCount + 2; index += 1) {
+    const panel = session.typingPanelProps;
+    const predictedNext = panel.centerScrollContext?.next[0]?.display;
+    const directTarget = panel.currentGuide;
+    if (!predictedNext || typeof directTarget !== "string" || directTarget.length === 0) {
+      throw new Error("Expected center-scroll practice targets and a queued next challenge");
+    }
+
+    actualDisplays.push(panel.currentDisplay);
+    for (const key of Array.from(directTarget)) {
+      dispatchKey(key);
+      session = renderSession();
+    }
+    previewMatchesActual.push(session.typingPanelProps.currentDisplay === predictedNext);
+  }
+
+  const previousDisplays = session.typingPanelProps.centerScrollContext?.previous.map(
+    ({ display }) => display,
+  ) ?? [];
+  session.typingPanelProps.onResetSession();
+  session = renderSession();
+  const historyAfterReset = session.typingPanelProps.centerScrollContext?.previous.length ?? 0;
+  session.updateSettings({ nextChallengePreviewMode: "split-slide" });
+  session = renderSession();
+
+  process.stdout.write(JSON.stringify({ centerScrollLifecycle: {
+    actualDisplays,
+    previewMatchesActual,
+    previousDisplays,
+    historyAfterReset,
+    contextWhenDisabledIsUndefined: session.typingPanelProps.centerScrollContext === undefined,
+  } }));
+  process.exit(0);
+}
 if (scenario === "language-settings") {
   const originalPrompt = session.typingPanelProps.currentDisplay;
   session.updateSettings({ appLanguage: "en" });
@@ -502,6 +547,7 @@ if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
 }
 const output = {
   afterNavigation,
+  centerScrollContext: panel.centerScrollContext ?? null,
   committedInput,
   currentAccuracy: panel.currentAccuracy,
   currentRank: panel.currentRank.label,

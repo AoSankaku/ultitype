@@ -23,7 +23,7 @@ import type {
   RefObject,
   CSSProperties,
 } from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   formatTimer,
   getRomajiInputProgress,
@@ -75,8 +75,10 @@ import { PreviousCenterDisplayText, getReadingMarkerNodeIndex, insertCenterMarke
 import { CenterScrollViewport, createCenterScrollMeasurementKey, getCenterMarkerPosition, getCompletedGuideInput } from "./center-scroll-viewport";
 import { renderCompletedReadingCharacters, renderGuideCharacters, renderReadingGuideCharacters, renderRomajiGuideCharacters } from "./guide-characters";
 import { InputProgress } from "./types";
+import type { CenterScrollContext } from "../../_lib/center-scroll-context";
 
 export function ContinuousChallengeTextStack({
+  centerScrollContext,
   display,
   englishFontFamily,
   furigana,
@@ -112,6 +114,7 @@ export function ContinuousChallengeTextStack({
   strictMistakeInput,
   enSpaceDisplay,
 }: {
+  centerScrollContext?: CenterScrollContext;
   display: string;
   englishFontFamily: EnglishFontFamily;
   furigana: JapaneseFuriganaEntry[];
@@ -147,15 +150,31 @@ export function ContinuousChallengeTextStack({
   strictMistakeInput: string;
   enSpaceDisplay: EnSpaceDisplay;
 }) {
+  const previousChallenges = centerScrollContext?.previous ?? [{
+    display: previousChallengeDisplay, furigana: previousChallengeFurigana,
+    guide: previousChallengeGuide, reading: previousChallengeReading,
+  }];
+  const nextChallenges = centerScrollContext?.next ?? [{
+    display: nextChallengeDisplay, furigana: nextChallengeFurigana,
+    guide: nextChallengeGuide, reading: nextChallengeReading,
+  }];
+  const previousReading = previousChallenges.map((challenge) => challenge.reading).join("");
+  const previousGuide = previousChallenges.map((challenge) => challenge.guide).join("");
+  const nextReading = nextChallenges.map((challenge) => challenge.reading).join("");
+  const nextGuide = nextChallenges.map((challenge) => challenge.guide).join("");
   const hasSeparateDisplay = display !== guide;
   const centerMarkerPosition = getCenterMarkerPosition(romajiTarget, input);
   const preserveHiddenRomajiAnchor = !showRomajiMarker;
-  const centerMarkerKey = createCenterScrollMeasurementKey({
+  const inputMarkerKey = createCenterScrollMeasurementKey({
     englishFontFamily,
     input,
     japaneseFontFamily,
     markerPosition: centerMarkerPosition,
   });
+  // The current input can be identical across prompts while its context moves.
+  const centerMarkerKey = `${inputMarkerKey}-${display}-${reading}-${previousChallenges
+    .map((challenge) => `${challenge.display}\u001f${challenge.guide}`)
+    .join("\u001e")}`;
   const rows: Partial<Record<TargetDisplayElementId, ReactNode>> = {
     kanji:
       showDisplayText && hasSeparateDisplay ? (
@@ -167,13 +186,16 @@ export function ContinuousChallengeTextStack({
           startsAtLeft={startsAtLeft}
         >
           <p className={css(styles, "display-text center-continuous-line")}>
-            <PreviousCenterDisplayText
-              display={previousChallengeDisplay}
-              furigana={previousChallengeFurigana}
-              showFurigana={showFuriganaDisplay}
-              showFuriganaMarker={showFuriganaMarker}
-              showKanjiMarker={showKanjiMarker}
-            />
+            {previousChallenges.map((challenge, index) => (
+              <PreviousCenterDisplayText
+                key={index}
+                display={challenge.display}
+                furigana={challenge.furigana}
+                showFurigana={showFuriganaDisplay}
+                showFuriganaMarker={showFuriganaMarker}
+                showKanjiMarker={showKanjiMarker}
+              />
+            ))}
             {renderCenterDisplayText(
               display,
               furigana,
@@ -181,11 +203,11 @@ export function ContinuousChallengeTextStack({
               showFuriganaDisplay,
               showFuriganaMarker,
               showKanjiMarker,
-              renderCenterNextDisplayText(
-                nextChallengeDisplay,
-                nextChallengeFurigana,
-                showFuriganaDisplay,
-              ),
+              nextChallenges.map((challenge, index) => (
+                <Fragment key={index}>
+                  {renderCenterNextDisplayText(challenge.display, challenge.furigana, showFuriganaDisplay)}
+                </Fragment>
+              )),
             )}
           </p>
         </CenterScrollViewport>
@@ -227,7 +249,7 @@ export function ContinuousChallengeTextStack({
         </CenterScrollViewport>
       ) : null,
     hiragana:
-      showHiraganaDisplay && (reading || nextChallengeReading) ? (
+      showHiraganaDisplay && (reading || nextReading) ? (
         <CenterScrollViewport
           kind="reading"
           key="hiragana"
@@ -236,11 +258,11 @@ export function ContinuousChallengeTextStack({
           startsAtLeft={startsAtLeft}
         >
           <p className={css(styles, "reading-text center-continuous-line")}>
-            {previousChallengeReading ? (
+            {previousReading ? (
               <span className={css(styles, "center-scroll-previous-text")}>
                 {showHiraganaMarker
-                  ? renderCompletedReadingCharacters(previousChallengeReading)
-                  : previousChallengeReading}
+                  ? renderCompletedReadingCharacters(previousReading)
+                  : previousReading}
               </span>
             ) : null}
             {romajiTarget
@@ -255,7 +277,7 @@ export function ContinuousChallengeTextStack({
                 getReadingMarkerNodeIndex(reading, centerMarkerPosition),
               )
               : renderCenterTextWithMarker(reading, centerMarkerPosition, "")}
-            <span className={css(styles, "center-scroll-next-text")}>{nextChallengeReading}</span>
+            <span className={css(styles, "center-scroll-next-text")}>{nextReading}</span>
           </p>
         </CenterScrollViewport>
       ) : null,
@@ -271,11 +293,11 @@ export function ContinuousChallengeTextStack({
           className={css(styles, "input-target center-continuous-line")}
           aria-label={hasSeparateDisplay ? "romaji input target" : "input target"}
         >
-          {previousChallengeGuide ? (
+          {previousGuide ? (
             <span className={css(styles, "center-scroll-previous-text")}>
               {renderGuideCharacters(
-                previousChallengeGuide,
-                getCompletedGuideInput(previousChallengeGuide),
+                previousGuide,
+                getCompletedGuideInput(previousGuide),
                 null,
                 "",
                 "none",
@@ -306,7 +328,7 @@ export function ContinuousChallengeTextStack({
               enSpaceDisplay,
             )}
           <span className={css(styles, "center-scroll-next-text")}>
-            {renderGuideCharacters(nextChallengeGuide, "", null, "", "none", false, enSpaceDisplay)}
+            {renderGuideCharacters(nextGuide, "", null, "", "none", false, enSpaceDisplay)}
           </span>
         </p>
       </CenterScrollViewport>

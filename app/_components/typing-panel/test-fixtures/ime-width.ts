@@ -25,6 +25,12 @@ mock.module("react", () => ({
   useLayoutEffect: queueEffect,
 }));
 
+// This harness invokes TypingPanel directly; context is tested by render tests.
+const i18n = await import("../../../_lib/i18n");
+mock.module("../../../_lib/i18n", () => ({
+  ...i18n,
+  useI18n: () => ({ language: "ja", t: (text: string, params?: Parameters<typeof i18n.translate>[2]) => i18n.translate("ja", text, params) }),
+}));
 function queueEffect(effect: () => void, dependencies: unknown[] = []) {
   const index = cursor++;
   const previous = slots[index];

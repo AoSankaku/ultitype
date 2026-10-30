@@ -3,9 +3,6 @@ import { resolve } from "node:path";
 
 const nextConfig: NextConfig = {
   output: "export",
-  experimental: {
-    turbopackImportTypeText: true,
-  },
   turbopack: {
     root: process.cwd(),
     rules: {

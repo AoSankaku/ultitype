@@ -756,10 +756,10 @@ describe("TypingPanel", () => {
       "--center-marker-translate:calc(-1 * max(0ch, var(--center-marker-position) - 8ch))",
     );
     expect(markup).toContain(
-      'class="center-scroll-previous-text"><span class="char correct">ま</span><span class="char correct">え</span><span class="char correct">。</span></span>',
+      'class="center-scroll-previous-text"><span class="char correct">まえ。</span></span>',
     );
     expect(markup).toContain(
-      'class="center-scroll-previous-text"><span class="char correct">m</span><span class="char correct">a</span><span class="char correct">e</span><span class="char correct">.</span></span>',
+      'class="center-scroll-previous-text"><span class="char correct">mae.</span></span>',
     );
   });
 
@@ -1121,10 +1121,10 @@ describe("TypingPanel", () => {
     expect(markup).toContain('class="center-scroll-previous-text"');
     expect(markup).toContain('<ruby class="display-ruby">前<rt>まえ</rt></ruby>');
     expect(markup).toContain(
-      'class="center-scroll-previous-text"><span class="char correct">ま</span><span class="char correct">え</span></span>',
+      'class="center-scroll-previous-text"><span class="char correct">まえ</span></span>',
     );
     expect(markup).toContain(
-      'class="center-scroll-previous-text"><span class="char correct">m</span><span class="char correct">a</span><span class="char correct">e</span></span>',
+      'class="center-scroll-previous-text"><span class="char correct">mae</span></span>',
     );
     expect(markup.indexOf("前")).toBeLessThan(markup.indexOf("今"));
   });
@@ -1202,7 +1202,7 @@ describe("TypingPanel", () => {
     const start = markup.indexOf('aria-label="input target"');
     const inputLine = markup.slice(markup.indexOf(">", start) + 1, markup.indexOf("</p>", start));
     expect(inputLine.replace(/<[^>]*>/g, "").replaceAll("␣", " ")).toBe("old done now next later ");
-    expect(inputLine).toContain('<span class="char correct">o</span>');
+    expect(inputLine).toContain('<span class="char correct">old</span>');
     expect(inputLine.match(/class="char current"/g)).toHaveLength(1);
   });
 
@@ -1231,7 +1231,7 @@ describe("TypingPanel", () => {
     );
 
     expect(inputLine).toContain(
-      'class="center-scroll-previous-text"><span class="char correct">d</span><span class="char correct">o</span><span class="char correct">n</span><span class="char correct">e</span></span>',
+      'class="center-scroll-previous-text"><span class="char correct">done</span></span>',
     );
   });
 
@@ -1279,7 +1279,7 @@ describe("TypingPanel", () => {
       '<ruby class="display-ruby kanji-marker-correct">前<rt><span class="furigana-marker-correct">ま</span><span class="furigana-marker-correct">え</span></rt></ruby>',
     );
     expect(readingLine).toContain(
-      'class="center-scroll-previous-text"><span class="char correct">ま</span><span class="char correct">え</span></span>',
+      'class="center-scroll-previous-text"><span class="char correct">まえ</span></span>',
     );
   });
 

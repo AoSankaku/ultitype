@@ -23,7 +23,7 @@ import type {
   RefObject,
   CSSProperties,
 } from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   formatTimer,
   getRomajiInputProgress,
@@ -103,7 +103,16 @@ export function ProductionLongDisplay({
 }) {
   const previousSnapshotRef = useRef<ProductionLongDisplaySnapshot | null>(null);
   const [activeHandoff, setActiveHandoff] = useState<ProductionLongDisplayHandoff | null>(null);
-  const markerProgress = romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null;
+  const inputProgress = romajiTarget ? getRomajiInputProgress(romajiTarget, input) : null;
+  // The body changes at token boundaries, rather than for every romaji letter.
+  const completedTokens = inputProgress?.completedTokens;
+  const currentTokenIndex = inputProgress?.currentTokenIndex;
+  const markerProgress = useMemo(
+    () => completedTokens === undefined || currentTokenIndex === undefined
+      ? null
+      : { completedTokens, currentTokenIndex },
+    [completedTokens, currentTokenIndex],
+  );
   const currentContentKey = createProductionLongScrollContentKey({
     display,
     nextChallengeDisplay,
@@ -273,7 +282,7 @@ export function createProductionLongDisplayHandoff({
   };
 }
 
-export function ProductionLongDisplayText({
+export const ProductionLongDisplayText = memo(function ProductionLongDisplayText({
   display,
   furigana,
   markerProgress,
@@ -444,7 +453,7 @@ export function ProductionLongDisplayText({
       })}
     </p>
   );
-}
+});
 
 export function renderProductionLongPlainScrollTarget(display: string, scrollMarkerCharacterIndex: number) {
   const characters = Array.from(display);

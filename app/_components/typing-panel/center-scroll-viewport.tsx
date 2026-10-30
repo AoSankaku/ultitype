@@ -191,16 +191,16 @@ export function measureCenterScrollTranslate(
     return null;
   }
 
-  const previousLineTransition = line?.style.transition ?? "";
-  const previousLineTransform = line?.style.transform ?? "";
-  if (line) {
-    line.style.transition = "none";
-    line.style.transform = "none";
-  }
-
   const viewportRect = viewport.getBoundingClientRect();
+  const scaleX = getElementScaleX(viewport, viewportRect);
+  const transform = line ? window.getComputedStyle(line).transform : "none";
+  // Subtract the existing translation instead of removing and restoring it.
+  // Writing transforms here forces another layout for every character and row.
+  const translatedOffset = transform && transform !== "none"
+    ? new DOMMatrixReadOnly(transform).m41 * scaleX
+    : 0;
   const markerRect = marker.getBoundingClientRect();
-  let targetCenter = markerRect.left - viewportRect.left + markerRect.width / 2;
+  let targetCenter = markerRect.left - viewportRect.left + markerRect.width / 2 - translatedOffset;
 
   // The display (kanji) and reading (kana) lines anchor on a zero-width marker
   // placed right before the unit currently being typed. Centering that marker
@@ -225,23 +225,18 @@ export function measureCenterScrollTranslate(
           : unit;
       const unitRect = alignmentUnit.getBoundingClientRect();
       if (unitRect.width > 0) {
-        targetCenter = unitRect.left - viewportRect.left + unitRect.width / 2;
+        targetCenter = unitRect.left - viewportRect.left + unitRect.width / 2 - translatedOffset;
       }
     }
   }
 
   const viewportCenter = viewportRect.width / 2;
   const nextTranslate = calculateScaledCenterScrollTranslate({
-    scaleX: getElementScaleX(viewport, viewportRect),
+    scaleX,
     startsAtLeft,
     targetCenter,
     viewportCenter,
   });
-
-  if (line) {
-    line.style.transition = previousLineTransition;
-    line.style.transform = previousLineTransform;
-  }
 
   return nextTranslate;
 }

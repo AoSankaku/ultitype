@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { specialRomajiVariantOptions, standardRomajiVariantOptions, sokuonInputOptions, type SokuonInputId } from "@/src/lib/typing";
 import { css } from "../../_lib/css-module";
 import styles from "../SettingsScreen.module.css";
@@ -7,12 +9,13 @@ import styles from "../SettingsScreen.module.css";
 import type { InputSettingsController } from "./controller";
 
 export function InputMethodSettingsSection({ controller }: { controller: InputSettingsController }) {
+  const { t } = useI18n();
   const { getRomajiSelection, getSpecialRomajiSelection, onChange, preferRomaji, preferSokuon, preferSpecialRomaji, settings, toggleRomajiAccepted, toggleSokuonAccepted, toggleSpecialRomajiAccepted, updateSpecialRomajiPreset } = controller;
 
   return (
       <section className={css(styles, "settings-category")} aria-labelledby="input-settings">
         <h3 className={css(styles, "settings-category-title")} id="input-settings">
-          入力方式
+          {t("入力方式")}
         </h3>
         <div className={css(styles, "settings-category-list")}>
           <section
@@ -20,18 +23,18 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
             aria-labelledby="romaji-method-setting"
           >
             <div>
-              <h4 id="romaji-method-setting">ローマ字入力法</h4>
-              <p>許容する派生と、ガイドで優先表示する表記を選ぶ</p>
+              <h4 id="romaji-method-setting">{t("ローマ字入力法")}</h4>
+              <p>{t("許容する派生と、ガイドで優先表示する表記を選ぶ")}</p>
             </div>
             <div className={css(styles, "romaji-method-controls")}>
-              <div className={css(styles, "romaji-preset-segmented")} role="group" aria-label="ローマ字入力法">
+              <div className={css(styles, "romaji-preset-segmented")} role="group" aria-label={t("ローマ字入力法")}>
                 <button
                   aria-pressed={settings.romajiInputPreset === "hepburn"}
                   className={settings.romajiInputPreset === "hepburn" ? css(styles, "selected") : ""}
                   onClick={() => onChange({ romajiInputPreset: "hepburn" })}
                   type="button"
                 >
-                  ヘボン式優先
+                  {t("ヘボン式優先")}
                 </button>
                 <button
                   aria-pressed={settings.romajiInputPreset === "shortest"}
@@ -39,7 +42,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                   onClick={() => onChange({ romajiInputPreset: "shortest" })}
                   type="button"
                 >
-                  最短優先
+                  {t("最短優先")}
                 </button>
                 <button
                   aria-pressed={settings.romajiInputPreset === "custom"}
@@ -47,7 +50,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                   onClick={() => onChange({ romajiInputPreset: "custom" })}
                   type="button"
                 >
-                  個別設定
+                  {t("個別設定")}
                 </button>
               </div>
 
@@ -78,7 +81,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                           ))}
                         </div>
                         <label className={css(styles, "romaji-preferred-select")}>
-                          <span>表示</span>
+                          <span>{t("表示")}</span>
                           <select
                             onChange={(event) => preferRomaji(option, event.currentTarget.value)}
                             value={selection.preferred}
@@ -100,12 +103,12 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
 
           <section className={css(styles, "settings-row sokuon-method-row")} aria-labelledby="sokuon-setting">
             <div>
-              <h4 id="sokuon-setting">促音入力</h4>
-              <p>「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ</p>
+              <h4 id="sokuon-setting">{t("促音入力")}</h4>
+              <p>{t("「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ")}</p>
             </div>
             <div className={css(styles, "sokuon-setting-controls")}>
               <label className={css(styles, "sokuon-split-toggle")}>
-                <span>促音分割を許可</span>
+                <span>{t("促音分割を許可")}</span>
                 <span className={css(styles, "toggle-control")}>
                   <input
                     checked={settings.sokuonInput.allowSplit}
@@ -122,7 +125,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                   <span aria-hidden="true" />
                 </span>
               </label>
-              <div className={css(styles, "romaji-choice-list")} aria-label="促音入力候補">
+              <div className={css(styles, "romaji-choice-list")} aria-label={t("促音入力候補")}>
                 {sokuonInputOptions.map((option) => (
                   <label key={option}>
                     <input
@@ -135,7 +138,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                 ))}
               </div>
               <label className={css(styles, "romaji-preferred-select")}>
-                <span>表示</span>
+                <span>{t("表示")}</span>
                 <select
                   onChange={(event) => preferSokuon(event.currentTarget.value as SokuonInputId)}
                   value={settings.sokuonInput.preferred}
@@ -152,8 +155,8 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
 
           <section className={css(styles, "settings-row")} aria-labelledby="split-yoon-setting">
             <div>
-              <h4 id="split-yoon-setting">一般拗音分割入力</h4>
-              <p>「きゃ」を kya だけでなく kila / kixa でも入力できるようにする</p>
+              <h4 id="split-yoon-setting">{t("一般拗音分割入力")}</h4>
+              <p>{t("「きゃ」を kya だけでなく kila / kixa でも入力できるようにする")}</p>
             </div>
             <label className={css(styles, "toggle-control")}>
               <input
@@ -167,18 +170,18 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
 
           <section className={css(styles, "settings-row")} aria-labelledby="special-yoon-method-setting">
             <div>
-              <h4 id="special-yoon-method-setting">特殊拗音入力法</h4>
-              <p>出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ</p>
+              <h4 id="special-yoon-method-setting">{t("特殊拗音入力法")}</h4>
+              <p>{t("出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ")}</p>
             </div>
             <div className={css(styles, "romaji-method-controls")}>
-              <div className={css(styles, "romaji-preset-segmented")} role="group" aria-label="特殊拗音入力法">
+              <div className={css(styles, "romaji-preset-segmented")} role="group" aria-label={t("特殊拗音入力法")}>
                 <button
                   aria-pressed={settings.specialRomajiInputPreset === "split"}
                   className={settings.specialRomajiInputPreset === "split" ? css(styles, "selected") : ""}
                   onClick={() => updateSpecialRomajiPreset("split")}
                   type="button"
                 >
-                  すべて分割
+                  {t("すべて分割")}
                 </button>
                 <button
                   aria-pressed={settings.specialRomajiInputPreset === "integrated"}
@@ -186,7 +189,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                   onClick={() => updateSpecialRomajiPreset("integrated")}
                   type="button"
                 >
-                  すべて統合
+                  {t("すべて統合")}
                 </button>
                 <button
                   aria-pressed={settings.specialRomajiInputPreset === "custom"}
@@ -194,7 +197,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                   onClick={() => updateSpecialRomajiPreset("custom")}
                   type="button"
                 >
-                  個別設定
+                  {t("個別設定")}
                 </button>
               </div>
 
@@ -225,7 +228,7 @@ export function InputMethodSettingsSection({ controller }: { controller: InputSe
                           ))}
                         </div>
                         <label className={css(styles, "romaji-preferred-select")}>
-                          <span>表示</span>
+                          <span>{t("表示")}</span>
                           <select
                             onChange={(event) =>
                               preferSpecialRomaji(option, event.currentTarget.value)

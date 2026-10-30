@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { topDisplayMetricOptions } from "../../_lib/constants";
 import { css } from "../../_lib/css-module";
 import styles from "../SettingsScreen.module.css";
@@ -7,20 +9,21 @@ import styles from "../SettingsScreen.module.css";
 import type { InputSettingsController } from "./controller";
 
 export function TopDisplaySettingsSection({ controller }: { controller: InputSettingsController }) {
+  const { t } = useI18n();
   const { settings, toggleTopDisplayMetric } = controller;
 
   return (
       <section className={css(styles, "settings-category")} aria-labelledby="top-display-settings">
         <h3 className={css(styles, "settings-category-title")} id="top-display-settings">
-          上部表示情報
+          {t("上部表示情報")}
         </h3>
         <div className={css(styles, "settings-category-list")}>
           <section className={css(styles, "settings-row top-display-settings-row")} aria-labelledby="top-display-setting">
             <div>
-              <h4 id="top-display-setting">表示する情報</h4>
-              <p>残り時間を外しても、残り時間バーは表示されます。</p>
+              <h4 id="top-display-setting">{t("表示する情報")}</h4>
+              <p>{t("残り時間を外しても、残り時間バーは表示されます。")}</p>
             </div>
-            <div className={css(styles, "top-display-setting-controls")} aria-label="上部表示情報">
+            <div className={css(styles, "top-display-setting-controls")} aria-label={t("上部表示情報")}>
               {topDisplayMetricOptions.map((option) => (
                 <label className={css(styles, "top-display-option")} key={option.id}>
                   <input
@@ -30,7 +33,7 @@ export function TopDisplaySettingsSection({ controller }: { controller: InputSet
                     }
                     type="checkbox"
                   />
-                  <span>{option.label}</span>
+                  <span>{t(option.label)}</span>
                 </label>
               ))}
             </div>

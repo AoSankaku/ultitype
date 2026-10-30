@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { initialSettings } from "../_lib/constants";
 import { SettingsScreen } from "./SettingsScreen";
+import { LocaleProvider } from "../_lib/i18n";
 
 function renderSettingsScreen(settings = initialSettings) {
   return renderToStaticMarkup(
@@ -57,6 +58,22 @@ function getCategoryItemLabels(markup: string, categoryId: string) {
 }
 
 describe("SettingsScreen", () => {
+  test("renders and selects the saved English app language", () => {
+    const markup = renderToStaticMarkup(
+      <LocaleProvider language="en">
+        <SettingsScreen
+          settings={{ ...initialSettings, appLanguage: "en" }}
+          onBack={() => undefined}
+          onChange={() => undefined}
+          onClearLocalData={() => undefined}
+        />
+      </LocaleProvider>,
+    );
+    expect(markup).toContain('aria-label="App language"');
+    expect(markup).toMatch(/<option value="en"[^>]*selected=""[^>]*>English<\/option>/);
+    expect(markup).toContain("Choose a color theme.");
+    expect(markup).not.toContain("表示テーマを切り替える");
+  });
   test("groups settings by category in the requested order", () => {
     const markup = renderSettingsScreen();
 
@@ -74,6 +91,7 @@ describe("SettingsScreen", () => {
 
     expect(getCategoryItemLabels(markup, "screen-settings")).toEqual([
       "テーマ",
+      "アプリの表示言語",
       "入力画面と入力方式",
     ]);
     expect(getCategoryItemLabels(markup, "sound-settings")).toEqual(["サウンド"]);
@@ -96,6 +114,16 @@ describe("SettingsScreen", () => {
 
     expect(screenMarkup).toContain('href="/settings/screen"');
     expect(screenMarkup).toContain("入力画面と入力方式");
+  });
+
+  test("offers an app language selector without changing the practice prompt language", () => {
+    const markup = renderSettingsScreen();
+    const screenMarkup = getCategoryMarkup(markup, "screen-settings");
+
+    expect(screenMarkup).toContain('aria-label="アプリの表示言語"');
+    expect(screenMarkup).toMatch(/<option value="ja"[^>]*>日本語<\/option>/);
+    expect(screenMarkup).toMatch(/<option value="en"[^>]*>English<\/option>/);
+    expect(screenMarkup).not.toContain("練習言語");
   });
 
   test("disables sound controls when the active Chrome tab is muted", () => {

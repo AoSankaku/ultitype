@@ -210,7 +210,7 @@ export function TypingTargetView({
   } as CSSProperties;
 
   return (
-    <div className={targetViewClassName} aria-label="current challenge" style={targetViewStyle}>
+    <div className={targetViewClassName} aria-label="current challenge" dir="ltr" lang={challengeLanguage} style={targetViewStyle}>
       {isProductionImeOn ? (
         <ProductionImeChallengeView
           display={currentDisplay}

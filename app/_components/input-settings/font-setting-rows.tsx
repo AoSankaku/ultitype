@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { ChevronDown, ChevronUp, Lock, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -69,20 +71,21 @@ export type FontScaleSettingRowProps = {
 };
 
 export function FontScaleSettingRow({ disabled, value, onChange }: FontScaleSettingRowProps) {
+  const { t } = useI18n();
   return (
     <NumericSettingRow
       ariaLabel="furigana font scale"
       defaultValue={initialSettings.furiganaFontScale}
-      description="漢字フォントサイズに対するふりがなの倍率"
+      description={t("漢字フォントサイズに対するふりがなの倍率")}
       disabled={disabled}
       id="furigana-font-scale-setting"
-      label="ふりがなフォント倍率"
-      lockLabel="ふりがな表示オフのためロック"
+      label={t("ふりがなフォント倍率")}
+      lockLabel={t("ふりがな表示オフのためロック")}
       max={1}
       min={0.2}
       onChange={onChange}
       step={0.01}
-      unit="倍"
+      unit={t("倍")}
       value={value}
     />
   );

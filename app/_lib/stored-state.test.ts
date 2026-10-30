@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { initialStoredState } from "./constants";
+import { appLanguageCodes } from "./locale-codes";
 import {
   cacheStoredState,
   createClearedStoredState,
@@ -26,6 +27,16 @@ describe("stored state persistence", () => {
       expect(stored.sessions).toEqual([]);
       expect(stored.settings.theme).toBe("light");
     }
+  });
+
+  test("persists a valid app language and defaults invalid values to Japanese", () => {
+    for (const code of appLanguageCodes) {
+      expect(normalizeStoredState({ settings: { appLanguage: code } }).settings.appLanguage).toBe(code);
+    }
+    expect(
+      normalizeStoredState({ settings: { ...initialStoredState.settings, appLanguage: "xx" as never } })
+        .settings.appLanguage,
+    ).toBe("ja");
   });
 
   test("drops invalid history records while preserving valid and legacy sessions", () => {

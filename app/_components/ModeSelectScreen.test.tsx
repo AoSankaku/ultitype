@@ -3,6 +3,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { initialSettings, productionDurations } from "../_lib/constants";
 import type { ProductionModePlayability } from "../_lib/release-gates";
 import { ModeSelectScreen } from "./ModeSelectScreen";
+import { LocaleProvider } from "../_lib/i18n";
+import { appLanguageCodes, type AppLanguage } from "../_lib/locale-codes";
+import { translate } from "../_lib/locale-messages";
 
 function renderModeSelectScreen({
   challengeLanguage = "ja",
@@ -12,11 +15,13 @@ function renderModeSelectScreen({
     "production-ime-on": true,
   },
   productionUnlocked = true,
+  appLanguage = "ja",
 }: {
   challengeLanguage?: "ja" | "en";
   productionDuration?: 300 | 600;
   productionPlayableModes?: Partial<ProductionModePlayability>;
   productionUnlocked?: boolean;
+  appLanguage?: AppLanguage;
 } = {}) {
   const playableModes = {
     "production-ime-off": true,
@@ -25,21 +30,33 @@ function renderModeSelectScreen({
   } satisfies ProductionModePlayability;
 
   return renderToStaticMarkup(
-    <ModeSelectScreen
-      challengeLanguage={challengeLanguage}
-      productionDuration={productionDuration}
-      productionDurations={productionDurations}
-      productionPlayableModes={playableModes}
-      productionUnlocked={productionUnlocked}
-      soundSettings={initialSettings}
-      onChangeChallengeLanguage={() => undefined}
-      onProductionDurationChange={() => undefined}
-      onSelectMode={() => undefined}
-    />,
+    <LocaleProvider language={appLanguage}>
+      <ModeSelectScreen
+        challengeLanguage={challengeLanguage}
+        productionDuration={productionDuration}
+        productionDurations={productionDurations}
+        productionPlayableModes={playableModes}
+        productionUnlocked={productionUnlocked}
+        soundSettings={initialSettings}
+        onChangeChallengeLanguage={() => undefined}
+        onProductionDurationChange={() => undefined}
+        onSelectMode={() => undefined}
+      />
+    </LocaleProvider>,
   );
 }
 
 describe("ModeSelectScreen", () => {
+  test("supports every UI locale while retaining English-only practice themes and routes", () => {
+    for (const language of appLanguageCodes) {
+      const markup = renderModeSelectScreen({ appLanguage: language, challengeLanguage: "en" });
+      expect(markup).toContain(translate(language, "練習言語"));
+      expect(markup).toContain(translate(language, "タイピングのコツ"));
+      expect(markup).toContain('href="/en/practice/accuracy"');
+      expect(markup).not.toContain('value="english-learning"');
+      expect(markup).not.toContain('value="fr"');
+    }
+  });
   test("locks rating modes when the production build is alpha-gated", () => {
     const markup = renderModeSelectScreen({
       productionPlayableModes: {
@@ -115,26 +132,34 @@ describe("ModeSelectScreen", () => {
     expect(markup).not.toContain('href="/en/practice/accuracy?duration=600"');
   });
 
-  test("places the challenge language selector above the modes heading", () => {
+  test("places the practice language dropdown before the challenge theme", () => {
     const markup = renderModeSelectScreen();
 
-    expect(markup.indexOf('class="language-switch"')).toBeLessThan(markup.indexOf("Modes"));
+    expect(markup).toContain('<select aria-label="練習言語"');
+    expect(markup.indexOf('aria-label="練習言語"')).toBeLessThan(markup.indexOf("今週のテーマ："));
   });
 
-  test("links challenge language choices to their mode select paths", () => {
+  test("selects the current practice language in the dropdown", () => {
     const markup = renderModeSelectScreen({ challengeLanguage: "en" });
 
-    expect(markup).toContain('href="/"');
-    expect(markup).toContain('href="/en"');
+    expect(markup).toContain('<option value="ja">日本語</option>');
+    expect(markup).toContain('<option value="en" selected="">English</option>');
   });
 
-  test("keeps the selected production duration in challenge language links", () => {
-    const markup = renderModeSelectScreen({
-      challengeLanguage: "en",
-      productionDuration: 600,
-    });
+  test("uses English interface labels with Japanese practice routes", () => {
+    const markup = renderModeSelectScreen({ appLanguage: "en", challengeLanguage: "ja" });
+    expect(markup).toContain('aria-label="Practice language"');
+    expect(markup).toContain("Choose a practice or rating mode.");
+    expect(markup).toContain("Precision");
+    expect(markup).toContain('href="/practice/accuracy"');
+    expect(markup).not.toContain('href="/en/practice/accuracy"');
+  });
 
-    expect(markup).toContain('href="/?duration=600"');
-    expect(markup).toContain('href="/en?duration=600"');
+  test("keeps Japanese interface labels with English practice routes and one English theme", () => {
+    const markup = renderModeSelectScreen({ appLanguage: "ja", challengeLanguage: "en" });
+    expect(markup).toContain("正確無比");
+    expect(markup).toContain('href="/en/practice/accuracy"');
+    expect(markup).toContain('<option value="typing-tips" selected="">タイピングのコツ</option>');
+    expect(markup).not.toContain('value="english-learning"');
   });
 });

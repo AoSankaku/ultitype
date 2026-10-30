@@ -148,7 +148,7 @@ const [
 const isCompositionScenario = scenario === "composition-japanese" || scenario === "composition-empty";
 const isImeRetireScenario = scenario === "retire-ime";
 const isDirectScenario = scenario.startsWith("retire-direct") || scenario === "timeout-race";
-const challengeLanguage = scenario === "plain" || isDirectScenario ? "en" : "ja";
+const challengeLanguage = scenario === "plain" || isDirectScenario || scenario === "language-settings" ? "en" : "ja";
 const initialModeId = isDirectScenario ? "production-ime-off" : "production-ime-on";
 localStorage.setItem(storageKey, JSON.stringify({
   ...initialStoredState,
@@ -163,7 +163,7 @@ const sessionOptions: UseTypingSessionOptions = {
   initialChallengeLanguage: challengeLanguage as "ja" | "en",
   initialModeId,
   initialProductionDuration: 300 as const,
-  initialScreen: scenario.startsWith("theme-") && scenario !== "theme-rollover"
+  initialScreen: (scenario.startsWith("theme-") && scenario !== "theme-rollover") || scenario === "language-settings"
     ? "mode-select" as const
     : "typing" as const,
 };
@@ -207,6 +207,38 @@ function renderUntilStable(hook: () => unknown) {
 const renderSession = () =>
   renderUntilStable(() => useTypingSession(sessionOptions)) as ReturnType<typeof useTypingSession>;
 let session = renderSession();
+if (scenario === "language-settings") {
+  const originalPrompt = session.typingPanelProps.currentDisplay;
+  session.updateSettings({ appLanguage: "en" });
+  session = renderSession();
+  const englishUi = { app: session.settings.appLanguage, practice: session.challengeLanguage };
+  session.updateSettings({ appLanguage: "ja" });
+  session = renderSession();
+  const japaneseUi = { app: session.settings.appLanguage, practice: session.challengeLanguage };
+  const promptUnchanged = originalPrompt === session.typingPanelProps.currentDisplay;
+  sessionOptions.initialChallengeLanguage = undefined;
+  hookSlots.length = 0;
+  session = renderSession();
+  const restored = { app: session.settings.appLanguage, practice: session.challengeLanguage };
+  session.changeChallengeLanguage("ja");
+  session.updateSettings({ appLanguage: "en" });
+  session = renderSession();
+  const japanesePractice = { app: session.settings.appLanguage, practice: session.challengeLanguage };
+  session.clearLocalData("user-data");
+  session = renderSession();
+  const afterUserClear = { app: session.settings.appLanguage, practice: session.challengeLanguage };
+  session.changeChallengeLanguage("en");
+  session = renderSession();
+  session.clearLocalData("settings");
+  session = renderSession();
+  hookSlots.length = 0;
+  session = renderSession();
+  const afterReset = { app: session.settings.appLanguage, practice: session.challengeLanguage };
+  process.stdout.write(JSON.stringify({ languageLifecycle: {
+    englishUi, japaneseUi, promptUnchanged, restored, japanesePractice, afterUserClear, afterReset,
+  } }));
+  process.exit(0);
+}
 if (process.env.ULTITYPE_TEST_STORAGE_FAILURE === "quota") {
   session.updateSettings({ theme: "light" });
   session = renderSession();

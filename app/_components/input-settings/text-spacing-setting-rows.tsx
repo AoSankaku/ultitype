@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { ChevronDown, ChevronUp, Lock, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -61,6 +63,7 @@ export function TextSpacingSettingRows({
   onBottomSpacingChange,
   onLineHeightChange,
 }: TextSpacingSettingRowsProps) {
+  const { t } = useI18n();
   return (
     <>
       <NumericSettingRow
@@ -73,7 +76,7 @@ export function TextSpacingSettingRows({
         min={0.8}
         onChange={(value) => onLineHeightChange(lineHeightKey, value)}
         step={0.05}
-        unit="倍"
+        unit={t("倍")}
         value={lineHeightValue}
       />
       <NumericSettingRow

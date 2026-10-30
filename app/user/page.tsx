@@ -7,6 +7,8 @@ import { AppShell } from "../_components/AppShell";
 import { RankBadgeCanvas } from "../_components/RankBadgeCanvas";
 import { SelectSoundLink } from "../_components/SelectSoundLink";
 import styles from "./UserPage.module.css";
+import { translate } from "../_lib/i18n";
+import { getModeSelectPath } from "../_lib/mode-routes";
 
 export default function UserPage() {
   return (
@@ -17,25 +19,25 @@ export default function UserPage() {
             <div>
               <div className={css(styles, "panel-heading")}>
                 <UserRound size={18} />
-                <span>User</span>
+                <span>{translate(session.settings.appLanguage, "User")}</span>
               </div>
-              <h1>ローカルユーザー</h1>
-              <p>Keybase連携は未設定です。</p>
+                <h1>{translate(session.settings.appLanguage, "ローカルユーザー")}</h1>
+              <p>{translate(session.settings.appLanguage, "Keybase連携は未設定です。")}</p>
             </div>
             <SelectSoundLink
               className={css(styles, "icon-link")}
-              href="/"
-              aria-label="戻る"
+              href={getModeSelectPath(session.challengeLanguage)}
+              aria-label={translate(session.settings.appLanguage, "戻る")}
               soundKind="back"
-              title="戻る"
+              title={translate(session.settings.appLanguage, "戻る")}
             >
               <ArrowLeft size={20} />
             </SelectSoundLink>
           </header>
 
-          <section className={css(styles, "user-summary")} aria-label="ユーザー概要">
+          <section className={css(styles, "user-summary")} aria-label={translate(session.settings.appLanguage, "ユーザー概要")}>
             <div>
-              <span>仮ランク</span>
+              <span>{translate(session.settings.appLanguage, "仮ランク")}</span>
               <RankBadgeCanvas
                 className={css(styles, "user-summary-rank-canvas")}
                 rank={session.bestPracticeRank.label}
@@ -43,7 +45,7 @@ export default function UserPage() {
               <strong>{Math.round(session.bestPracticeScore).toLocaleString()}</strong>
             </div>
             <div>
-              <span>本番ランク</span>
+              <span>{translate(session.settings.appLanguage, "本番ランク")}</span>
               <RankBadgeCanvas
                 className={css(styles, "user-summary-rank-canvas")}
                 rank={session.bestProductionRank.label}
@@ -55,10 +57,10 @@ export default function UserPage() {
           <section className={css(styles, "user-sessions-panel")}>
             <div className={css(styles, "panel-heading")}>
               <UserRound size={18} />
-              <span>Recent Sessions</span>
+              <span>{translate(session.settings.appLanguage, "Recent Sessions")}</span>
             </div>
             {session.sessions.length === 0 ? (
-              <p className={css(styles, "empty")}>まだ保存されたセッションはありません。</p>
+              <p className={css(styles, "empty")}>{translate(session.settings.appLanguage, "まだ保存されたセッションはありません。")}</p>
             ) : (
               <ol className={css(styles, "user-session-list")}>
                 {session.sessions.map((storedSession) => (
@@ -70,8 +72,8 @@ export default function UserPage() {
                       width={68}
                     />
                     <strong>{Math.round(storedSession.score).toLocaleString()}</strong>
-                    <small>{modes.find((item) => item.id === storedSession.modeId)?.label}</small>
-                    <em>{storedSession.challengeLanguage === "en" ? "English" : "日本語"}</em>
+                    <small>{translate(session.settings.appLanguage, modes.find((item) => item.id === storedSession.modeId)?.label ?? "")}</small>
+                    <em>{translate(session.settings.appLanguage, storedSession.challengeLanguage === "en" ? "English" : "日本語")}</em>
                   </li>
                 ))}
               </ol>

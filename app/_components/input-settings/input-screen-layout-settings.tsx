@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { ChevronDown, ChevronUp, Lock } from "lucide-react";
 import { englishFontFamilyOptions, initialSettings, japaneseFontFamilyOptions, targetDisplayElementOptions } from "../../_lib/constants";
 import { css } from "../../_lib/css-module";
@@ -12,6 +14,7 @@ import { nextChallengePreviewModeOptions } from "./types";
 import type { InputSettingsController } from "./controller";
 
 export function InputScreenLayoutSettings({ controller }: { controller: InputSettingsController }) {
+  const { t } = useI18n();
   const { draggedDisplayOrderId, getTargetDisplayElementVisibility, moveTargetDisplayElement, onChange, setDraggedDisplayOrderId, settings, showFuriganaDisplay, showFuriganaMarker, showHiraganaInputProgress, showHiraganaMarker, showKanjiInputProgress, showKanjiMarker, stepTargetDisplayElement, updateFontSize, updateFuriganaFontScale, updateLineHeight, updateMarginBottom, updateProductionLongTextLineCount } = controller;
 
   return (
@@ -24,14 +27,14 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
               className={css(styles, "settings-subcategory-title")}
               id="font-family-input-screen-settings"
             >
-              フォント
+              {t("フォント")}
             </h4>
             <div className={css(styles, "settings-subcategory-list")}>
               <FontFamilySettingRow
-                ariaLabel="Japanese font family"
-                description="漢字・ふりがな・ひらがな表示に使うGoogle Fonts"
+                ariaLabel={t("日本語フォント")}
+                description={t("漢字・ふりがな・ひらがな表示に使うGoogle Fonts")}
                 id="japanese-font-family-setting"
-                label="日本語フォント"
+                label={t("日本語フォント")}
                 onChange={(value) =>
                   onChange({
                     japaneseFontFamily: value as AppSettings["japaneseFontFamily"],
@@ -41,10 +44,10 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
                 value={settings.japaneseFontFamily}
               />
               <FontFamilySettingRow
-                ariaLabel="English font family"
-                description="ローマ字・英語課題文に使うGoogle Fonts"
+                ariaLabel={t("英語フォント")}
+                description={t("ローマ字・英語課題文に使うGoogle Fonts")}
                 id="english-font-family-setting"
-                label="英語フォント"
+                label={t("英語フォント")}
                 onChange={(value) =>
                   onChange({
                     englishFontFamily: value as AppSettings["englishFontFamily"],
@@ -64,7 +67,7 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
               className={css(styles, "settings-subcategory-title")}
               id="target-display-order-input-screen-settings"
             >
-              表示順
+              {t("表示順")}
             </h4>
             <div className={css(styles, "settings-subcategory-list")}>
               <section
@@ -72,10 +75,10 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
                 aria-labelledby="target-display-order-setting"
               >
                 <div>
-                  <h4 id="target-display-order-setting">入力画面の表示順</h4>
-                  <p>ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する</p>
+                  <h4 id="target-display-order-setting">{t("入力画面の表示順")}</h4>
+                  <p>{t("ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する")}</p>
                 </div>
-                <div className={css(styles, "target-display-order-list")} aria-label="target display order">
+                <div className={css(styles, "target-display-order-list")} aria-label={t("入力画面の表示順")}>
                   {settings.targetDisplayOrder.map((id) => {
                     const option = targetDisplayElementOptions.find((item) => item.id === id);
                     if (!option) {
@@ -86,7 +89,7 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
 
                     return (
                       <div
-                        aria-label={`${option.label} display order item`}
+                        aria-label={t("{label} display order item", { label: t(option.label) })}
                         className={css(
                           styles,
                           "target-display-order-item",
@@ -109,11 +112,11 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
                         <span className={css(styles, "target-display-drag-handle")} aria-hidden="true">
                           ⋮⋮
                         </span>
-                        <span>{option.label}</span>
-                        <small>{isVisible ? "表示中" : "非表示中"}</small>
+                        <span>{t(option.label)}</span>
+                        <small>{isVisible ? t("表示中") : t("非表示中")}</small>
                         <div className={css(styles, "target-display-order-buttons")}>
                           <button
-                            aria-label={`${option.label} を上へ移動`}
+                            aria-label={t("{label} を上へ移動", { label: t(option.label) })}
                             disabled={settings.targetDisplayOrder.indexOf(id) === 0}
                             onClick={() => stepTargetDisplayElement(id, -1)}
                             type="button"
@@ -121,7 +124,7 @@ export function InputScreenLayoutSettings({ controller }: { controller: InputSet
                             <ChevronUp size={16} />
                           </button>
                           <button
-                            aria-label={`${option.label} を下へ移動`}
+                            aria-label={t("{label} を下へ移動", { label: t(option.label) })}
                             disabled={settings.targetDisplayOrder.indexOf(id) === settings.targetDisplayOrder.length - 1}
                             onClick={() => stepTargetDisplayElement(id, 1)}
                             type="button"

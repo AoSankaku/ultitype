@@ -1,0 +1,440 @@
+meta:
+  code: ro
+  name: Română
+  direction: ltr
+messages:
+  UltiType header: Antet UltiType
+  Typing practice and rating: Exercițiu de tastare și rating
+  ランクガイド: Ghidul rangurilor
+  ランクガイド（現在 {rank}）: "Ghidul rangurilor (curent: {rank})"
+  仮: Exercițiu
+  本: Evaluat
+  ユーザー: Utilizator
+  設定: Setări
+  戻る: Înapoi
+  settings: Setări
+  theme: Temă
+  画面: Ecran
+  テーマ: Temă
+  表示テーマを切り替える: Schimbă tema de afișare
+  入力画面と入力方式: Ecranul de tastare și metodele de introducere
+  練習画面のモックを見ながら入力方式と表示を調整する: Ajustează tastarea și afișarea folosind previzualizarea de exercițiu
+  開く: Deschide
+  サウンド: Sunet
+  タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。: Ajustează volumul sunetelor de tastare, interfață și rezultate și activează sau dezactivează fiecare categorie.
+  音量: Volum
+  タイプ音: Sunete de tastare
+  UI/結果音: Sunete de interfață și rezultate
+  自動リタイア: Retragere automată
+  無入力リタイア: Retragere la inactivitate
+  0 秒で無効: 0 dezactivează opțiunea
+  無入力リタイア秒数: Timp de inactivitate până la retragere, în secunde
+  秒: sec.
+  秒数を調整: Ajustează secundele
+  1秒増やす: Adaugă 1 secundă
+  1秒減らす: Scade 1 secundă
+  連続誤打鍵リタイア: Retragere după greșeli consecutive
+  0 打鍵で無効: 0 dezactivează opțiunea
+  連続誤打鍵数: Numărul de greșeli consecutive
+  打鍵: apăsări
+  正誤率ボーダー: Prag de acuratețe
+  0% で無効: 0% dezactivează opțiunea
+  その他の設定: Alte setări
+  次の課題の表示文字数: Lungimea previzualizării următorului text
+  短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示: Afișează începutul următorului text în exercițiul cu propoziții scurte. Setează 0 pentru a-l ascunde.
+  文字: caractere
+  次の課題の表示文字数を調整: Ajustează lungimea previzualizării
+  次の課題の表示文字数を増やす: Mărește lungimea previzualizării
+  次の課題の表示文字数を減らす: Micșorează lungimea previzualizării
+  危険な操作: Acțiuni distructive
+  データと設定を消去: Șterge datele și setările
+  ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ: Alege dacă vrei să ștergi datele, să resetezi setările sau să le faci pe ambele.
+  ユーザーデータ: Datele utilizatorului
+  設定を初期化: Resetează setările
+  両方: Ambele
+  スコアと履歴だけを削除します。設定は残します。よろしいですか？: Ștergi scorurile și istoricul, păstrând setările?
+  設定をすべて初期値に戻します。スコアと履歴は残します。よろしいですか？: Resetezi toate setările, păstrând scorurile și istoricul?
+  スコア、履歴、設定をすべて削除します。よろしいですか？: Ștergi toate scorurile, istoricul și setările?
+  アプリの表示言語: Limba interfeței
+  画面に表示する言語を選択します。練習する言語はモード選択画面で変更できます。: Alege limba interfeței. Limba de exercițiu poate fi schimbată în ecranul de selectare a modului.
+  日本語: Japoneză
+  English: Engleză
+  ダーク: Întunecat
+  ライト: Luminos
+  この画面幅はサポート対象外です: Această lățime a ecranului nu este acceptată
+  UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。: UltiType este conceput pentru ecrane desktop de cel puțin 520 px. La dimensiunea actuală se păstrează aspectul desktop.
+  以後表示しない: Nu mai afișa
+  警告を閉じる: Închide avertismentul
+  ランク到達状況: Progresul rangului
+  スコア計算式: Formula scorului
+  基本のスコア計算式: Formula de bază a scorului
+  打鍵/秒 × 1000 × 正確率^モード係数 × 補正: Apăsări/s × 1000 × acuratețe^factorul modului × modificator
+  正確率は正しく入力した文字数 ÷ 入力を試みた文字数です。均等モードのみ、打鍵間隔の安定度が補正として加わります。: Acuratețea este numărul de caractere corecte împărțit la numărul de încercări. Doar modul Ritm aplică stabilitatea ritmului de tastare ca modificator.
+  正確率係数: Factor de acuratețe
+  補正: Modificator
+  安定度: Stabilitate
+  なし: Niciunul
+  現在ランク: Rangul actual
+  最高スコア: Cel mai bun scor
+  次の目標: Următorul obiectiv
+  ランク帯: Rang
+  基準スコア: Scor necesar
+  到達状況: Stare
+  達成: Atins
+  あと {score}: Mai sunt {score}
+  ランクなし: Fără rang
+  "{title} ランク": Rang {title}
+  灰: Gri
+  薄緑: Verde deschis
+  薄青: Albastru deschis
+  緑: Verde
+  青: Albastru
+  橙: Portocaliu
+  赤: Roșu
+  金: Auriu
+  紫: Violet
+  黒紫: Violet închis
+  黒: Negru
+  虹: Curcubeu
+  ローカルユーザー: Utilizator local
+  Keybase連携は未設定です。: Conectarea la Keybase nu este configurată.
+  ユーザー概要: Rezumatul utilizatorului
+  仮ランク: Rang de exercițiu
+  本番ランク: Rang competitiv
+  まだ保存されたセッションはありません。: Nu există încă sesiuni salvate.
+  Recent Sessions: Sesiuni recente
+  ランク: Rang
+  500点未満はランクなし、500点から G0 が始まり、基準スコアはランクごとに90点ずつ上がります。: Sub 500 de puncte nu există rang; G0 începe la 500, apoi rangul crește cu 90 de puncte.
+  入力待ち: Se așteaptă introducerea
+  課題終了まで非表示: Ascuns până la finalul textului
+  正誤率: Acuratețe
+  ミス {count}: "{count} greșeli"
+  正誤履歴: Istoricul corectitudinii
+  平均打鍵間隔: Intervalul mediu dintre taste
+  ズレ平均: Abaterea medie
+  物理打鍵: Apăsări fizice
+  打鍵間隔の安定度グラフ: Graficul stabilității intervalelor de tastare
+  あと {count} 回: Mai sunt {count}
+  残り時間: Timp rămas
+  残り時間（％）: Timp rămas (%)
+  打鍵/秒: Apăsări/s
+  打鍵/分: Apăsări/min
+  かな文字/秒: Caractere kana/s
+  課題文字/秒: Caractere din text/s
+  正確率: Acuratețe
+  ミス数: Greșeli
+  完了課題: Texte finalizate
+  ミス/物理打鍵: Greșeli/apăsări
+  正解/物理打鍵: Corecte/apăsări
+  開始: Începe
+  修正: Corectare
+  正打: Corect
+  ミス: Greșeală
+  モード選択: Alege modul
+  リセット: Resetează
+  無入力が続いたためリタイアしました: Sesiunea s-a încheiat după o perioadă de inactivitate
+  "セッション終了: {rank} / {score}": "Sesiune încheiată: {rank} / {score}"
+  開始ボタン、またはここで入力を始める: Apasă Start sau începe să tastezi aici
+  IMEありで入力し、行が一致したら Enter: Tastează cu IME și apasă Enter când linia se potrivește
+  英文を入力し、行が一致したら Enter: Tastează linia în engleză și apasă Enter când se potrivește
+  typing input: Câmp de tastare
+  direct keyboard capture: Captare directă a tastaturii
+  resize typing input: Redimensionează câmpul de tastare
+  Rank hidden for the first 30 seconds: Rang ascuns în primele 30 de secunde
+  タイピング: Tastare
+  速度だけじゃない。精度と安定性まで、次の一打へ。: "Viteza nu este totul: fiecare apăsare contribuie la acuratețe și ritm."
+  速さだけじゃない。精度と安定性まで、次の一打へ。: "Viteza nu este totul: fiecare apăsare contribuie la acuratețe și ritm."
+  Tips: Sfaturi
+  typing practice: exercițiu de tastare
+  Live Analysis: Analiză în timp real
+  "{key} / {interval} / {state}": "{key} / {interval} / {state}"
+  画像を準備できませんでした。もう一度お試しください。: Imaginea nu a putut fi pregătită. Încearcă din nou.
+  共有メニューにリザルト画像を送りました。: Imaginea rezultatului a fost trimisă în meniul de distribuire.
+  共有を完了できませんでした。画像保存をお試しください。: Distribuirea nu a reușit. Încearcă să salvezi imaginea.
+  Share APIが使えないため、画像を保存して投稿文をコピーしました。: API-ul de distribuire nu este disponibil; imaginea a fost salvată și textul postării a fost copiat.
+  "{service}を開きます。画像はPNG保存から添付してください。": Se deschide {service}. Salvează imaginea PNG și atașeaz-o postării.
+  "{service}を開きました。投稿画面にリザルト画像を貼り付けてください。": "{service} s-a deschis. Lipește imaginea rezultatului în postare."
+  "{service}を開き、リザルト画像を保存しました。投稿画面で添付してください。": "{service} s-a deschis și imaginea rezultatului a fost salvată. Atașeaz-o postării."
+  投稿テンプレートをコピーしました。: Șablonul postării a fost copiat.
+  投稿テンプレートをコピーできませんでした。: Șablonul postării nu a putut fi copiat.
+  SNS用リザルト画像: Imagine de rezultat pentru rețelele sociale
+  "{mode}のリザルト画像。ランク{rank}、{score}ポイント": Imaginea rezultatului pentru {mode}. Rang {rank}, {score} puncte
+  文言をコピー: Copiază textul
+  各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。: Șablonul textului este deja completat în ferestrele de publicare. Lipește imaginea sau, în browserele incompatibile, salveaz-o și atașeaz-o.
+  pre-session tip: Sfat înaintea sesiunii
+  post-session tip: Sfat după sesiune
+  本番モードは開始後の入力だけを採点します。: Modul competitiv punctează doar tastarea după pornire.
+  本番モードは仮レーティング A0 以上で解放されます。: Modul competitiv se deblochează la un rang provizoriu A0 sau superior.
+  IMEあり本番では行を課題と一致させてから Enter で提出します。: În competiția cu IME, potrivește linia cu textul și apasă Enter pentru trimitere.
+  500点未満は NR、500点以上は G0、以降は90点ごとにランクが上がります。: "Sub 500 de puncte: fără rang; G0 începe la 500, apoi rangul crește la fiecare 90 de puncte."
+  練習モードの仮レーティングは、本番モード解放の条件として使われます。: Rangul provizoriu de exercițiu este folosit pentru deblocarea modului competitiv.
+  次の課題プレビューは設定画面で表示方式と長さを変更できます。: Modifică afișarea și lungimea previzualizării următorului text din setări.
+  正確無比とIMEあり本番では、ミスをBackspaceで戻すまで先に進めません。: În modul Precizie și în competiția cu IME, corectează greșelile cu Backspace înainte de a continua.
+  自動リタイアは、設定から有効にできます。: Activează retragerea automată din setări.
+  自分の「つまづきパターン」を理解するのが、成長に不可欠です。: Înțelegerea propriilor tipare de greșeli este esențială pentru progres.
+  たいてい、他人より自分自身と競争するほうが良い結果が出ます。: De obicei, te ajută mai mult să concurezi cu tine însuți decât cu alții.
+  楽だからといって「エンジニア座り」をしていると、腰を壊すので気をつけましょう。: Chiar dacă pare comod, postura aplecată la birou îți poate afecta spatele.
+  最高のパフォーマンスを出したいときは、まず机から離れ、爪の長さを確認するといいかも。: Pentru performanță maximă, îndepărtează-te puțin de birou și verifică lungimea unghiilor.
+  肩と手首の力を抜き、キーを押す力を必要最小限にすると次の入力が軽くなります。: Relaxează umerii și încheieturile. Apasă tastele cu forța minimă necesară.
+  焦るより、遅くても正確にやるほうがすべてのモードでスコアが伸びます。: În toate modurile, acuratețea crește scorul mai mult decât tastarea rapidă cu greșeli.
+  1日に長時間練習しすぎないようにしましょう。腱鞘炎になります。: Evită să exersezi prea multe ore pe zi pentru a reduce riscul de tendinită.
+  英文はだいぶ日本語文と感覚が違います。分けて練習しましょう。: Tastarea în engleză se simte diferit de cea în japoneză. Exersează separat fiecare limbă.
+  一瞬一瞬のブーストよりも、安定してスラスラ打てるほうがスコアが伸びます。: Un ritm constant îmbunătățește scorul mai mult decât impulsurile scurte de viteză.
+  単語で反射神経を競わず、長文で実力を磨くのがオススメ。: Dezvoltă-ți abilitățile cu texte lungi, nu concurând la viteză pe cuvinte izolate.
+  文字をうったら、すぐにホームポジションに戻しましょう。: Readu mâinile la poziția de bază după fiecare apăsare.
+  打鍵中、手元を絶対に見てはいけません。絶対です。: Nu te uita la mâini în timp ce tastezi. Serios.
+  できるだけ、毎日練習しましょう。それが最短ルートです。: Exersează zilnic când poți. Este cea mai scurtă cale spre progres.
+  ずっと練習をするより、実用もするほうが伸びやすくなります。: Alternarea exercițiului cu tastarea de zi cu zi te ajută să progresezi.
+  ミスしたキー単体よりも、ミスした組み合わせを見つける方が役に立つかも。: Poate fi mai util să identifici combinațiile care provoacă greșeli decât să te concentrezi pe o singură tastă.
+  常に先読みを意識してみよう。: Încearcă să citești înainte câteva cuvinte în timp ce tastezi.
+  高速化とは、文字を速く打つことではなく、迷う時間を減らすこと。: Tastarea mai rapidă înseamnă mai puțină ezitare, nu doar degete mai rapide.
+  「ci」や「le」など、早く打てる別ルートも無理のない範囲で試してみよう。: Încearcă variante rapide precum „ci” sau „le” dacă ți se par comode.
+  入力画面設定: Setările ecranului de tastare
+  画面設定: Setările ecranului
+  入力画面のプレビュー: Previzualizarea ecranului de tastare
+  一時停止: Pauză
+  10.0打鍵/秒プレビュー: Previzualizare la 10 apăsări/s
+  5.0打鍵/秒プレビュー: Previzualizare la 5 apăsări/s
+  プレビューの課題文: Previzualizarea textului de exercițiu
+  短文: Text scurt
+  長文: Text lung
+  入力画面: Ecran de tastare
+  フォント: Fonturi
+  表示順: Ordinea de afișare
+  漢字・ふりがな・ひらがな表示に使うGoogle Fonts: Google Fonts folosite pentru kanji, furigana și hiragana
+  日本語フォント: Font japonez
+  ローマ字・英語課題文に使うGoogle Fonts: Google Fonts folosite pentru romaji și textele în engleză
+  英語フォント: Font engleză
+  入力画面の表示順: Ordinea elementelor de pe ecranul de tastare
+  ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する: Trage pentru a reordona rândurile. Elementele ascunse își păstrează poziția.
+  表示中: Vizibil
+  非表示中: Ascuns
+  上部表示情報: Informații în partea de sus
+  表示する情報: Informații de afișat
+  残り時間を外しても、残り時間バーは表示されます。: Bara timpului rămas rămâne vizibilă chiar și când cifra timpului este ascunsă.
+  入力方式: Metoda de introducere
+  ローマ字入力法: Metoda de introducere romaji
+  許容する派生と、ガイドで優先表示する表記を選ぶ: Alege variantele acceptate și forma preferată de ghid.
+  すべて分割: Toate separate
+  すべて統合: Toate combinate
+  個別設定: Personalizat
+  ヘボン式優先: Preferă Hepburn
+  最短優先: Preferă forma cea mai scurtă
+  促音入力: Introducere sokuon
+  促音入力候補: Introduceri sokuon acceptate
+  「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ: Alege cum sunt tratate consoanele duble și ltsu / xtsu / ltu / xtu pentru っ.
+  促音分割を許可: Permite introducerea separată a sokuon
+  表示: Forma preferată
+  一般拗音分割入力: Introducerea separată a yōon frecvente
+  「きゃ」を kya だけでなく kila / kixa でも入力できるようにする: Permite introducerea lui きゃ ca kila sau kixa, pe lângă kya.
+  特殊拗音入力法: Metoda specială de introducere yōon
+  出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ: Alege dacă kana mai puțin frecvente din împrumuturi se introduc combinat sau separat.
+  ローマ字: Romaji
+  ローマ字マーカー: Indicator romaji
+  入力中の位置をローマ字表示に下線で表示する。ON推奨: "Sublinează poziția curentă în ghidul romaji. Recomandat: activat."
+  ローマ字マーカー単位: Unitatea indicatorului romaji
+  ローマ字の現在位置を1文字ずつ表示するか、su や shi などの発音単位で表示するかを選ぶ: Alege dacă indicatorul avansează pe caracter sau pe sunet, precum su sau shi.
+  文字単位: După caracter
+  発音単位: După sunet
+  ローマ字の課題文の文字サイズ: Dimensiunea textului romaji
+  ローマ字フォントサイズ: Dimensiunea fontului romaji
+  ローマ字行の下に空ける余白: Spațiu sub rândul romaji
+  ローマ字の下余白: Spațiere inferioară romaji
+  ローマ字行の行間倍率: Multiplicatorul înălțimii rândului romaji
+  ローマ字の行間: Înălțimea rândului romaji
+  英文モード: Mod engleză
+  スペース表示: Afișarea spațiilor
+  英文モードでスペースを記号として表示する: Afișează spațiile ca simboluri în modul engleză.
+  縦長ボックス: Casetă înaltă
+  次の課題の表示方式: Afișarea textului următor
+  短文練習で次の課題をどう見せるかを選ぶ: Alege cum este afișat textul următor în exercițiile cu texte scurte.
+  スライド: Glisare
+  上下に分け、次の課題が上へ移る: Împarte vizualizarea și mută textul următor în partea de sus.
+  交代: Alternare
+  上下の入力位置を交互に切り替える: Alternează poziția de tastare între partea de sus și cea de jos.
+  中央揃え・連結: Flux centrat
+  入力位置を中心に置く連続表示: Afișează textele continuu și centrează poziția curentă de tastare.
+  非表示: Ascuns
+  次の課題を表示しない: Nu afișa textul următor.
+  本番（IMEなし）の漢字文を表示する行数: Numărul de rânduri kanji în modul evaluat fără IME
+  長文モードの漢字文エリアの高さ: Înălțimea zonei kanji în modul text lung
+  行: rânduri
+  長文モードの漢字文だけに適用する行間: Înălțimea rândului aplicată doar textului kanji în modul text lung
+  長文モードの行間: Înălțimea rândului pentru text lung
+  正確無比の誤入力表示: Afișarea greșelilor în modul Precizie
+  誤入力した文字を課題文ローマ字上に表示する方法を選ぶ: Alege cum apar caracterele introduse greșit peste romaji-ul textului.
+  上書き: Înlocuiește
+  挿入: Inserează
+  何もしない: Nu face nimic
+  ランク算出方式: Calculul rangului
+  タイピング中のランク表示に使うスコアの算出方式を選びます。: Alege cum se calculează scorul folosit pentru rang în timpul tastării.
+  予測値（変動方式）: Proiectat (se schimbă în timpul sesiunii)
+  実値（加点方式）: Real (puncte adăugate)
+  漢字: Kanji
+  漢字表示: Afișare kanji
+  入力画面に漢字混じりの課題文を表示する: Afișează textele cu kanji pe ecranul de tastare.
+  漢字フォントサイズ: Dimensiunea fontului kanji
+  漢字混じりの課題文の文字サイズ: Dimensiunea textelor cu kanji
+  漢字行の下に空ける余白: Spațiu sub rândul kanji
+  漢字の下余白: Spațiere inferioară kanji
+  漢字行の行間倍率: Multiplicatorul înălțimii rândului kanji
+  漢字の行間: Înălțimea rândului kanji
+  漢字マーカー: Indicator kanji
+  入力中の位置を漢字表示に下線で表示する: Sublinează poziția curentă în afișarea kanji.
+  入力途中経過（漢字）: Progresul introducerii kanji
+  入力途中経過（漢字）表示: Afișează progresul introducerii kanji
+  入力済みの途中経過を漢字表示の下に追加する: Afișează textul introdus sub kanji.
+  漢字表示オフのためロック: Blocat deoarece afișarea kanji este dezactivată
+  入力途中経過（漢字）の文字サイズ: Dimensiunea fontului pentru progresul kanji
+  入力途中経過（漢字）フォントサイズ: Dimensiunea fontului pentru progresul kanji
+  入力途中経過（漢字）の下に空ける余白: Spațiu sub progresul introducerii kanji
+  入力途中経過（漢字）の下余白: Spațiere inferioară a progresului kanji
+  入力途中経過（漢字）の行間倍率: Multiplicatorul înălțimii rândului pentru progresul kanji
+  入力途中経過（漢字）の行間: Înălțimea rândului pentru progresul introducerii kanji
+  ふりがな: Furigana
+  ふりがな表示: Afișare furigana
+  漢字混じりの課題文の上にふりがなを表示する: Afișează furigana deasupra textelor cu kanji.
+  ふりがなフォント倍率: Scara fontului furigana
+  漢字フォントサイズに対するふりがなの倍率: Dimensiunea furigana în raport cu fontul kanji
+  ふりがな表示オフのためロック: Blocat deoarece afișarea furigana este dezactivată
+  倍: ×
+  ふりがなの下余白: Spațiere inferioară furigana
+  ふりがな側に追加する下余白: Spațiu sub rândul furigana
+  ふりがなの行間: Înălțimea rândului furigana
+  ふりがなの行間倍率: Multiplicatorul înălțimii rândului furigana
+  ふりがなマーカー: Indicator furigana
+  入力中の位置をふりがな表示に下線で表示する: Sublinează poziția curentă în afișarea furigana.
+  ひらがな: Hiragana
+  ひらがな表示: Afișare hiragana
+  入力画面にひらがなの読みを表示する: Afișează lectura hiragana pe ecranul de tastare.
+  ひらがなの読みの文字サイズ: Dimensiunea fontului lecturii hiragana
+  ひらがなフォントサイズ: Dimensiunea fontului hiragana
+  ひらがな行の下に空ける余白: Spațiu sub rândul hiragana
+  ひらがなの下余白: Spațiere inferioară hiragana
+  ひらがな行の行間倍率: Multiplicatorul înălțimii rândului hiragana
+  ひらがなの行間: Înălțimea rândului hiragana
+  ひらがなマーカー: Indicator hiragana
+  入力中の位置をひらがな表示に下線で表示する: Sublinează poziția curentă în afișarea hiragana.
+  入力途中経過（ひらがな）: Progresul introducerii hiragana
+  入力途中経過（ひらがな）表示: Afișează progresul introducerii hiragana
+  入力済みの途中経過をひらがな表示の下に追加する: Afișează textul introdus sub lectura hiragana.
+  ひらがな表示オフのためロック: Blocat deoarece afișarea hiragana este dezactivată
+  入力途中経過（ひらがな）の文字サイズ: Dimensiunea fontului pentru progresul hiragana
+  入力途中経過（ひらがな）フォントサイズ: Dimensiunea fontului pentru progresul hiragana
+  入力途中経過（ひらがな）の下に空ける余白: Spațiu sub progresul introducerii hiragana
+  入力途中経過（ひらがな）の下余白: Spațiere inferioară a progresului hiragana
+  入力途中経過（ひらがな）の行間倍率: Multiplicatorul înălțimii rândului pentru progresul hiragana
+  入力途中経過（ひらがな）の行間: Înălțimea rândului pentru progresul introducerii hiragana
+  初期値に戻す: Resetează la valorile implicite
+  "{label} を初期値に戻す": Resetează {label} la valoarea implicită
+  "{label} を調整": Ajustează {label}
+  "{label} を増やす": Mărește {label}
+  "{label} を減らす": Micșorează {label}
+  "{label} を上へ移動": Mută {label} în sus
+  "{label} を下へ移動": Mută {label} în jos
+  "{label} display order item": "Element din ordinea de afișare: {label}"
+  練習言語: Limba de exersare
+  英語: Engleză
+  課題テーマ: Tema exercițiului
+  タイピングのコツ: Sfaturi de tastare
+  今週のテーマ：{theme}: "Tema săptămânii: {theme}"
+  選択中：{theme}: "Selectat: {theme}"
+  今週のテーマ：: "Tema săptămânii: "
+  （日本時間・毎週月曜6時に更新）: (Se actualizează în fiecare luni la 06:00, ora Japoniei)
+  自動（日本時間・毎週月曜6時）: Automat (luni, la 06:00, ora Japoniei)
+  （今週）: " (săptămâna aceasta)"
+  日常・趣味: Viața de zi cu zi și hobby-uri
+  国内旅行: Călătorii în Japonia
+  Alpha版では本番モードは開発中のためプレイできません。: Modurile de evaluare sunt în curs de dezvoltare și nu sunt disponibile în această versiune alfa.
+  国内旅行・都道府県: Călătorii în Japonia · prefecturi
+  国外旅行・ヨーロッパ: Călătorii în străinătate · Europa
+  国外旅行・アフリカ: Călătorii în străinătate · Africa
+  国外旅行・アジア: Călătorii în străinătate · Asia
+  国外旅行・北アメリカ: Călătorii în străinătate · America de Nord
+  国外旅行・南アメリカ: Călătorii în străinătate · America de Sud
+  国外旅行・オセアニア: Călătorii în străinătate · Oceania
+  練習モードまたは本番モードを選択してください。: Alege un mod de exersare sau de evaluare.
+  練習モード: Moduri de exersare
+  本番モード: Moduri de evaluare
+  "{minutes}分": "{minutes} min"
+  仮レーティング A0 以上で解放: Se deblochează la un rating provizoriu de exersare A0 sau mai mare
+  正確無比: Precizie
+  精度: Acuratețe
+  ミス後は Backspace で修正。正確率の重みが最も高い練習。: Corectează greșelile cu Backspace. Acuratețea are cea mai mare pondere în acest mod.
+  行雲流水: Fluență
+  安定: Ritm
+  自然な揺れを許容し、打鍵リズムの安定度をスコアに乗算する練習。: Exersează un ritm constant de tastare. Stabilitatea ritmului multiplică scorul.
+  音速打破: Viteză
+  速度: Viteză
+  正確率の重みを軽くし、速度の限界を測る練習。: Testează-ți viteza cu o pondere mai mică pentru acuratețe.
+  本番 IMEなし: Evaluare · IME dezactivat
+  本番: Evaluare
+  時間を決めて行う本番測定。変換なしで長文を連続処理する。: Sesiune de evaluare cronometrată. Tastează continuu pasaje lungi fără conversie IME.
+  本番 IMEあり: Evaluare · IME activat
+  行単位で課題と一致させて Enter で提出する。: Potrivește pasajul folosind IME și apasă Enter pentru a-l trimite.
+  英語学習: Învățarea limbii engleze
+  魚の種類: Tipuri de pești
+  回転すし: Sushi pe bandă rulantă
+  高級寿司: Sushi rafinat
+  ラーメンの歴史: Istoria ramenului
+  ラーメンの種類: Tipuri de ramen
+  音楽のジャンル: Genuri muzicale
+  通勤電車: Trenuri de navetă
+  コミュニケーションの基本: Noțiuni de bază despre comunicare
+  パソコン購入: Cumpărarea unui calculator
+  スマホ購入: Cumpărarea unui smartphone
+  SNS: Rețele sociale
+  イヤホンのこだわり: Alegerea căștilor
+  食料品の買い出し: Cumpărături alimentare
+  算数・数学: Matematică
+  カードゲーム: Jocuri de cărți
+  薬: Medicamente
+  恋愛: Relații
+  推し活: A fi fan
+  クラウドサービス: Servicii cloud
+  散歩: Plimbări
+  写真シール: Autocolante foto
+  漫画: Benzile desenate
+  ギター: Chitară
+  時計: Ceasuri
+  オンライン会議: Întâlniri online
+  授業: Lecții
+  塾: Școală de meditații
+  卒業: Absolvire
+  スポーツ一般: Sport
+  水泳: Înot
+  昔話: Basme
+  アニメ: Animație
+  バレンタイン: Ziua Îndrăgostiților
+  ハロウィン: Halloween
+  クリスマス: Crăciun
+  マッサージ: Masaj
+  Modes: Moduri
+  Practice: Exersare
+  Rating: Evaluare
+  Settings: Setări
+  User: Utilizator
+  Share Result: Partajează rezultatul
+  Share: Partajează
+  PNG: PNG
+  Dark: Întunecat
+  Light: Luminos
+  mode selection: Selectarea modului
+  challenge language: Limba de exersare
+  saved ratings: Evaluări salvate
+  on: Activat
+  off: Dezactivat
+  IME: IME
+  Rank: Rang
+  Score: Scor
+  ACCURACY: ACURATEȚE
+  KEYS / SEC: APĂSĂRI / S
+  CORRECT CHARS: CARACTERE CORECTE
+  ULTITYPE RESULT: REZULTAT ULTITYPE
+  theme.domestic: Călătorie în Japonia · {name}
+  theme.international: Călătorie în străinătate · {name}
+  share.intro: "ULTITYPE: Am exersat „{mode}”!"
+  share.rank: 🏆 Rang {rank} | {score} pct.
+  share.accuracy: 🎯 Acuratețe {accuracy}%
+  share.speed: ⌨️ {second} apăsări/s | {minute} apăsări/min
+  share.hashtags: "#ULTITYPE #tastare"

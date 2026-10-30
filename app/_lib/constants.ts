@@ -180,6 +180,7 @@ export const initialStats: RuntimeStats = {
 };
 
 export const initialSettings: AppSettings = {
+  appLanguage: "ja",
   showKanjiDisplay: true,
   showFuriganaDisplay: true,
   showHiraganaDisplay: true,

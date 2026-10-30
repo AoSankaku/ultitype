@@ -9,6 +9,7 @@ import {
   type UseTypingSessionOptions,
   useTypingSession,
 } from "../_lib/useTypingSession";
+import { LocaleProvider } from "../_lib/i18n";
 
 type AppShellProps = {
   children: (session: ReturnType<typeof useTypingSession>) => ReactNode;
@@ -20,16 +21,18 @@ export function AppShell({ children, className, sessionOptions }: AppShellProps)
   const session = useTypingSession(sessionOptions);
 
   return (
-    <main className={cx(css(styles, "shell"), className)}>
-      <AppHeader
-        bestPracticeRank={session.bestPracticeRank}
-        bestPracticeScore={session.bestPracticeScore}
-        bestProductionRank={session.bestProductionRank}
-        bestProductionScore={session.bestProductionScore}
-        soundSettings={session.settings}
-      />
-      <MobileViewportWarning />
-      {children(session)}
-    </main>
+    <LocaleProvider language={session.settings.appLanguage} ready={session.settingsReady}>
+      <main data-app-shell className={cx(css(styles, "shell"), className)}>
+        <AppHeader
+          bestPracticeRank={session.bestPracticeRank}
+          bestPracticeScore={session.bestPracticeScore}
+          bestProductionRank={session.bestProductionRank}
+          bestProductionScore={session.bestProductionScore}
+          soundSettings={session.settings}
+        />
+        <MobileViewportWarning />
+        {children(session)}
+      </main>
+    </LocaleProvider>
   );
 }

@@ -1,0 +1,440 @@
+meta:
+  code: vi
+  name: Tiếng Việt
+  direction: ltr
+messages:
+  UltiType header: Tiêu đề UltiType
+  Typing practice and rating: Luyện gõ và xếp hạng
+  ランクガイド: Hướng dẫn xếp hạng
+  ランクガイド（現在 {rank}）: "Hướng dẫn xếp hạng (hiện tại: {rank})"
+  仮: Luyện tập
+  本: Xếp hạng
+  ユーザー: Người dùng
+  設定: Cài đặt
+  戻る: Quay lại
+  settings: Cài đặt
+  theme: Chủ đề
+  画面: Hiển thị
+  テーマ: Chủ đề
+  表示テーマを切り替える: Chọn giao diện màu.
+  入力画面と入力方式: Màn hình gõ và phương thức nhập
+  練習画面のモックを見ながら入力方式と表示を調整する: Điều chỉnh cách nhập và hiển thị qua màn hình luyện tập xem trước.
+  開く: Mở
+  サウンド: Âm thanh
+  タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。: Điều chỉnh âm lượng tiếng gõ, giao diện/kết quả và bật tắt từng loại.
+  音量: Âm lượng
+  タイプ音: Âm gõ phím
+  UI/結果音: Âm giao diện/kết quả
+  自動リタイア: Tự động kết thúc
+  無入力リタイア: Kết thúc khi không hoạt động
+  0 秒で無効: Đặt thành 0 để tắt
+  無入力リタイア秒数: Thời gian không hoạt động (giây)
+  秒: giây
+  秒数を調整: Điều chỉnh số giây
+  1秒増やす: Tăng 1 giây
+  1秒減らす: Giảm 1 giây
+  連続誤打鍵リタイア: Kết thúc sau nhiều lỗi liên tiếp
+  0 打鍵で無効: Đặt thành 0 để tắt
+  連続誤打鍵数: Số lỗi liên tiếp
+  打鍵: lần gõ
+  正誤率ボーダー: Ngưỡng độ chính xác
+  0% で無効: Đặt thành 0% để tắt
+  その他の設定: Cài đặt khác
+  次の課題の表示文字数: Độ dài xem trước câu tiếp theo
+  短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示: Hiện phần đầu câu tiếp theo khi luyện câu ngắn. Đặt 0 để ẩn.
+  文字: ký tự
+  次の課題の表示文字数を調整: Điều chỉnh độ dài xem trước câu tiếp theo
+  次の課題の表示文字数を増やす: Tăng độ dài xem trước câu tiếp theo
+  次の課題の表示文字数を減らす: Giảm độ dài xem trước câu tiếp theo
+  危険な操作: Thao tác nguy hiểm
+  データと設定を消去: Xóa dữ liệu và cài đặt
+  ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ: Chọn xóa dữ liệu người dùng, đặt lại cài đặt hoặc cả hai.
+  ユーザーデータ: Dữ liệu người dùng
+  設定を初期化: Đặt lại cài đặt
+  両方: Cả hai
+  スコアと履歴だけを削除します。設定は残します。よろしいですか？: Xóa điểm và lịch sử, đồng thời giữ nguyên cài đặt?
+  設定をすべて初期値に戻します。スコアと履歴は残します。よろしいですか？: Đặt lại mọi cài đặt nhưng giữ điểm và lịch sử?
+  スコア、履歴、設定をすべて削除します。よろしいですか？: Xóa mọi điểm, lịch sử và cài đặt?
+  アプリの表示言語: Ngôn ngữ ứng dụng
+  画面に表示する言語を選択します。練習する言語はモード選択画面で変更できます。: Chọn ngôn ngữ giao diện. Hãy chọn ngôn ngữ luyện tập ở màn hình chọn chế độ.
+  日本語: Tiếng Nhật
+  English: Tiếng Anh
+  ダーク: Tối
+  ライト: Sáng
+  この画面幅はサポート対象外です: Độ rộng màn hình này không được hỗ trợ
+  UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。: UltiType được thiết kế cho màn hình máy tính rộng từ 520 px. Đang hiển thị bố cục máy tính.
+  以後表示しない: Đừng hiển thị lại
+  警告を閉じる: Đóng cảnh báo
+  ランク到達状況: Tiến trình xếp hạng
+  スコア計算式: Công thức tính điểm
+  基本のスコア計算式: Công thức tính điểm cơ bản
+  打鍵/秒 × 1000 × 正確率^モード係数 × 補正: Lần gõ/giây × 1000 × độ chính xác^hệ số chế độ × hệ số điều chỉnh
+  正確率は正しく入力した文字数 ÷ 入力を試みた文字数です。均等モードのみ、打鍵間隔の安定度が補正として加わります。: Độ chính xác bằng số ký tự nhập đúng chia cho số ký tự đã thử. Chỉ chế độ Flow mới dùng độ ổn định nhịp gõ làm hệ số điều chỉnh.
+  正確率係数: Hệ số chính xác
+  補正: Hệ số điều chỉnh
+  安定度: Độ ổn định
+  なし: Không có
+  現在ランク: Hạng hiện tại
+  最高スコア: Điểm cao nhất
+  次の目標: Mục tiêu tiếp theo
+  ランク帯: Hạng
+  基準スコア: Điểm cần đạt
+  到達状況: Trạng thái
+  達成: Đã đạt
+  あと {score}: Còn {score}
+  ランクなし: Chưa xếp hạng
+  "{title} ランク": Hạng {title}
+  灰: Xám
+  薄緑: Xanh lá nhạt
+  薄青: Xanh dương nhạt
+  緑: Xanh lá
+  青: Xanh dương
+  橙: Cam
+  赤: Đỏ
+  金: Vàng
+  紫: Tím
+  黒紫: Tím đậm
+  黒: Đen
+  虹: Cầu vồng
+  ローカルユーザー: Người dùng cục bộ
+  Keybase連携は未設定です。: Chưa thiết lập liên kết Keybase.
+  ユーザー概要: Tổng quan người dùng
+  仮ランク: Hạng luyện tập
+  本番ランク: Hạng xếp loại
+  まだ保存されたセッションはありません。: Chưa có phiên nào được lưu.
+  Recent Sessions: Phiên gần đây
+  ランク: Hạng
+  500点未満はランクなし、500点から G0 が始まり、基準スコアはランクごとに90点ずつ上がります。: Dưới 500 điểm là chưa xếp hạng. G0 bắt đầu ở 500 điểm và mỗi hạng tiếp theo cần thêm 90 điểm.
+  入力待ち: Đang chờ nhập
+  課題終了まで非表示: Ẩn đến khi hết câu
+  正誤率: Độ chính xác
+  ミス {count}: "{count} lỗi"
+  正誤履歴: Lịch sử đúng sai
+  平均打鍵間隔: Khoảng cách giữa lần gõ trung bình
+  ズレ平均: Độ lệch trung bình
+  物理打鍵: Số lần gõ thực tế
+  打鍵間隔の安定度グラフ: Biểu đồ ổn định nhịp gõ
+  あと {count} 回: Còn {count}
+  残り時間: Thời gian còn lại
+  残り時間（％）: Thời gian còn lại (%)
+  打鍵/秒: Lần gõ/giây
+  打鍵/分: Lần gõ/phút
+  かな文字/秒: Ký tự kana/giây
+  課題文字/秒: Ký tự câu/giây
+  正確率: Độ chính xác
+  ミス数: Số lỗi
+  完了課題: Số câu đã hoàn thành
+  ミス/物理打鍵: Lỗi/lần gõ
+  正解/物理打鍵: Đúng/lần gõ
+  開始: Bắt đầu
+  修正: Chỉnh sửa
+  正打: Đúng
+  ミス: Lỗi
+  モード選択: Chọn chế độ
+  リセット: Đặt lại
+  無入力が続いたためリタイアしました: Đã kết thúc do không hoạt động
+  "セッション終了: {rank} / {score}": "Kết thúc phiên: {rank} / {score}"
+  開始ボタン、またはここで入力を始める: Nhấn Bắt đầu hoặc bắt đầu gõ tại đây
+  IMEありで入力し、行が一致したら Enter: Nhập bằng IME rồi nhấn Enter khi khớp cả dòng
+  英文を入力し、行が一致したら Enter: Nhập dòng tiếng Anh rồi nhấn Enter khi khớp
+  typing input: Nhập nội dung gõ
+  direct keyboard capture: Bắt phím gõ trực tiếp
+  resize typing input: Đổi kích thước vùng gõ
+  Rank hidden for the first 30 seconds: Ẩn hạng trong 30 giây đầu
+  タイピング: Gõ
+  速度だけじゃない。精度と安定性まで、次の一打へ。: Không chỉ tốc độ. Mỗi lần gõ còn rèn độ chính xác và ổn định.
+  速さだけじゃない。精度と安定性まで、次の一打へ。: Không chỉ tốc độ. Mỗi lần gõ còn rèn độ chính xác và ổn định.
+  Tips: Mẹo
+  typing practice: Luyện gõ
+  Live Analysis: Phân tích trực tiếp
+  "{key} / {interval} / {state}": "{key} / {interval} / {state}"
+  画像を準備できませんでした。もう一度お試しください。: Không thể chuẩn bị ảnh. Vui lòng thử lại.
+  共有メニューにリザルト画像を送りました。: Đã gửi ảnh kết quả đến menu chia sẻ.
+  共有を完了できませんでした。画像保存をお試しください。: Chia sẻ thất bại. Hãy thử lưu ảnh.
+  Share APIが使えないため、画像を保存して投稿文をコピーしました。: API chia sẻ không khả dụng. Ảnh đã được lưu và nội dung bài đăng đã được sao chép.
+  "{service}を開きます。画像はPNG保存から添付してください。": Đang mở {service}. Hãy lưu PNG rồi đính kèm vào bài đăng.
+  "{service}を開きました。投稿画面にリザルト画像を貼り付けてください。": Đã mở {service}. Hãy dán ảnh kết quả vào bài đăng.
+  "{service}を開き、リザルト画像を保存しました。投稿画面で添付してください。": Đã mở {service} và lưu ảnh kết quả. Hãy đính kèm vào bài đăng.
+  投稿テンプレートをコピーしました。: Đã sao chép mẫu bài đăng.
+  投稿テンプレートをコピーできませんでした。: Không thể sao chép mẫu bài đăng.
+  SNS用リザルト画像: Ảnh kết quả cho mạng xã hội
+  "{mode}のリザルト画像。ランク{rank}、{score}ポイント": "Ảnh kết quả {mode}: hạng {rank}, {score} điểm"
+  文言をコピー: Sao chép văn bản
+  各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。: Mẫu bài đăng đã sẵn sàng trong từng ứng dụng mạng xã hội. Hãy dán ảnh hoặc lưu rồi đính kèm nếu trình duyệt không hỗ trợ chia sẻ ảnh.
+  pre-session tip: Mẹo trước phiên
+  post-session tip: Mẹo sau phiên
+  本番モードは開始後の入力だけを採点します。: Phiên xếp hạng chỉ chấm phần bạn nhập sau khi bắt đầu.
+  本番モードは仮レーティング A0 以上で解放されます。: Chế độ xếp hạng mở khóa khi đạt hạng luyện tập A0 trở lên.
+  IMEあり本番では行を課題と一致させてから Enter で提出します。: Ở chế độ xếp hạng dùng IME, hãy nhập khớp dòng đề bài rồi nhấn Enter để gửi.
+  500点未満は NR、500点以上は G0、以降は90点ごとにランクが上がります。: Dưới 500 điểm là NR. G0 bắt đầu từ 500 và mỗi hạng tiếp theo cần thêm 90 điểm.
+  練習モードの仮レーティングは、本番モード解放の条件として使われます。: Hạng luyện tập quyết định khi nào mở chế độ xếp hạng.
+  次の課題プレビューは設定画面で表示方式と長さを変更できます。: Đổi kiểu và độ dài xem trước câu tiếp theo trong Cài đặt.
+  正確無比とIMEあり本番では、ミスをBackspaceで戻すまで先に進めません。: Trong chế độ Chính xác và chế độ xếp hạng dùng IME, hãy sửa lỗi bằng Backspace trước khi tiếp tục.
+  自動リタイアは、設定から有効にできます。: Bạn có thể bật tự động kết thúc trong Cài đặt.
+  自分の「つまづきパターン」を理解するのが、成長に不可欠です。: Hiểu kiểu mắc lỗi của bản thân rất quan trọng để tiến bộ.
+  たいてい、他人より自分自身と競争するほうが良い結果が出ます。: Cạnh tranh với chính mình thường đem lại kết quả tốt hơn cạnh tranh với người khác.
+  楽だからといって「エンジニア座り」をしていると、腰を壊すので気をつけましょう。: Ngồi khom lưng thoải mái có thể làm đau lưng, hãy chú ý tư thế.
+  最高のパフォーマンスを出したいときは、まず机から離れ、爪の長さを確認するといいかも。: Muốn đạt hiệu suất tốt nhất, hãy rời bàn nghỉ một chút và kiểm tra độ dài móng tay.
+  肩と手首の力を抜き、キーを押す力を必要最小限にすると次の入力が軽くなります。: Thả lỏng vai và cổ tay, chỉ dùng lực vừa đủ khi nhấn phím.
+  焦るより、遅くても正確にやるほうがすべてのモードでスコアが伸びます。: Độ chính xác giúp tăng điểm ở mọi chế độ, kể cả khi bạn gõ chậm hơn.
+  1日に長時間練習しすぎないようにしましょう。腱鞘炎になります。: Tránh luyện tập quá lâu trong ngày để giảm nguy cơ căng gân.
+  英文はだいぶ日本語文と感覚が違います。分けて練習しましょう。: Gõ tiếng Anh và tiếng Nhật có cảm giác khá khác nhau. Hãy luyện riêng từng thứ.
+  一瞬一瞬のブーストよりも、安定してスラスラ打てるほうがスコアが伸びます。: Nhịp gõ đều và trôi chảy giúp tăng điểm hơn những lúc tăng tốc đột ngột.
+  単語で反射神経を競わず、長文で実力を磨くのがオススメ。: Hãy nâng cao kỹ năng bằng đoạn văn dài thay vì thi tốc độ từng từ.
+  文字をうったら、すぐにホームポジションに戻しましょう。: Sau mỗi lần gõ, hãy đưa tay về hàng phím cơ sở.
+  打鍵中、手元を絶対に見てはいけません。絶対です。: Hãy nhìn màn hình khi gõ, đừng nhìn tay.
+  できるだけ、毎日練習しましょう。それが最短ルートです。: Hãy luyện tập mỗi ngày nếu có thể. Đó là cách tiến bộ nhanh nhất.
+  ずっと練習をするより、実用もするほうが伸びやすくなります。: Kết hợp luyện tập với việc gõ thực tế giúp tiến bộ nhanh hơn.
+  ミスしたキー単体よりも、ミスした組み合わせを見つける方が役に立つかも。: Tìm tổ hợp phím hay gây lỗi có thể hữu ích hơn chỉ tập trung vào một phím.
+  常に先読みを意識してみよう。: Hãy tập đọc trước trong khi gõ.
+  高速化とは、文字を速く打つことではなく、迷う時間を減らすこと。: Gõ nhanh không chỉ nhờ ngón tay, mà còn nhờ bớt thời gian do dự.
+  「ci」や「le」など、早く打てる別ルートも無理のない範囲で試してみよう。: Nếu thấy thoải mái, hãy thử cách gõ nhanh như “ci” hoặc “le”.
+  入力画面設定: Cài đặt màn hình nhập
+  画面設定: Cài đặt màn hình
+  入力画面のプレビュー: Xem trước màn hình nhập
+  一時停止: Tạm dừng
+  10.0打鍵/秒プレビュー: Xem trước 10 lần gõ/giây
+  5.0打鍵/秒プレビュー: Xem trước 5 lần gõ/giây
+  プレビューの課題文: Xem trước bài luyện
+  短文: Văn bản ngắn
+  長文: Văn bản dài
+  入力画面: Màn hình nhập
+  フォント: Phông chữ
+  表示順: Thứ tự hiển thị
+  漢字・ふりがな・ひらがな表示に使うGoogle Fonts: Google Fonts dùng cho kanji, furigana và hiragana
+  日本語フォント: Phông chữ tiếng Nhật
+  ローマ字・英語課題文に使うGoogle Fonts: Google Fonts dùng cho romaji và bài luyện tiếng Anh
+  英語フォント: Phông chữ tiếng Anh
+  入力画面の表示順: Thứ tự hiển thị trên màn hình nhập
+  ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する: Kéo để sắp xếp lại các hàng trên màn hình nhập. Mục bị ẩn vẫn giữ vị trí trong thứ tự.
+  表示中: Hiển thị
+  非表示中: Ẩn
+  上部表示情報: Thông tin phía trên
+  表示する情報: Thông tin cần hiển thị
+  残り時間を外しても、残り時間バーは表示されます。: Thanh thời gian còn lại vẫn hiển thị ngay cả khi ẩn con số thời gian.
+  入力方式: Phương thức nhập
+  ローマ字入力法: Cách nhập romaji
+  許容する派生と、ガイドで優先表示する表記を選ぶ: Chọn các cách nhập được chấp nhận và cách viết được ưu tiên trong hướng dẫn.
+  すべて分割: Tách tất cả
+  すべて統合: Gộp tất cả
+  個別設定: Tùy chỉnh
+  ヘボン式優先: Ưu tiên kiểu Hepburn
+  最短優先: Ưu tiên cách viết ngắn nhất
+  促音入力: Nhập âm ngắt (sokuon)
+  促音入力候補: Các cách nhập sokuon được chấp nhận
+  「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ: Chọn cách xử lý phụ âm kép và các kiểu nhập ltsu / xtsu / ltu / xtu cho っ.
+  促音分割を許可: Cho phép nhập tách sokuon
+  表示: Cách viết ưu tiên
+  一般拗音分割入力: Nhập tách yōon thông dụng
+  「きゃ」を kya だけでなく kila / kixa でも入力できるようにする: Cho phép nhập きゃ bằng kila hoặc kixa ngoài kya.
+  特殊拗音入力法: Cách nhập yōon đặc biệt
+  出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ: Chọn cách nhập gộp hay tách cho kana phiên âm từ ngữ mượn ít phổ biến.
+  ローマ字: Romaji
+  ローマ字マーカー: Dấu vị trí romaji
+  入力中の位置をローマ字表示に下線で表示する。ON推奨: Gạch chân vị trí hiện tại trong hướng dẫn romaji. Nên bật.
+  ローマ字マーカー単位: Đơn vị đánh dấu romaji
+  ローマ字の現在位置を1文字ずつ表示するか、su や shi などの発音単位で表示するかを選ぶ: Chọn dấu romaji di chuyển theo từng ký tự hay theo âm như su hoặc shi.
+  文字単位: Theo ký tự
+  発音単位: Theo âm
+  ローマ字の課題文の文字サイズ: Cỡ chữ bài luyện romaji
+  ローマ字フォントサイズ: Cỡ chữ romaji
+  ローマ字行の下に空ける余白: Khoảng trống dưới dòng romaji
+  ローマ字の下余白: Khoảng cách dưới romaji
+  ローマ字行の行間倍率: Hệ số chiều cao dòng romaji
+  ローマ字の行間: Chiều cao dòng romaji
+  英文モード: Chế độ tiếng Anh
+  スペース表示: Hiển thị dấu cách
+  英文モードでスペースを記号として表示する: Hiển thị dấu cách dưới dạng ký hiệu trong chế độ tiếng Anh.
+  縦長ボックス: Khung cao
+  次の課題の表示方式: Cách hiển thị bài tiếp theo
+  短文練習で次の課題をどう見せるかを選ぶ: Chọn cách hiển thị bài tiếp theo khi luyện văn bản ngắn.
+  スライド: Trượt
+  上下に分け、次の課題が上へ移る: Chia màn hình và chuyển bài tiếp theo lên trên.
+  交代: Luân phiên
+  上下の入力位置を交互に切り替える: Luân phiên vị trí nhập giữa phía trên và phía dưới.
+  中央揃え・連結: Dòng văn bản căn giữa
+  入力位置を中心に置く連続表示: Hiển thị các bài liên tục và giữ vị trí nhập hiện tại ở giữa.
+  非表示: Ẩn
+  次の課題を表示しない: Không hiển thị bài tiếp theo.
+  本番（IMEなし）の漢字文を表示する行数: Số dòng bài kanji trong chế độ tính điểm khi không dùng IME
+  長文モードの漢字文エリアの高さ: Chiều cao vùng kanji trong chế độ văn bản dài
+  行: dòng
+  長文モードの漢字文だけに適用する行間: Chiều cao dòng chỉ áp dụng cho văn bản kanji dài
+  長文モードの行間: Chiều cao dòng văn bản dài
+  正確無比の誤入力表示: Cách hiển thị lỗi trong chế độ Độ chính xác
+  誤入力した文字を課題文ローマ字上に表示する方法を選ぶ: Chọn cách hiển thị ký tự nhập sai trên romaji của bài luyện.
+  上書き: Thay thế
+  挿入: Chèn
+  何もしない: Không làm gì
+  ランク算出方式: Cách tính hạng
+  タイピング中のランク表示に使うスコアの算出方式を選びます。: Chọn cách tính điểm dùng để hiển thị hạng khi đang gõ.
+  予測値（変動方式）: Dự kiến (thay đổi trong phiên)
+  実値（加点方式）: Thực tế (điểm đã cộng)
+  漢字: Kanji
+  漢字表示: Hiển thị kanji
+  入力画面に漢字混じりの課題文を表示する: Hiển thị bài luyện có kanji trên màn hình nhập.
+  漢字フォントサイズ: Cỡ chữ kanji
+  漢字混じりの課題文の文字サイズ: Cỡ chữ cho bài luyện có kanji
+  漢字行の下に空ける余白: Khoảng trống dưới dòng kanji
+  漢字の下余白: Khoảng cách dưới kanji
+  漢字行の行間倍率: Hệ số chiều cao dòng kanji
+  漢字の行間: Chiều cao dòng kanji
+  漢字マーカー: Dấu vị trí kanji
+  入力中の位置を漢字表示に下線で表示する: Gạch chân vị trí hiện tại trong phần hiển thị kanji.
+  入力途中経過（漢字）: Tiến độ nhập kanji
+  入力途中経過（漢字）表示: Hiển thị tiến độ nhập kanji
+  入力済みの途中経過を漢字表示の下に追加する: Hiển thị tiến độ đã nhập bên dưới phần kanji.
+  漢字表示オフのためロック: Đã khóa vì tắt hiển thị kanji
+  入力途中経過（漢字）の文字サイズ: Cỡ chữ tiến độ nhập kanji
+  入力途中経過（漢字）フォントサイズ: Cỡ chữ tiến độ nhập kanji
+  入力途中経過（漢字）の下に空ける余白: Khoảng trống dưới tiến độ nhập kanji
+  入力途中経過（漢字）の下余白: Khoảng cách dưới tiến độ nhập kanji
+  入力途中経過（漢字）の行間倍率: Hệ số chiều cao dòng tiến độ kanji
+  入力途中経過（漢字）の行間: Chiều cao dòng tiến độ kanji
+  ふりがな: Furigana
+  ふりがな表示: Hiển thị furigana
+  漢字混じりの課題文の上にふりがなを表示する: Hiển thị furigana phía trên bài luyện có kanji.
+  ふりがなフォント倍率: Tỷ lệ cỡ chữ furigana
+  漢字フォントサイズに対するふりがなの倍率: Kích thước furigana so với phông chữ kanji
+  ふりがな表示オフのためロック: Đã khóa vì tắt hiển thị furigana
+  倍: ×
+  ふりがなの下余白: Khoảng cách dưới furigana
+  ふりがな側に追加する下余白: Khoảng trống dưới dòng furigana
+  ふりがなの行間: Chiều cao dòng furigana
+  ふりがなの行間倍率: Hệ số chiều cao dòng furigana
+  ふりがなマーカー: Dấu vị trí furigana
+  入力中の位置をふりがな表示に下線で表示する: Gạch chân vị trí hiện tại trong phần hiển thị furigana.
+  ひらがな: Hiragana
+  ひらがな表示: Hiển thị hiragana
+  入力画面にひらがなの読みを表示する: Hiển thị cách đọc hiragana trên màn hình nhập.
+  ひらがなの読みの文字サイズ: Cỡ chữ cách đọc hiragana
+  ひらがなフォントサイズ: Cỡ chữ hiragana
+  ひらがな行の下に空ける余白: Khoảng trống dưới dòng hiragana
+  ひらがなの下余白: Khoảng cách dưới hiragana
+  ひらがな行の行間倍率: Hệ số chiều cao dòng hiragana
+  ひらがなの行間: Chiều cao dòng hiragana
+  ひらがなマーカー: Dấu vị trí hiragana
+  入力中の位置をひらがな表示に下線で表示する: Gạch chân vị trí hiện tại trong phần hiển thị hiragana.
+  入力途中経過（ひらがな）: Tiến độ nhập hiragana
+  入力途中経過（ひらがな）表示: Hiển thị tiến độ nhập hiragana
+  入力済みの途中経過をひらがな表示の下に追加する: Hiển thị tiến độ đã nhập bên dưới phần hiragana.
+  ひらがな表示オフのためロック: Đã khóa vì tắt hiển thị hiragana
+  入力途中経過（ひらがな）の文字サイズ: Cỡ chữ tiến độ nhập hiragana
+  入力途中経過（ひらがな）フォントサイズ: Cỡ chữ tiến độ nhập hiragana
+  入力途中経過（ひらがな）の下に空ける余白: Khoảng trống dưới tiến độ nhập hiragana
+  入力途中経過（ひらがな）の下余白: Khoảng cách dưới tiến độ nhập hiragana
+  入力途中経過（ひらがな）の行間倍率: Hệ số chiều cao dòng tiến độ hiragana
+  入力途中経過（ひらがな）の行間: Chiều cao dòng tiến độ hiragana
+  初期値に戻す: Đặt lại mặc định
+  "{label} を初期値に戻す": Đặt lại {label} về mặc định
+  "{label} を調整": Điều chỉnh {label}
+  "{label} を増やす": Tăng {label}
+  "{label} を減らす": Giảm {label}
+  "{label} を上へ移動": Di chuyển {label} lên
+  "{label} を下へ移動": Di chuyển {label} xuống
+  "{label} display order item": Mục thứ tự hiển thị {label}
+  練習言語: Ngôn ngữ luyện tập
+  英語: Tiếng Anh
+  課題テーマ: Chủ đề bài luyện
+  タイピングのコツ: Mẹo gõ phím
+  今週のテーマ：{theme}: "Chủ đề tuần này: {theme}"
+  選択中：{theme}: "Đã chọn: {theme}"
+  今週のテーマ：: "Chủ đề tuần này: "
+  （日本時間・毎週月曜6時に更新）: (Cập nhật vào 06:00 JST mỗi thứ Hai)
+  自動（日本時間・毎週月曜6時）: Tự động (thứ Hai, 06:00 JST)
+  （今週）: " (tuần này)"
+  日常・趣味: Đời sống thường ngày và sở thích
+  国内旅行: Du lịch Nhật Bản
+  Alpha版では本番モードは開発中のためプレイできません。: Chế độ đánh giá đang được phát triển và chưa khả dụng trong bản alpha này.
+  国内旅行・都道府県: Du lịch Nhật Bản
+  国外旅行・ヨーロッパ: Du lịch nước ngoài · Châu Âu
+  国外旅行・アフリカ: Du lịch nước ngoài · Châu Phi
+  国外旅行・アジア: Du lịch nước ngoài · Châu Á
+  国外旅行・北アメリカ: Du lịch nước ngoài · Bắc Mỹ
+  国外旅行・南アメリカ: Du lịch nước ngoài · Nam Mỹ
+  国外旅行・オセアニア: Du lịch nước ngoài · Châu Đại Dương
+  練習モードまたは本番モードを選択してください。: Chọn chế độ luyện tập hoặc đánh giá.
+  練習モード: Chế độ luyện tập
+  本番モード: Chế độ đánh giá
+  "{minutes}分": "{minutes} phút"
+  仮レーティング A0 以上で解放: Mở khóa khi xếp hạng luyện tập đạt A0 trở lên
+  正確無比: Độ chính xác
+  精度: Độ chính xác
+  ミス後は Backspace で修正。正確率の重みが最も高い練習。: Sửa lỗi bằng Backspace. Độ chính xác có trọng số cao nhất trong chế độ này.
+  行雲流水: Nhịp điệu
+  安定: Nhịp gõ
+  自然な揺れを許容し、打鍵リズムの安定度をスコアに乗算する練習。: Luyện giữ nhịp gõ ổn định. Độ đều của nhịp sẽ nhân với điểm số.
+  音速打破: Tốc độ
+  速度: Tốc độ
+  正確率の重みを軽くし、速度の限界を測る練習。: Thử giới hạn tốc độ gõ với trọng số độ chính xác thấp hơn.
+  本番 IMEなし: Đánh giá · Tắt IME
+  本番: Đánh giá
+  時間を決めて行う本番測定。変換なしで長文を連続処理する。: Phiên đánh giá có giới hạn thời gian. Gõ liên tục các đoạn dài mà không chuyển đổi bằng IME.
+  本番 IMEあり: Đánh giá · Bật IME
+  行単位で課題と一致させて Enter で提出する。: Dùng IME nhập khớp với đoạn văn rồi nhấn Enter để gửi.
+  英語学習: Học tiếng Anh
+  魚の種類: Các loài cá
+  回転すし: Sushi băng chuyền
+  高級寿司: Sushi cao cấp
+  ラーメンの歴史: Lịch sử mì ramen
+  ラーメンの種類: Các loại mì ramen
+  音楽のジャンル: Thể loại âm nhạc
+  通勤電車: Tàu đi làm
+  コミュニケーションの基本: Những điều cơ bản về giao tiếp
+  パソコン購入: Mua máy tính
+  スマホ購入: Mua điện thoại thông minh
+  SNS: Mạng xã hội
+  イヤホンのこだわり: Chọn tai nghe
+  食料品の買い出し: Mua sắm thực phẩm
+  算数・数学: Toán học
+  カードゲーム: Trò chơi bài
+  薬: Thuốc
+  恋愛: Các mối quan hệ
+  推し活: Hâm mộ thần tượng
+  クラウドサービス: Dịch vụ đám mây
+  散歩: Đi dạo
+  写真シール: Ảnh dán
+  漫画: Truyện tranh
+  ギター: Đàn guitar
+  時計: Đồng hồ
+  オンライン会議: Cuộc họp trực tuyến
+  授業: Bài học
+  塾: Lớp học thêm
+  卒業: Tốt nghiệp
+  スポーツ一般: Thể thao
+  水泳: Bơi lội
+  昔話: Truyện dân gian
+  アニメ: Hoạt hình
+  バレンタイン: Ngày Valentine
+  ハロウィン: Halloween
+  クリスマス: Giáng sinh
+  マッサージ: Mát-xa
+  Modes: Chế độ
+  Practice: Luyện tập
+  Rating: Đánh giá
+  Settings: Cài đặt
+  User: Người dùng
+  Share Result: Chia sẻ kết quả
+  Share: Chia sẻ
+  PNG: PNG
+  Dark: Tối
+  Light: Sáng
+  mode selection: Chọn chế độ
+  challenge language: Ngôn ngữ luyện tập
+  saved ratings: Các lượt đánh giá đã lưu
+  on: Bật
+  off: Tắt
+  IME: IME
+  Rank: Hạng
+  Score: Điểm
+  ACCURACY: ĐỘ CHÍNH XÁC
+  KEYS / SEC: LẦN GÕ / GIÂY
+  CORRECT CHARS: KÝ TỰ ĐÚNG
+  ULTITYPE RESULT: KẾT QUẢ ULTITYPE
+  theme.domestic: Du lịch Nhật Bản · {name}
+  theme.international: Du lịch nước ngoài · {name}
+  share.intro: "ULTITYPE: Tôi đã luyện tập “{mode}”!"
+  share.rank: 🏆 Hạng {rank} | {score} điểm
+  share.accuracy: 🎯 Độ chính xác {accuracy}%
+  share.speed: ⌨️ {second} lần gõ/giây | {minute} lần gõ/phút
+  share.hashtags: "#ULTITYPE #gõphím"

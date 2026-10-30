@@ -9,6 +9,7 @@ import {
   topDisplayMetricOptions,
 } from "./constants";
 import { modes } from "@/src/lib/typing";
+import { normalizeAppLanguage } from "./locale-codes";
 import type { AppSettings, LocalDataClearScope, StoredSession, StoredState } from "./types";
 
 let cachedStoredState: StoredState | null = null;
@@ -67,6 +68,7 @@ export function normalizeAppSettings(settings: AppSettings): AppSettings {
 
   return {
     ...settings,
+    appLanguage: normalizeAppLanguage(settings.appLanguage),
     showFuriganaDisplay,
     showKanjiMarker: settings.showKanjiDisplay && settings.showKanjiMarker,
     showFuriganaMarker: showFuriganaDisplay && settings.showFuriganaMarker,

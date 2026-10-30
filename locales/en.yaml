@@ -1,0 +1,465 @@
+meta:
+  code: en
+  name: English
+  direction: ltr
+messages:
+  UltiType header: UltiType header
+  Typing practice and rating: Typing practice and ratings
+  ランクガイド: Rank Guide
+  ランクガイド（現在 {rank}）: "Rank Guide (current: {rank})"
+  仮: Practice
+  本: Rated
+  ユーザー: User
+  設定: Settings
+  戻る: Back
+  settings: Settings
+  theme: Theme
+  画面: Display
+  テーマ: Theme
+  表示テーマを切り替える: Choose a color theme.
+  入力画面と入力方式: Typing screen and input methods
+  練習画面のモックを見ながら入力方式と表示を調整する: Adjust input methods and display settings with a practice screen preview.
+  開く: Open
+  サウンド: Sound
+  タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。: Adjust typing and interface/result sound volume, and toggle each category.
+  音量: Volume
+  タイプ音: Typing sounds
+  UI/結果音: Interface/result sounds
+  自動リタイア: Automatic retirement
+  無入力リタイア: Retire after inactivity
+  0 秒で無効: Set to 0 to disable
+  無入力リタイア秒数: Inactivity timeout in seconds
+  秒: sec
+  秒数を調整: Adjust seconds
+  1秒増やす: Add 1 second
+  1秒減らす: Subtract 1 second
+  連続誤打鍵リタイア: Retire after consecutive mistakes
+  0 打鍵で無効: Set to 0 to disable
+  連続誤打鍵数: Consecutive mistake count
+  打鍵: keystrokes
+  正誤率ボーダー: Accuracy threshold
+  0% で無効: Set to 0% to disable
+  その他の設定: Other settings
+  次の課題の表示文字数: Next prompt preview length
+  短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示: Show the beginning of the next prompt in
+    short-prompt practice. Set to 0 to hide it.
+  文字: characters
+  次の課題の表示文字数を調整: Adjust next prompt preview length
+  次の課題の表示文字数を増やす: Increase next prompt preview length
+  次の課題の表示文字数を減らす: Decrease next prompt preview length
+  危険な操作: Destructive actions
+  データと設定を消去: Clear data and settings
+  ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ: Choose whether to clear user data, reset settings, or do both.
+  ユーザーデータ: User data
+  設定を初期化: Reset settings
+  両方: Both
+  スコアと履歴だけを削除します。設定は残します。よろしいですか？: Delete scores and history while keeping settings?
+  設定をすべて初期値に戻します。スコアと履歴は残します。よろしいですか？: Reset all settings while keeping scores and history?
+  スコア、履歴、設定をすべて削除します。よろしいですか？: Delete all scores, history, and settings?
+  アプリの表示言語: App language
+  画面に表示する言語を選択します。練習する言語はモード選択画面で変更できます。: Choose the language used in the
+    interface. Choose your practice language on the mode selection screen.
+  日本語: Japanese
+  English: English
+  ダーク: Dark
+  ライト: Light
+  この画面幅はサポート対象外です: This screen width is not supported
+  UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。:
+    UltiType is designed for desktop screens at least 520 px wide. The desktop
+    layout is shown at the current size.
+  以後表示しない: Do not show again
+  警告を閉じる: Close warning
+  ランク到達状況: Rank progress
+  スコア計算式: Score formula
+  基本のスコア計算式: Basic score formula
+  打鍵/秒 × 1000 × 正確率^モード係数 × 補正: Keystrokes/sec × 1000 × accuracy^mode factor × modifier
+  正確率は正しく入力した文字数 ÷ 入力を試みた文字数です。均等モードのみ、打鍵間隔の安定度が補正として加わります。: Accuracy is correct
+    characters divided by attempted characters. Only Flow mode applies typing
+    rhythm stability as a modifier.
+  正確率係数: Accuracy factor
+  補正: Modifier
+  安定度: Stability
+  なし: None
+  現在ランク: Current rank
+  最高スコア: Best score
+  次の目標: Next goal
+  ランク帯: Rank
+  基準スコア: Required score
+  到達状況: Status
+  達成: Reached
+  あと {score}: "{score} to go"
+  ランクなし: Unranked
+  "{title} ランク": "{title} ranks"
+  灰: Gray
+  薄緑: Light green
+  薄青: Light blue
+  緑: Green
+  青: Blue
+  橙: Orange
+  赤: Red
+  金: Gold
+  紫: Purple
+  黒紫: Dark purple
+  黒: Black
+  虹: Rainbow
+  ローカルユーザー: Local user
+  Keybase連携は未設定です。: Keybase linking is not configured.
+  ユーザー概要: User summary
+  仮ランク: Practice rank
+  本番ランク: Rated rank
+  まだ保存されたセッションはありません。: No saved sessions yet.
+  Recent Sessions: Recent Sessions
+  ランク: Rank
+  500点未満はランクなし、500点から G0 が始まり、基準スコアはランクごとに90点ずつ上がります。: Scores below 500 are
+    unranked. G0 starts at 500, and each rank requires 90 more points.
+  入力待ち: Waiting for input
+  課題終了まで非表示: Hidden until prompt ends
+  正誤率: Accuracy
+  ミス {count}: "{count} mistakes"
+  正誤履歴: Correctness history
+  平均打鍵間隔: Average keystroke interval
+  ズレ平均: Average deviation
+  物理打鍵: Physical keystrokes
+  打鍵間隔の安定度グラフ: Typing rhythm stability chart
+  あと {count} 回: "{count} remaining"
+  残り時間: Time left
+  残り時間（％）: Time left (%)
+  打鍵/秒: Keystrokes/sec
+  打鍵/分: Keystrokes/min
+  かな文字/秒: Kana chars/sec
+  課題文字/秒: Prompt chars/sec
+  正確率: Accuracy
+  ミス数: Mistakes
+  完了課題: Completed prompts
+  ミス/物理打鍵: Mistakes/keystrokes
+  正解/物理打鍵: Correct/keystrokes
+  開始: Start
+  修正: Correction
+  正打: Correct
+  ミス: Mistake
+  モード選択: Choose mode
+  リセット: Reset
+  無入力が続いたためリタイアしました: Retired after a period of inactivity
+  "セッション終了: {rank} / {score}": "Session ended: {rank} / {score}"
+  開始ボタン、またはここで入力を始める: Press Start or begin typing here
+  IMEありで入力し、行が一致したら Enter: Type with IME and press Enter when the line matches
+  英文を入力し、行が一致したら Enter: Type the English line and press Enter when it matches
+  typing input: Typing input
+  direct keyboard capture: Direct keyboard input capture
+  resize typing input: Resize typing input
+  Rank hidden for the first 30 seconds: Rank hidden for the first 30 seconds
+  タイピング: Typing
+  速度だけじゃない。精度と安定性まで、次の一打へ。: More than speed. Every keystroke brings accuracy and stability.
+  速さだけじゃない。精度と安定性まで、次の一打へ。: More than speed. Every keystroke brings accuracy and stability.
+  Tips: Tips
+  typing practice: Typing practice
+  Live Analysis: Live Analysis
+  "{key} / {interval} / {state}": "{key} / {interval} / {state}"
+  画像を準備できませんでした。もう一度お試しください。: Could not prepare the image. Please try again.
+  共有メニューにリザルト画像を送りました。: Sent the result image to the share menu.
+  共有を完了できませんでした。画像保存をお試しください。: Sharing failed. Try saving the image instead.
+  Share APIが使えないため、画像を保存して投稿文をコピーしました。: Share API is unavailable. The image was saved and the post text was copied.
+  "{service}を開きます。画像はPNG保存から添付してください。": Opening {service}. Save the PNG and attach it to your post.
+  "{service}を開きました。投稿画面にリザルト画像を貼り付けてください。": Opened {service}. Paste the result image into your post.
+  "{service}を開き、リザルト画像を保存しました。投稿画面で添付してください。": Opened {service} and saved the result image. Attach it to your post.
+  投稿テンプレートをコピーしました。: Copied the post template.
+  投稿テンプレートをコピーできませんでした。: Could not copy the post template.
+  SNS用リザルト画像: Result image for social media
+  "{mode}のリザルト画像。ランク{rank}、{score}ポイント": "{mode} result image: rank {rank}, {score} points"
+  文言をコピー: Copy text
+  各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。: The post template is
+    ready in each social app. Paste the image, or save and attach it in browsers
+    that do not support image sharing.
+  pre-session tip: Pre-session tip
+  post-session tip: Post-session tip
+  本番モードは開始後の入力だけを採点します。: Rated sessions score only the input you enter after starting.
+  本番モードは仮レーティング A0 以上で解放されます。: Rating modes unlock at a practice rating of A0 or higher.
+  IMEあり本番では行を課題と一致させてから Enter で提出します。: In rated mode with IME, match the prompt line and press Enter to submit it.
+  500点未満は NR、500点以上は G0、以降は90点ごとにランクが上がります。: Scores below 500 are NR. G0 starts at
+    500, and each higher rank needs 90 more points.
+  練習モードの仮レーティングは、本番モード解放の条件として使われます。: Your practice rating determines when rated modes unlock.
+  次の課題プレビューは設定画面で表示方式と長さを変更できます。: Change the next prompt preview style and length in Settings.
+  正確無比とIMEあり本番では、ミスをBackspaceで戻すまで先に進めません。: In Accuracy practice and rated mode
+    with IME, correct a mistake with Backspace before continuing.
+  自動リタイアは、設定から有効にできます。: You can enable automatic retirement in Settings.
+  自分の「つまづきパターン」を理解するのが、成長に不可欠です。: Understanding your own mistake patterns is essential for improving.
+  たいてい、他人より自分自身と競争するほうが良い結果が出ます。: You will often get better results by competing
+    with yourself than with others.
+  楽だからといって「エンジニア座り」をしていると、腰を壊すので気をつけましょう。: An easy slouch can strain your back, so pay attention to your posture.
+  最高のパフォーマンスを出したいときは、まず机から離れ、爪の長さを確認するといいかも。: For your best performance, take a
+    break from your desk and check your fingernail length.
+  肩と手首の力を抜き、キーを押す力を必要最小限にすると次の入力が軽くなります。: Relax your shoulders and wrists, and
+    press each key with only the force you need.
+  焦るより、遅くても正確にやるほうがすべてのモードでスコアが伸びます。: Accuracy helps your score in every mode, even when you type more slowly.
+  1日に長時間練習しすぎないようにしましょう。腱鞘炎になります。: Avoid practicing for too long in one day to reduce the risk of tendon strain.
+  英文はだいぶ日本語文と感覚が違います。分けて練習しましょう。: Typing English feels quite different from typing
+    Japanese. Practice each separately.
+  一瞬一瞬のブーストよりも、安定してスラスラ打てるほうがスコアが伸びます。: A steady, smooth rhythm improves your
+    score more than occasional bursts of speed.
+  単語で反射神経を競わず、長文で実力を磨くのがオススメ。: Build your skill with longer passages instead of
+    racing through isolated words.
+  文字をうったら、すぐにホームポジションに戻しましょう。: Return to the home row after each keystroke.
+  打鍵中、手元を絶対に見てはいけません。絶対です。: Keep your eyes on the screen while typing. No peeking at your hands.
+  できるだけ、毎日練習しましょう。それが最短ルートです。: Practice every day when you can. It is the quickest way to improve.
+  ずっと練習をするより、実用もするほうが伸びやすくなります。: Mix practice with real-world typing to make progress faster.
+  ミスしたキー単体よりも、ミスした組み合わせを見つける方が役に立つかも。: Finding combinations that cause mistakes
+    may help more than focusing on a single key.
+  常に先読みを意識してみよう。: Try to read ahead as you type.
+  高速化とは、文字を速く打つことではなく、迷う時間を減らすこと。: Typing faster is less about moving your fingers
+    quickly and more about spending less time hesitating.
+  「ci」や「le」など、早く打てる別ルートも無理のない範囲で試してみよう。: Try alternate fast input patterns such as
+    “ci” or “le” when they feel comfortable.
+  入力画面設定: Input Screen Settings
+  画面設定: Screen Settings
+  入力画面のプレビュー: Input screen preview
+  一時停止: Pause
+  10.0打鍵/秒プレビュー: 10 keystrokes/sec preview
+  5.0打鍵/秒プレビュー: 5 keystrokes/sec preview
+  プレビューの課題文: Challenge preview
+  短文: Short text
+  長文: Long text
+  入力画面: Input screen
+  フォント: Fonts
+  表示順: Display order
+  漢字・ふりがな・ひらがな表示に使うGoogle Fonts: Google Fonts used for kanji, furigana, and hiragana
+  日本語フォント: Japanese font
+  ローマ字・英語課題文に使うGoogle Fonts: Google Fonts used for romaji and English prompts
+  英語フォント: English font
+  入力画面の表示順: Input screen display order
+  ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する: Drag to reorder rows on the input screen.
+    Hidden items keep their position in the order.
+  表示中: Visible
+  非表示中: Hidden
+  上部表示情報: Top display
+  表示する情報: Information to show
+  残り時間を外しても、残り時間バーは表示されます。: The remaining-time bar stays visible even when the
+    remaining-time figure is hidden.
+  入力方式: Input method
+  ローマ字入力法: Romaji input method
+  許容する派生と、ガイドで優先表示する表記を選ぶ: Choose accepted variants and which spelling the guide prefers.
+  すべて分割: All split
+  すべて統合: All combined
+  個別設定: Custom
+  ヘボン式優先: Prefer Hepburn
+  最短優先: Prefer shortest
+  促音入力: Sokuon input
+  促音入力候補: Accepted sokuon inputs
+  「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ: Choose how to handle doubled consonants and ltsu / xtsu / ltu / xtu for っ.
+  促音分割を許可: Allow split sokuon input
+  表示: Preferred spelling
+  一般拗音分割入力: Split input for common yōon
+  「きゃ」を kya だけでなく kila / kixa でも入力できるようにする: Allow きゃ to be typed as kila or kixa as well as kya.
+  特殊拗音入力法: Special yōon input method
+  出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ: Choose whether less common loanword kana use combined or split input.
+  ローマ字: Romaji
+  ローマ字マーカー: Romaji marker
+  入力中の位置をローマ字表示に下線で表示する。ON推奨: "Underline your current position in the romaji guide. Recommended: on."
+  ローマ字マーカー単位: Romaji marker unit
+  ローマ字の現在位置を1文字ずつ表示するか、su や shi などの発音単位で表示するかを選ぶ: Choose whether the romaji marker
+    advances by character or by sound, such as su or shi.
+  文字単位: By character
+  発音単位: By sound
+  ローマ字の課題文の文字サイズ: Romaji prompt font size
+  ローマ字フォントサイズ: Romaji font size
+  ローマ字行の下に空ける余白: Space below the romaji line
+  ローマ字の下余白: Romaji bottom spacing
+  ローマ字行の行間倍率: Romaji line-height multiplier
+  ローマ字の行間: Romaji line height
+  英文モード: English mode
+  スペース表示: Space display
+  英文モードでスペースを記号として表示する: Show spaces as symbols in English mode.
+  縦長ボックス: Tall box
+  次の課題の表示方式: Next prompt display
+  短文練習で次の課題をどう見せるかを選ぶ: Choose how to show the next prompt during short-text practice.
+  スライド: Slide
+  上下に分け、次の課題が上へ移る: Split the view and move the next prompt to the top.
+  交代: Alternate
+  上下の入力位置を交互に切り替える: Alternate the input position between the top and bottom.
+  中央揃え・連結: Centered stream
+  入力位置を中心に置く連続表示: Show prompts continuously with the current input position centered.
+  非表示: Hidden
+  次の課題を表示しない: Do not show the next prompt.
+  本番（IMEなし）の漢字文を表示する行数: Number of kanji prompt lines in production mode without IME
+  長文モードの漢字文エリアの高さ: Long-text kanji area height
+  行: lines
+  長文モードの漢字文だけに適用する行間: Line height applied only to kanji text in long-text mode
+  長文モードの行間: Long-text line height
+  正確無比の誤入力表示: Mistake display in Accuracy mode
+  誤入力した文字を課題文ローマ字上に表示する方法を選ぶ: Choose how incorrect input appears over the prompt's romaji.
+  上書き: Replace
+  挿入: Insert
+  何もしない: Do nothing
+  ランク算出方式: Rank calculation
+  タイピング中のランク表示に使うスコアの算出方式を選びます。: Choose how to calculate the score shown as your rank while typing.
+  予測値（変動方式）: Projected (changes during session)
+  実値（加点方式）: Actual (points added)
+  漢字: Kanji
+  漢字表示: Kanji display
+  入力画面に漢字混じりの課題文を表示する: Show prompts with kanji on the input screen.
+  漢字フォントサイズ: Kanji font size
+  漢字混じりの課題文の文字サイズ: Font size for prompts with kanji
+  漢字行の下に空ける余白: Space below the kanji line
+  漢字の下余白: Kanji bottom spacing
+  漢字行の行間倍率: Kanji line-height multiplier
+  漢字の行間: Kanji line height
+  漢字マーカー: Kanji marker
+  入力中の位置を漢字表示に下線で表示する: Underline your current position in the kanji display.
+  入力途中経過（漢字）: Kanji input progress
+  入力途中経過（漢字）表示: Show kanji input progress
+  入力済みの途中経過を漢字表示の下に追加する: Show typed progress below the kanji display.
+  漢字表示オフのためロック: Locked because kanji display is off
+  入力途中経過（漢字）の文字サイズ: Kanji input progress font size
+  入力途中経過（漢字）フォントサイズ: Kanji input progress font size
+  入力途中経過（漢字）の下に空ける余白: Space below kanji input progress
+  入力途中経過（漢字）の下余白: Kanji input progress bottom spacing
+  入力途中経過（漢字）の行間倍率: Kanji input progress line-height multiplier
+  入力途中経過（漢字）の行間: Kanji input progress line height
+  ふりがな: Furigana
+  ふりがな表示: Furigana display
+  漢字混じりの課題文の上にふりがなを表示する: Show furigana above prompts with kanji.
+  ふりがなフォント倍率: Furigana font scale
+  漢字フォントサイズに対するふりがなの倍率: Furigana size relative to the kanji font
+  ふりがな表示オフのためロック: Locked because furigana display is off
+  倍: ×
+  ふりがなの下余白: Furigana bottom spacing
+  ふりがな側に追加する下余白: Space below the furigana line
+  ふりがなの行間: Furigana line height
+  ふりがなの行間倍率: Furigana line-height multiplier
+  ふりがなマーカー: Furigana marker
+  入力中の位置をふりがな表示に下線で表示する: Underline your current position in the furigana display.
+  ひらがな: Hiragana
+  ひらがな表示: Hiragana display
+  入力画面にひらがなの読みを表示する: Show the hiragana reading on the input screen.
+  ひらがなの読みの文字サイズ: Hiragana reading font size
+  ひらがなフォントサイズ: Hiragana font size
+  ひらがな行の下に空ける余白: Space below the hiragana line
+  ひらがなの下余白: Hiragana bottom spacing
+  ひらがな行の行間倍率: Hiragana line-height multiplier
+  ひらがなの行間: Hiragana line height
+  ひらがなマーカー: Hiragana marker
+  入力中の位置をひらがな表示に下線で表示する: Underline your current position in the hiragana display.
+  入力途中経過（ひらがな）: Hiragana input progress
+  入力途中経過（ひらがな）表示: Show hiragana input progress
+  入力済みの途中経過をひらがな表示の下に追加する: Show typed progress below the hiragana display.
+  ひらがな表示オフのためロック: Locked because hiragana display is off
+  入力途中経過（ひらがな）の文字サイズ: Hiragana input progress font size
+  入力途中経過（ひらがな）フォントサイズ: Hiragana input progress font size
+  入力途中経過（ひらがな）の下に空ける余白: Space below hiragana input progress
+  入力途中経過（ひらがな）の下余白: Hiragana input progress bottom spacing
+  入力途中経過（ひらがな）の行間倍率: Hiragana input progress line-height multiplier
+  入力途中経過（ひらがな）の行間: Hiragana input progress line height
+  初期値に戻す: Reset to default
+  "{label} を初期値に戻す": Reset {label} to default
+  "{label} を調整": Adjust {label}
+  "{label} を増やす": Increase {label}
+  "{label} を減らす": Decrease {label}
+  "{label} を上へ移動": Move {label} up
+  "{label} を下へ移動": Move {label} down
+  "{label} display order item": "{label} display order item"
+  練習言語: Practice language
+  英語: English
+  課題テーマ: Challenge theme
+  タイピングのコツ: Typing tips
+  今週のテーマ：{theme}: "This week's theme: {theme}"
+  選択中：{theme}: "Selected: {theme}"
+  今週のテーマ：: "This week's theme: "
+  （日本時間・毎週月曜6時に更新）: (Updates every Monday at 06:00 JST)
+  自動（日本時間・毎週月曜6時）: Automatic (Monday, 06:00 JST)
+  （今週）: " (this week)"
+  日常・趣味: Everyday life and hobbies
+  国内旅行: Travel in Japan
+  Alpha版では本番モードは開発中のためプレイできません。: Rating modes are under development and unavailable in this alpha release.
+  国内旅行・都道府県: Travel in Japan
+  国外旅行・ヨーロッパ: Travel abroad · Europe
+  国外旅行・アフリカ: Travel abroad · Africa
+  国外旅行・アジア: Travel abroad · Asia
+  国外旅行・北アメリカ: Travel abroad · North America
+  国外旅行・南アメリカ: Travel abroad · South America
+  国外旅行・オセアニア: Travel abroad · Oceania
+  練習モードまたは本番モードを選択してください。: Choose a practice or rating mode.
+  練習モード: Practice modes
+  本番モード: Rating modes
+  "{minutes}分": "{minutes} min"
+  仮レーティング A0 以上で解放: Unlocks at a practice rating of A0 or higher
+  正確無比: Precision
+  精度: Accuracy
+  ミス後は Backspace で修正。正確率の重みが最も高い練習。: Correct mistakes with Backspace. Accuracy has
+    the greatest weight in this mode.
+  行雲流水: Flow
+  安定: Rhythm
+  自然な揺れを許容し、打鍵リズムの安定度をスコアに乗算する練習。: Practice a steady typing rhythm. Rhythm consistency multiplies your score.
+  音速打破: Speed
+  速度: Speed
+  正確率の重みを軽くし、速度の限界を測る練習。: Test your speed with a lower accuracy weight.
+  本番 IMEなし: Rating · IME off
+  本番: Rating
+  時間を決めて行う本番測定。変換なしで長文を連続処理する。: A timed rating session. Type long passages
+    continuously without IME conversion.
+  本番 IMEあり: Rating · IME on
+  行単位で課題と一致させて Enter で提出する。: Match the passage using your IME and press Enter to submit.
+  英語学習: Learning English
+  魚の種類: Types of fish
+  回転すし: Conveyor belt sushi
+  高級寿司: Fine sushi
+  ラーメンの歴史: History of ramen
+  ラーメンの種類: Types of ramen
+  音楽のジャンル: Music genres
+  通勤電車: Commuter trains
+  コミュニケーションの基本: Communication basics
+  パソコン購入: Buying a computer
+  スマホ購入: Buying a smartphone
+  SNS: Social media
+  イヤホンのこだわり: Choosing earphones
+  食料品の買い出し: Grocery shopping
+  算数・数学: Mathematics
+  カードゲーム: Card games
+  薬: Medicine
+  恋愛: Relationships
+  推し活: Being a fan
+  クラウドサービス: Cloud services
+  散歩: Walking
+  写真シール: Photo stickers
+  漫画: Comics
+  ギター: Guitar
+  時計: Clocks
+  オンライン会議: Online meetings
+  授業: Lessons
+  塾: Cram school
+  卒業: Graduation
+  スポーツ一般: Sports
+  水泳: Swimming
+  昔話: Folktales
+  アニメ: Animation
+  バレンタイン: Valentine's Day
+  ハロウィン: Halloween
+  クリスマス: Christmas
+  マッサージ: Massage
+  Modes: Modes
+  Practice: Practice
+  Rating: Rating
+  Settings: Settings
+  User: User
+  Share Result: Share Result
+  Share: Share
+  PNG: PNG
+  Dark: Dark
+  Light: Light
+  mode selection: Mode selection
+  challenge language: Practice language
+  saved ratings: Saved ratings
+  on: On
+  off: Off
+  IME: IME
+  Rank: Rank
+  Score: Score
+  ACCURACY: ACCURACY
+  KEYS / SEC: KEYS / SEC
+  CORRECT CHARS: CORRECT CHARS
+  ULTITYPE RESULT: ULTITYPE RESULT
+  theme.domestic: Travel in Japan · {name}
+  theme.international: Travel abroad · {name}
+  share.intro: 'ULTITYPE: I practiced "{mode}"!'
+  share.rank: 🏆 Rank {rank} | {score} pts
+  share.accuracy: 🎯 Accuracy {accuracy}%
+  share.speed: ⌨️ {second} keystrokes/sec | {minute} keystrokes/min
+  share.hashtags: "#ULTITYPE #typing"

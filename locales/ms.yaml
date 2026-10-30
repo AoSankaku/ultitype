@@ -1,0 +1,440 @@
+meta:
+  code: ms
+  name: Bahasa Melayu
+  direction: ltr
+messages:
+  UltiType header: Pengepala UltiType
+  Typing practice and rating: Latihan menaip dan penarafan
+  ランクガイド: Panduan penarafan
+  ランクガイド（現在 {rank}）: "Panduan penarafan (semasa: {rank})"
+  仮: Latihan
+  本: Penarafan
+  ユーザー: Pengguna
+  設定: Tetapan
+  戻る: Kembali
+  settings: Tetapan
+  theme: Tema
+  画面: Paparan
+  テーマ: Tema
+  表示テーマを切り替える: Pilih tema warna paparan.
+  入力画面と入力方式: Skrin menaip dan kaedah input
+  練習画面のモックを見ながら入力方式と表示を調整する: Laraskan kaedah input dan paparan melalui pratonton skrin latihan.
+  開く: Buka
+  サウンド: Bunyi
+  タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。: Laraskan bunyi menaip dan antara muka/keputusan serta togol setiap kategori.
+  音量: Kelantangan
+  タイプ音: Bunyi menaip
+  UI/結果音: Bunyi antara muka/keputusan
+  自動リタイア: Tamat automatik
+  無入力リタイア: Tamat apabila tidak aktif
+  0 秒で無効: Tetapkan kepada 0 untuk mematikan
+  無入力リタイア秒数: Had masa tidak aktif (saat)
+  秒: saat
+  秒数を調整: Laraskan saat
+  1秒増やす: Tambah 1 saat
+  1秒減らす: Tolak 1 saat
+  連続誤打鍵リタイア: Tamat selepas kesilapan berturut-turut
+  0 打鍵で無効: Tetapkan kepada 0 untuk mematikan
+  連続誤打鍵数: Bilangan kesilapan berturut-turut
+  打鍵: ketukan
+  正誤率ボーダー: Ambang ketepatan
+  0% で無効: Tetapkan kepada 0% untuk mematikan
+  その他の設定: Tetapan lain
+  次の課題の表示文字数: Panjang pratonton soalan seterusnya
+  短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示: Paparkan permulaan soalan seterusnya semasa latihan teks pendek. Tetapkan kepada 0 untuk menyembunyikannya.
+  文字: aksara
+  次の課題の表示文字数を調整: Laraskan panjang pratonton soalan seterusnya
+  次の課題の表示文字数を増やす: Tambah panjang pratonton soalan seterusnya
+  次の課題の表示文字数を減らす: Kurangkan panjang pratonton soalan seterusnya
+  危険な操作: Tindakan berbahaya
+  データと設定を消去: Padam data dan tetapan
+  ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ: Pilih sama ada hendak memadam data pengguna, menetapkan semula tetapan atau kedua-duanya.
+  ユーザーデータ: Data pengguna
+  設定を初期化: Tetapkan semula tetapan
+  両方: Kedua-duanya
+  スコアと履歴だけを削除します。設定は残します。よろしいですか？: Padam skor dan sejarah sambil mengekalkan tetapan?
+  設定をすべて初期値に戻します。スコアと履歴は残します。よろしいですか？: Tetapkan semula semua tetapan sambil mengekalkan skor dan sejarah?
+  スコア、履歴、設定をすべて削除します。よろしいですか？: Padam semua skor, sejarah dan tetapan?
+  アプリの表示言語: Bahasa aplikasi
+  画面に表示する言語を選択します。練習する言語はモード選択画面で変更できます。: Pilih bahasa antara muka. Pilih bahasa latihan pada skrin pemilihan mod.
+  日本語: Bahasa Jepun
+  English: Bahasa Inggeris
+  ダーク: Gelap
+  ライト: Cerah
+  この画面幅はサポート対象外です: Lebar skrin ini tidak disokong
+  UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。: UltiType direka untuk skrin desktop selebar sekurang-kurangnya 520 px. Reka letak desktop dipaparkan sekarang.
+  以後表示しない: Jangan paparkan lagi
+  警告を閉じる: Tutup amaran
+  ランク到達状況: Kemajuan penarafan
+  スコア計算式: Formula skor
+  基本のスコア計算式: Formula skor asas
+  打鍵/秒 × 1000 × 正確率^モード係数 × 補正: Ketukan/saat × 1000 × ketepatan^faktor mod × pengganda
+  正確率は正しく入力した文字数 ÷ 入力を試みた文字数です。均等モードのみ、打鍵間隔の安定度が補正として加わります。: Ketepatan ialah bilangan aksara yang betul dibahagi bilangan aksara yang dicuba. Hanya mod Flow menggunakan kestabilan rentak menaip sebagai pengganda.
+  正確率係数: Faktor ketepatan
+  補正: Pengganda
+  安定度: Kestabilan
+  なし: Tiada
+  現在ランク: Penarafan semasa
+  最高スコア: Skor terbaik
+  次の目標: Sasaran seterusnya
+  ランク帯: Kedudukan
+  基準スコア: Skor diperlukan
+  到達状況: Status
+  達成: Dicapai
+  あと {score}: Baki {score}
+  ランクなし: Belum bertaraf
+  "{title} ランク": Penarafan {title}
+  灰: Kelabu
+  薄緑: Hijau muda
+  薄青: Biru muda
+  緑: Hijau
+  青: Biru
+  橙: Jingga
+  赤: Merah
+  金: Emas
+  紫: Ungu
+  黒紫: Ungu tua
+  黒: Hitam
+  虹: Pelangi
+  ローカルユーザー: Pengguna setempat
+  Keybase連携は未設定です。: Pautan Keybase belum ditetapkan.
+  ユーザー概要: Ringkasan pengguna
+  仮ランク: Penarafan latihan
+  本番ランク: Penarafan bertaraf
+  まだ保存されたセッションはありません。: Tiada sesi yang disimpan lagi.
+  Recent Sessions: Sesi terkini
+  ランク: Kedudukan
+  500点未満はランクなし、500点から G0 が始まり、基準スコアはランクごとに90点ずつ上がります。: Skor bawah 500 belum bertaraf. G0 bermula pada 500 dan setiap tahap seterusnya memerlukan tambahan 90 mata.
+  入力待ち: Menunggu input
+  課題終了まで非表示: Sembunyikan sehingga soalan tamat
+  正誤率: Ketepatan
+  ミス {count}: "{count} kesilapan"
+  正誤履歴: Sejarah betul salah
+  平均打鍵間隔: Jarak antara ketukan purata
+  ズレ平均: Purata sisihan
+  物理打鍵: Bilangan ketukan fizikal
+  打鍵間隔の安定度グラフ: Graf kestabilan rentak menaip
+  あと {count} 回: Baki {count}
+  残り時間: Baki masa
+  残り時間（％）: Baki masa (%)
+  打鍵/秒: Ketukan/saat
+  打鍵/分: Ketukan/minit
+  かな文字/秒: Aksara kana/saat
+  課題文字/秒: Aksara soalan/saat
+  正確率: Ketepatan
+  ミス数: Kesilapan
+  完了課題: Soalan selesai
+  ミス/物理打鍵: Kesilapan/ketukan
+  正解/物理打鍵: Betul/ketukan
+  開始: Mula
+  修正: Pembetulan
+  正打: Betul
+  ミス: Kesilapan
+  モード選択: Pilih mod
+  リセット: Tetapkan semula
+  無入力が続いたためリタイアしました: Sesi tamat kerana tidak aktif
+  "セッション終了: {rank} / {score}": "Sesi tamat: {rank} / {score}"
+  開始ボタン、またはここで入力を始める: Tekan Mula atau mula menaip di sini
+  IMEありで入力し、行が一致したら Enter: Taip dengan IME dan tekan Enter apabila baris sepadan
+  英文を入力し、行が一致したら Enter: Taip baris bahasa Inggeris dan tekan Enter apabila sepadan
+  typing input: Input menaip
+  direct keyboard capture: Tangkap input papan kekunci terus
+  resize typing input: Ubah saiz ruang menaip
+  Rank hidden for the first 30 seconds: Penarafan disembunyikan selama 30 saat pertama
+  タイピング: Menaip
+  速度だけじゃない。精度と安定性まで、次の一打へ。: Bukan sekadar kelajuan. Setiap ketukan meningkatkan ketepatan dan kestabilan.
+  速さだけじゃない。精度と安定性まで、次の一打へ。: Bukan sekadar kelajuan. Setiap ketukan meningkatkan ketepatan dan kestabilan.
+  Tips: Petua
+  typing practice: Latihan menaip
+  Live Analysis: Analisis langsung
+  "{key} / {interval} / {state}": "{key} / {interval} / {state}"
+  画像を準備できませんでした。もう一度お試しください。: Imej tidak dapat disediakan. Sila cuba lagi.
+  共有メニューにリザルト画像を送りました。: Imej keputusan telah dihantar ke menu kongsi.
+  共有を完了できませんでした。画像保存をお試しください。: Perkongsian gagal. Cuba simpan imej.
+  Share APIが使えないため、画像を保存して投稿文をコピーしました。: API kongsi tidak tersedia. Imej telah disimpan dan teks kiriman disalin.
+  "{service}を開きます。画像はPNG保存から添付してください。": Membuka {service}. Simpan PNG dan lampirkannya pada kiriman.
+  "{service}を開きました。投稿画面にリザルト画像を貼り付けてください。": "{service} telah dibuka. Tampalkan imej keputusan pada kiriman."
+  "{service}を開き、リザルト画像を保存しました。投稿画面で添付してください。": "{service} dibuka dan imej keputusan disimpan. Lampirkannya pada kiriman."
+  投稿テンプレートをコピーしました。: Templat kiriman telah disalin.
+  投稿テンプレートをコピーできませんでした。: Tidak dapat menyalin templat kiriman.
+  SNS用リザルト画像: Imej keputusan untuk media sosial
+  "{mode}のリザルト画像。ランク{rank}、{score}ポイント": "Imej keputusan {mode}: penarafan {rank}, {score} mata"
+  文言をコピー: Salin teks
+  各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。: Templat kiriman tersedia dalam setiap aplikasi sosial. Tampalkan imej atau simpan dan lampirkan jika pelayar tidak menyokong perkongsian imej.
+  pre-session tip: Petua sebelum sesi
+  post-session tip: Petua selepas sesi
+  本番モードは開始後の入力だけを採点します。: Sesi bertaraf hanya mengira input selepas bermula.
+  本番モードは仮レーティング A0 以上で解放されます。: Mod penarafan dibuka apabila penarafan latihan mencapai A0 atau lebih tinggi.
+  IMEあり本番では行を課題と一致させてから Enter で提出します。: Dalam mod penarafan dengan IME, padankan baris soalan kemudian tekan Enter untuk menghantar.
+  500点未満は NR、500点以上は G0、以降は90点ごとにランクが上がります。: Skor bawah 500 ialah NR. G0 bermula pada 500 dan setiap tahap lebih tinggi memerlukan tambahan 90 mata.
+  練習モードの仮レーティングは、本番モード解放の条件として使われます。: Penarafan latihan menentukan masa mod penarafan dibuka.
+  次の課題プレビューは設定画面で表示方式と長さを変更できます。: Ubah gaya dan panjang pratonton soalan seterusnya dalam Tetapan.
+  正確無比とIMEあり本番では、ミスをBackspaceで戻すまで先に進めません。: Dalam latihan Ketepatan dan mod penarafan IME, betulkan kesilapan dengan Backspace sebelum meneruskan.
+  自動リタイアは、設定から有効にできます。: Anda boleh mengaktifkan tamat automatik dalam Tetapan.
+  自分の「つまづきパターン」を理解するのが、成長に不可欠です。: Memahami corak kesilapan sendiri penting untuk maju.
+  たいてい、他人より自分自身と競争するほうが良い結果が出ます。: Bersaing dengan diri sendiri selalunya memberikan hasil yang lebih baik.
+  楽だからといって「エンジニア座り」をしていると、腰を壊すので気をつけましょう。: Duduk membongkok boleh membebankan belakang, jadi jaga postur.
+  最高のパフォーマンスを出したいときは、まず机から離れ、爪の長さを確認するといいかも。: Untuk prestasi terbaik, berehat sebentar dari meja dan periksa panjang kuku.
+  肩と手首の力を抜き、キーを押す力を必要最小限にすると次の入力が軽くなります。: Rehatkan bahu dan pergelangan tangan, tekan kekunci dengan daya yang perlu sahaja.
+  焦るより、遅くても正確にやるほうがすべてのモードでスコアが伸びます。: Ketepatan meningkatkan skor dalam setiap mod walaupun anda menaip dengan lebih perlahan.
+  1日に長時間練習しすぎないようにしましょう。腱鞘炎になります。: Jangan berlatih terlalu lama sehari untuk mengurangkan risiko ketegangan tendon.
+  英文はだいぶ日本語文と感覚が違います。分けて練習しましょう。: Menaip bahasa Inggeris terasa berbeza daripada bahasa Jepun. Berlatih secara berasingan.
+  一瞬一瞬のブーストよりも、安定してスラスラ打てるほうがスコアが伸びます。: Rentak yang stabil dan lancar meningkatkan skor lebih baik daripada pecutan sekali-sekala.
+  単語で反射神経を競わず、長文で実力を磨くのがオススメ。: Tingkatkan kemahiran dengan petikan panjang, bukan berlumba menaip perkataan tunggal.
+  文字をうったら、すぐにホームポジションに戻しましょう。: Kembalikan jari ke baris asas selepas setiap ketukan.
+  打鍵中、手元を絶対に見てはいけません。絶対です。: Lihat skrin semasa menaip. Jangan jeling tangan.
+  できるだけ、毎日練習しましょう。それが最短ルートです。: Berlatihlah setiap hari jika boleh. Itulah cara terpantas untuk maju.
+  ずっと練習をするより、実用もするほうが伸びやすくなります。: Gabungkan latihan dengan menaip sebenar untuk maju lebih pantas.
+  ミスしたキー単体よりも、ミスした組み合わせを見つける方が役に立つかも。: Mencari gabungan kekunci yang sering tersilap mungkin lebih berguna daripada satu kekunci.
+  常に先読みを意識してみよう。: Cuba baca ke hadapan sambil menaip.
+  高速化とは、文字を速く打つことではなく、迷う時間を減らすこと。: Menaip pantas bukan sekadar menggerakkan jari, tetapi juga mengurangkan masa teragak-agak.
+  「ci」や「le」など、早く打てる別ルートも無理のない範囲で試してみよう。: Jika selesa, cuba corak input pantas seperti “ci” atau “le”.
+  入力画面設定: Tetapan skrin input
+  画面設定: Tetapan skrin
+  入力画面のプレビュー: Pratonton skrin input
+  一時停止: Jeda
+  10.0打鍵/秒プレビュー: Pratonton 10 ketukan/saat
+  5.0打鍵/秒プレビュー: Pratonton 5 ketukan/saat
+  プレビューの課題文: Pratonton petikan latihan
+  短文: Teks pendek
+  長文: Teks panjang
+  入力画面: Skrin input
+  フォント: Fon
+  表示順: Urutan paparan
+  漢字・ふりがな・ひらがな表示に使うGoogle Fonts: Google Fonts untuk kanji, furigana dan hiragana
+  日本語フォント: Fon bahasa Jepun
+  ローマ字・英語課題文に使うGoogle Fonts: Google Fonts untuk romaji dan petikan latihan bahasa Inggeris
+  英語フォント: Fon bahasa Inggeris
+  入力画面の表示順: Urutan paparan skrin input
+  ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する: Seret untuk menyusun semula baris pada skrin input. Item tersembunyi kekal pada kedudukan asal.
+  表示中: Dipaparkan
+  非表示中: Tersembunyi
+  上部表示情報: Paparan atas
+  表示する情報: Maklumat untuk dipaparkan
+  残り時間を外しても、残り時間バーは表示されます。: Bar masa berbaki kekal kelihatan walaupun angka masa berbaki disembunyikan.
+  入力方式: Kaedah input
+  ローマ字入力法: Kaedah input romaji
+  許容する派生と、ガイドで優先表示する表記を選ぶ: Pilih variasi yang diterima dan ejaan pilihan dalam panduan.
+  すべて分割: Semua berasingan
+  すべて統合: Semua digabungkan
+  個別設定: Tersuai
+  ヘボン式優先: Utamakan Hepburn
+  最短優先: Utamakan ejaan terpendek
+  促音入力: Input sokuon
+  促音入力候補: Input sokuon yang diterima
+  「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ: Pilih cara mengendalikan konsonan berganda dan input ltsu / xtsu / ltu / xtu untuk っ.
+  促音分割を許可: Benarkan input sokuon berasingan
+  表示: Ejaan pilihan
+  一般拗音分割入力: Input berasingan untuk yōon biasa
+  「きゃ」を kya だけでなく kila / kixa でも入力できるようにする: Benarkan きゃ ditaip sebagai kila atau kixa selain kya.
+  特殊拗音入力法: Kaedah input yōon khas
+  出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ: Pilih sama ada kana kata pinjaman yang kurang biasa ditaip secara gabungan atau berasingan.
+  ローマ字: Romaji
+  ローマ字マーカー: Penanda romaji
+  入力中の位置をローマ字表示に下線で表示する。ON推奨: Garis bawah kedudukan semasa dalam panduan romaji. Disyorkan hidup.
+  ローマ字マーカー単位: Unit penanda romaji
+  ローマ字の現在位置を1文字ずつ表示するか、su や shi などの発音単位で表示するかを選ぶ: Pilih sama ada penanda romaji bergerak mengikut aksara atau bunyi seperti su atau shi.
+  文字単位: Mengikut aksara
+  発音単位: Mengikut bunyi
+  ローマ字の課題文の文字サイズ: Saiz teks romaji
+  ローマ字フォントサイズ: Saiz fon romaji
+  ローマ字行の下に空ける余白: Ruang di bawah baris romaji
+  ローマ字の下余白: Jarak bawah romaji
+  ローマ字行の行間倍率: Pengganda tinggi baris romaji
+  ローマ字の行間: Tinggi baris romaji
+  英文モード: Mod bahasa Inggeris
+  スペース表示: Paparan ruang
+  英文モードでスペースを記号として表示する: Paparkan ruang sebagai simbol dalam mod bahasa Inggeris.
+  縦長ボックス: Kotak tinggi
+  次の課題の表示方式: Paparan petikan seterusnya
+  短文練習で次の課題をどう見せるかを選ぶ: Pilih cara memaparkan petikan seterusnya semasa latihan teks pendek.
+  スライド: Luncur
+  上下に分け、次の課題が上へ移る: Bahagikan paparan dan alihkan petikan seterusnya ke bahagian atas.
+  交代: Berselang-seli
+  上下の入力位置を交互に切り替える: Selang-selikan kedudukan input antara bahagian atas dan bawah.
+  中央揃え・連結: Aliran teks berpusat
+  入力位置を中心に置く連続表示: Paparkan petikan secara berterusan dengan kedudukan input semasa di tengah.
+  非表示: Tersembunyi
+  次の課題を表示しない: Jangan paparkan petikan seterusnya.
+  本番（IMEなし）の漢字文を表示する行数: Bilangan baris teks kanji dalam mod penilaian tanpa IME
+  長文モードの漢字文エリアの高さ: Tinggi ruang kanji untuk mod teks panjang
+  行: baris
+  長文モードの漢字文だけに適用する行間: Tinggi baris yang hanya digunakan untuk teks kanji panjang
+  長文モードの行間: Tinggi baris teks panjang
+  正確無比の誤入力表示: Paparan kesilapan dalam mod Ketepatan
+  誤入力した文字を課題文ローマ字上に表示する方法を選ぶ: Pilih cara memaparkan input yang salah di atas romaji petikan.
+  上書き: Ganti
+  挿入: Sisipkan
+  何もしない: Jangan buat apa-apa
+  ランク算出方式: Pengiraan kedudukan
+  タイピング中のランク表示に使うスコアの算出方式を選びます。: Pilih cara mengira skor yang dipaparkan sebagai kedudukan semasa menaip.
+  予測値（変動方式）: Unjuran (berubah sepanjang sesi)
+  実値（加点方式）: Sebenar (mata yang diperoleh)
+  漢字: Kanji
+  漢字表示: Paparan kanji
+  入力画面に漢字混じりの課題文を表示する: Paparkan petikan yang mengandungi kanji pada skrin input.
+  漢字フォントサイズ: Saiz fon kanji
+  漢字混じりの課題文の文字サイズ: Saiz fon petikan yang mengandungi kanji
+  漢字行の下に空ける余白: Ruang di bawah baris kanji
+  漢字の下余白: Jarak bawah kanji
+  漢字行の行間倍率: Pengganda tinggi baris kanji
+  漢字の行間: Tinggi baris kanji
+  漢字マーカー: Penanda kanji
+  入力中の位置を漢字表示に下線で表示する: Garis bawah kedudukan semasa dalam paparan kanji.
+  入力途中経過（漢字）: Kemajuan input kanji
+  入力途中経過（漢字）表示: Paparkan kemajuan input kanji
+  入力済みの途中経過を漢字表示の下に追加する: Paparkan kemajuan taip di bawah kanji.
+  漢字表示オフのためロック: Dikunci kerana paparan kanji dimatikan
+  入力途中経過（漢字）の文字サイズ: Saiz fon kemajuan input kanji
+  入力途中経過（漢字）フォントサイズ: Saiz fon kemajuan input kanji
+  入力途中経過（漢字）の下に空ける余白: Ruang di bawah kemajuan input kanji
+  入力途中経過（漢字）の下余白: Jarak bawah kemajuan input kanji
+  入力途中経過（漢字）の行間倍率: Pengganda tinggi baris kemajuan kanji
+  入力途中経過（漢字）の行間: Tinggi baris kemajuan kanji
+  ふりがな: Furigana
+  ふりがな表示: Paparan furigana
+  漢字混じりの課題文の上にふりがなを表示する: Paparkan furigana di atas petikan yang mengandungi kanji.
+  ふりがなフォント倍率: Skala saiz fon furigana
+  漢字フォントサイズに対するふりがなの倍率: Saiz furigana berbanding fon kanji
+  ふりがな表示オフのためロック: Dikunci kerana paparan furigana dimatikan
+  倍: ×
+  ふりがなの下余白: Jarak bawah furigana
+  ふりがな側に追加する下余白: Ruang di bawah baris furigana
+  ふりがなの行間: Tinggi baris furigana
+  ふりがなの行間倍率: Pengganda tinggi baris furigana
+  ふりがなマーカー: Penanda furigana
+  入力中の位置をふりがな表示に下線で表示する: Garis bawah kedudukan semasa dalam paparan furigana.
+  ひらがな: Hiragana
+  ひらがな表示: Paparan hiragana
+  入力画面にひらがなの読みを表示する: Paparkan bacaan hiragana pada skrin input.
+  ひらがなの読みの文字サイズ: Saiz fon bacaan hiragana
+  ひらがなフォントサイズ: Saiz fon hiragana
+  ひらがな行の下に空ける余白: Ruang di bawah baris hiragana
+  ひらがなの下余白: Jarak bawah hiragana
+  ひらがな行の行間倍率: Pengganda tinggi baris hiragana
+  ひらがなの行間: Tinggi baris hiragana
+  ひらがなマーカー: Penanda hiragana
+  入力中の位置をひらがな表示に下線で表示する: Garis bawah kedudukan semasa dalam paparan hiragana.
+  入力途中経過（ひらがな）: Kemajuan input hiragana
+  入力途中経過（ひらがな）表示: Paparkan kemajuan input hiragana
+  入力済みの途中経過をひらがな表示の下に追加する: Paparkan kemajuan taip di bawah hiragana.
+  ひらがな表示オフのためロック: Dikunci kerana paparan hiragana dimatikan
+  入力途中経過（ひらがな）の文字サイズ: Saiz fon kemajuan input hiragana
+  入力途中経過（ひらがな）フォントサイズ: Saiz fon kemajuan input hiragana
+  入力途中経過（ひらがな）の下に空ける余白: Ruang di bawah kemajuan input hiragana
+  入力途中経過（ひらがな）の下余白: Jarak bawah kemajuan input hiragana
+  入力途中経過（ひらがな）の行間倍率: Pengganda tinggi baris kemajuan hiragana
+  入力途中経過（ひらがな）の行間: Tinggi baris kemajuan hiragana
+  初期値に戻す: Tetapkan semula kepada lalai
+  "{label} を初期値に戻す": Tetapkan semula {label} kepada lalai
+  "{label} を調整": Laraskan {label}
+  "{label} を増やす": Tingkatkan {label}
+  "{label} を減らす": Kurangkan {label}
+  "{label} を上へ移動": Alihkan {label} ke atas
+  "{label} を下へ移動": Alihkan {label} ke bawah
+  "{label} display order item": Item urutan paparan {label}
+  練習言語: Bahasa latihan
+  英語: Bahasa Inggeris
+  課題テーマ: Tema latihan
+  タイピングのコツ: Petua menaip
+  今週のテーマ：{theme}: "Tema minggu ini: {theme}"
+  選択中：{theme}: "Dipilih: {theme}"
+  今週のテーマ：: "Tema minggu ini: "
+  （日本時間・毎週月曜6時に更新）: Dikemas kini setiap Isnin pada 06:00 JST
+  自動（日本時間・毎週月曜6時）: Automatik (Isnin, 06:00 JST)
+  （今週）: " (minggu ini)"
+  日常・趣味: Kehidupan harian dan hobi
+  国内旅行: Mengembara di Jepun
+  Alpha版では本番モードは開発中のためプレイできません。: Mod penilaian sedang dibangunkan dan belum tersedia dalam keluaran alfa ini.
+  国内旅行・都道府県: Mengembara di Jepun
+  国外旅行・ヨーロッパ: Mengembara ke luar negara · Eropah
+  国外旅行・アフリカ: Mengembara ke luar negara · Afrika
+  国外旅行・アジア: Mengembara ke luar negara · Asia
+  国外旅行・北アメリカ: Mengembara ke luar negara · Amerika Utara
+  国外旅行・南アメリカ: Mengembara ke luar negara · Amerika Selatan
+  国外旅行・オセアニア: Mengembara ke luar negara · Oceania
+  練習モードまたは本番モードを選択してください。: Pilih mod latihan atau penilaian.
+  練習モード: Mod latihan
+  本番モード: Mod penilaian
+  "{minutes}分": "{minutes} minit"
+  仮レーティング A0 以上で解放: Dibuka apabila penarafan latihan mencapai A0 atau lebih tinggi
+  正確無比: Ketepatan
+  精度: Ketepatan
+  ミス後は Backspace で修正。正確率の重みが最も高い練習。: Betulkan kesilapan dengan Backspace. Ketepatan mempunyai wajaran tertinggi dalam mod ini.
+  行雲流水: Aliran
+  安定: Rentak
+  自然な揺れを許容し、打鍵リズムの安定度をスコアに乗算する練習。: Berlatih menaip dengan rentak yang stabil. Konsistensi rentak menjadi pengganda skor.
+  音速打破: Kelajuan
+  速度: Kelajuan
+  正確率の重みを軽くし、速度の限界を測る練習。: Uji kelajuan menaip dengan wajaran ketepatan yang lebih rendah.
+  本番 IMEなし: Penilaian · IME dimatikan
+  本番: Penilaian
+  時間を決めて行う本番測定。変換なしで長文を連続処理する。: Sesi penilaian bermasa. Taip petikan panjang secara berterusan tanpa penukaran IME.
+  本番 IMEあり: Penilaian · IME dihidupkan
+  行単位で課題と一致させて Enter で提出する。: Padankan petikan menggunakan IME dan tekan Enter untuk menghantar.
+  英語学習: Belajar bahasa Inggeris
+  魚の種類: Jenis ikan
+  回転すし: Sushi berputar
+  高級寿司: Sushi mewah
+  ラーメンの歴史: Sejarah ramen
+  ラーメンの種類: Jenis ramen
+  音楽のジャンル: Genre muzik
+  通勤電車: Kereta komuter
+  コミュニケーションの基本: Asas komunikasi
+  パソコン購入: Membeli komputer
+  スマホ購入: Membeli telefon pintar
+  SNS: Media sosial
+  イヤホンのこだわり: Memilih fon telinga
+  食料品の買い出し: Membeli-belah barangan runcit
+  算数・数学: Matematik
+  カードゲーム: Permainan kad
+  薬: Ubat
+  恋愛: Hubungan
+  推し活: Menjadi peminat
+  クラウドサービス: Perkhidmatan awan
+  散歩: Berjalan-jalan
+  写真シール: Foto pelekat
+  漫画: Komik
+  ギター: Gitar
+  時計: Jam
+  オンライン会議: Mesyuarat dalam talian
+  授業: Pelajaran
+  塾: Kelas tuisyen
+  卒業: Graduasi
+  スポーツ一般: Sukan
+  水泳: Renang
+  昔話: Cerita rakyat
+  アニメ: Animasi
+  バレンタイン: Hari Valentine
+  ハロウィン: Halloween
+  クリスマス: Krismas
+  マッサージ: Urut
+  Modes: Mod
+  Practice: Latihan
+  Rating: Penilaian
+  Settings: Tetapan
+  User: Pengguna
+  Share Result: Kongsi keputusan
+  Share: Kongsi
+  PNG: PNG
+  Dark: Gelap
+  Light: Cerah
+  mode selection: Pemilihan mod
+  challenge language: Bahasa latihan
+  saved ratings: Penilaian tersimpan
+  on: Hidup
+  off: Mati
+  IME: IME
+  Rank: Kedudukan
+  Score: Skor
+  ACCURACY: KETEPATAN
+  KEYS / SEC: KETUKAN / SAAT
+  CORRECT CHARS: AKSARA BETUL
+  ULTITYPE RESULT: HASIL ULTITYPE
+  theme.domestic: Mengembara di Jepun · {name}
+  theme.international: Mengembara ke luar negara · {name}
+  share.intro: "ULTITYPE: Saya berlatih “{mode}”!"
+  share.rank: 🏆 Kedudukan {rank} | {score} mata
+  share.accuracy: 🎯 Ketepatan {accuracy}%
+  share.speed: ⌨️ {second} ketukan/saat | {minute} ketukan/minit
+  share.hashtags: "#ULTITYPE #menaip"

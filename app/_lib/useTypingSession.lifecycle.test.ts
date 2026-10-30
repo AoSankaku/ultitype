@@ -2,6 +2,15 @@ import { spawnSync } from "node:child_process";
 import { describe, expect, test } from "bun:test";
 
 type LifecycleResult = {
+  languageLifecycle?: {
+    englishUi: { app: string; practice: string };
+    japaneseUi: { app: string; practice: string };
+    promptUnchanged: boolean;
+    restored: { app: string; practice: string };
+    japanesePractice: { app: string; practice: string };
+    afterUserClear: { app: string; practice: string };
+    afterReset: { app: string; practice: string };
+  };
   committedInput: string;
   currentAccuracy: number;
   currentRank: string;
@@ -129,6 +138,22 @@ function runFixture(
 }
 
 describe("useTypingSession timeout lifecycle", () => {
+  test("persists independent app and practice languages without changing prompts", () => {
+    const lifecycle = runFixture("language-settings").languageLifecycle!;
+    expect(lifecycle.englishUi).toEqual({ app: "en", practice: "en" });
+    expect(lifecycle.japaneseUi).toEqual({ app: "ja", practice: "en" });
+    expect(lifecycle.promptUnchanged).toBe(true);
+    expect(lifecycle.restored).toEqual({ app: "ja", practice: "en" });
+    expect(lifecycle.japanesePractice).toEqual({ app: "en", practice: "ja" });
+    expect(lifecycle.afterUserClear).toEqual({ app: "en", practice: "ja" });
+    expect(lifecycle.afterReset).toEqual({ app: "ja", practice: "ja" });
+  });
+
+  test("keeps language settings independent when storage deletion fails", () => {
+    const lifecycle = runFixture("language-settings", "delete").languageLifecycle!;
+    expect(lifecycle.restored).toEqual({ app: "ja", practice: "en" });
+    expect(lifecycle.afterReset).toEqual({ app: "ja", practice: "ja" });
+  });
   test("keeps results and settings across navigation when storage writes fail", () => {
     const result = runFixture(undefined, "quota");
     expect(result.afterNavigation!.sessionCount).toBe(1);

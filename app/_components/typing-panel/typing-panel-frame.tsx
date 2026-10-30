@@ -3,6 +3,7 @@
 import { ArrowLeft, CheckCircle2, Lock, RotateCcw, Timer, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { css } from "../../_lib/css-module";
+import { useI18n } from "../../_lib/i18n";
 import styles from "../TypingPanel.module.css";
 import { Metric } from "./session-summary";
 
@@ -65,6 +66,7 @@ export function TypingPanelHeader({
   visiblePrepareActionTitle: string;
   visibleRank: VisibleRank;
 }) {
+  const { t } = useI18n();
   return (
     <div className={css(styles, "session-head")}>
       <div>
@@ -76,7 +78,7 @@ export function TypingPanelHeader({
             </span>
           ) : null}
           <span
-            aria-label={visibleRank.isConcealed ? "Rank hidden for the first 30 seconds" : undefined}
+            aria-label={visibleRank.isConcealed ? t("Rank hidden for the first 30 seconds") : undefined}
             className={css(styles, "session-rank-value", visibleRank.isConcealed ? "concealed" : "")}
           >
             {visibleRank.label}
@@ -88,7 +90,7 @@ export function TypingPanelHeader({
         <button
           className={css(styles, "icon-button")}
           onClick={onBackToModeSelect}
-          title="モード選択"
+          title={t("モード選択")}
           type="button"
         >
           <ArrowLeft size={18} />
@@ -104,7 +106,7 @@ export function TypingPanelHeader({
         <button
           className={css(styles, "icon-button")}
           onClick={onResetSession}
-          title="リセット"
+          title={t("リセット")}
           type="button"
         >
           <RotateCcw size={18} />
@@ -132,6 +134,7 @@ export function TypingPanelResultBand({
   finishReason: string | null;
   scoreLabel: string;
 }) {
+  const { t } = useI18n();
   if (!finishReason) {
     return null;
   }
@@ -141,8 +144,8 @@ export function TypingPanelResultBand({
       <CheckCircle2 size={20} />
       <span>
         {finishReason === "retired"
-          ? "無入力が続いたためリタイアしました"
-          : `セッション終了: ${currentRankLabel} / ${scoreLabel}`}
+          ? t("無入力が続いたためリタイアしました")
+          : t("セッション終了: {rank} / {score}", { rank: currentRankLabel, score: scoreLabel })}
       </span>
     </div>
   );

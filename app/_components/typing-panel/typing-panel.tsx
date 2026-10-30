@@ -11,6 +11,7 @@ import { useLayoutEffect, useRef } from "react";
 import { css } from "../../_lib/css-module";
 import { getVisibleSessionRank } from "../../_lib/session-rank-visibility";
 import { useTypingSounds } from "../../_lib/typing-sounds";
+import { useI18n } from "../../_lib/i18n";
 import { writeLocalStorageItem } from "../../_lib/browser-storage";
 import styles from "../TypingPanel.module.css";
 
@@ -118,6 +119,7 @@ export function TypingPanel({
   onPreventDirectTextInput,
   onResetSession,
 }: TypingPanelProps) {
+  const { t } = useI18n();
   const playTypingSound = useTypingSounds(soundSettings);
   const visibleRank = getVisibleSessionRank({
     concealOpeningRank: rankCalculationMode === "projected",
@@ -133,7 +135,7 @@ export function TypingPanel({
     topDisplayMetricIds,
   });
   const SessionModeIcon = sessionModeIcon === undefined ? getSessionModeIcon(mode) : sessionModeIcon;
-  const visibleModeLabel = sessionModeLabel ?? mode.label;
+  const visibleModeLabel = t(sessionModeLabel ?? mode.label);
   const PrepareActionIcon = prepareActionIcon ?? Play;
   const isProductionImeOn = mode.id === "production-ime-on";
   const productionImeInputShellRef = useRef<HTMLDivElement | null>(null);
@@ -145,7 +147,7 @@ export function TypingPanel({
   const scorePrefix =
     rankCalculationMode === "projected" && !isFinished && remainingSeconds > 0 ? "\u2248 " : "";
   const scoreLabel = `${scorePrefix}${Math.round(metrics.score).toLocaleString()} pts`;
-  const visiblePrepareActionTitle = prepareActionTitle ?? "開始";
+  const visiblePrepareActionTitle = t(prepareActionTitle ?? "開始");
   const showDisplayText = challengeLanguage !== "ja" || showKanjiDisplay;
   const inputProgress = createInputProgress({
     acceptsTextInput,
@@ -283,9 +285,9 @@ export function TypingPanel({
   return (
     <section
       className={css(styles, "practice-panel", acceptsTextInput ? "ime-panel" : "direct-panel", isPreview ? "preview-panel" : "")}
-      aria-label="typing practice"
+      aria-label={t("typing practice")}
     >
-      <TypingPanelMeters progress={progress} topDisplayMetrics={topDisplayMetrics} />
+      <TypingPanelMeters progress={progress} topDisplayMetrics={topDisplayMetrics.map((metric) => ({ ...metric, label: t(metric.label) }))} />
 
       <TypingPanelHeader
         PrepareActionIcon={PrepareActionIcon}
@@ -300,7 +302,7 @@ export function TypingPanel({
       />
 
       {isProductionBlocked ? (
-        <LockedPanel productionBlockReason={productionBlockReason} />
+        <LockedPanel productionBlockReason={t(productionBlockReason)} />
       ) : (
         <>
           <TypingTargetView
@@ -451,7 +453,7 @@ export function TypingPanel({
             startedAt={startedAt}
           />
           ) : null}
-          {imeError ? <p className={css(styles, "error-line")}>{imeError}</p> : null}
+          {imeError ? <p className={css(styles, "error-line")}>{t(imeError)}</p> : null}
         </>
       )}
 

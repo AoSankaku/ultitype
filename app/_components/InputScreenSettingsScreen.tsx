@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../_lib/i18n";
+
 import { ArrowLeft, FastForward, MonitorCog, Pause, Play, Wrench } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import mockJapaneseText from "@/src/lib/challenge-data/_mock/ja-mock.txt" with { type: "text" };
@@ -144,6 +146,7 @@ export function InputScreenSettingsScreen({
   onBack,
   onChange,
 }: InputScreenSettingsScreenProps) {
+  const { t } = useI18n();
   const previewContentRef = useRef<HTMLDivElement | null>(null);
   const mockElapsedMsRef = useRef(initialMockElapsedMs);
   const mockTickAtRef = useRef<number | null>(null);
@@ -279,33 +282,33 @@ export function InputScreenSettingsScreen({
   }, []);
 
   return (
-    <section className={css(styles, "settings-screen input-screen-settings-screen")} aria-label="input screen settings">
+    <section className={css(styles, "settings-screen input-screen-settings-screen")} aria-label={t("入力画面設定")}>
       <div className={css(styles, "settings-head")}>
         <div>
           <div className={css(styles, "panel-heading")}>
             <MonitorCog size={18} />
-            <span>Screen Settings</span>
+            <span>{t("画面設定")}</span>
           </div>
-          <h2>入力画面設定</h2>
+          <h2>{t("入力画面設定")}</h2>
         </div>
-        <button className={css(styles, "icon-button")} onClick={onBack} title="戻る" type="button">
+        <button className={css(styles, "icon-button")} onClick={onBack} title={t("戻る")} type="button">
           <ArrowLeft size={18} />
         </button>
       </div>
 
-      <section className={css(styles, "input-screen-settings-preview")} aria-label="input screen mock">
+      <section className={css(styles, "input-screen-settings-preview")} aria-label={t("入力画面のプレビュー")}>
         <div className={css(styles, "input-screen-settings-preview-controls")}>
-          <label htmlFor="challenge-preview-length">プレビューの課題文</label>
+          <label htmlFor="challenge-preview-length">{t("プレビューの課題文")}</label>
           <select
-            aria-label="プレビューの課題文"
+            aria-label={t("プレビューの課題文")}
             id="challenge-preview-length"
             onChange={(event) =>
               handlePreviewLengthChange(event.currentTarget.value as "short" | "long")
             }
             value={previewLength}
           >
-            <option value="short">短文</option>
-            <option value="long">長文</option>
+            <option value="short">{t("短文")}</option>
+            <option value="long">{t("長文")}</option>
           </select>
         </div>
         <div className={css(styles, "input-screen-settings-preview-sticky")} style={stickyPreviewStyle}>
@@ -397,9 +400,9 @@ export function InputScreenSettingsScreen({
               startedAt={Date.now() - 16000}
               rankCalculationMode={settings.rankCalculationMode}
               sessionModeIcon={Wrench}
-              sessionModeLabel="入力画面設定"
+              sessionModeLabel={t("入力画面設定")}
               prepareActionIcon={isMockPaused ? Pause : mockPlaybackMode === "fast" ? FastForward : Play}
-              prepareActionTitle={isMockPaused ? "一時停止" : mockPlaybackMode === "fast" ? "10.0打鍵/秒プレビュー" : "5.0打鍵/秒プレビュー"}
+              prepareActionTitle={isMockPaused ? t("一時停止") : mockPlaybackMode === "fast" ? t("10.0打鍵/秒プレビュー") : t("5.0打鍵/秒プレビュー")}
               stats={{
                 ...initialStats,
                 characterAttempts: visibleMockInput.length,

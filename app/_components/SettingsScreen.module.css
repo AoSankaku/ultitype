@@ -117,6 +117,22 @@
   align-items: center;
 }
 
+.appLanguageSelect select {
+  min-width: 220px;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 800;
+}
+
+.appLanguageSelect select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .settingsRowLink {
   display: inline-flex;
   min-width: 220px;
@@ -248,7 +264,7 @@
 .numberLockIcon {
   position: absolute;
   top: 50%;
-  right: 76px;
+  inset-inline-end: 76px;
   display: grid;
   width: 20px;
   height: 20px;
@@ -261,11 +277,11 @@
 }
 
 .numberControl.locked span {
-  padding-right: 34px;
+  padding-inline-end: 34px;
 }
 
 .numberControl span {
-  padding-right: 8px;
+  padding-inline-end: 8px;
   color: var(--muted);
   font-size: 13px;
   font-weight: 800;
@@ -277,7 +293,7 @@
   align-self: stretch;
   place-items: center;
   border: 0;
-  border-left: 1px solid var(--line);
+  border-inline-start: 1px solid var(--line);
   background: var(--surface);
   color: var(--text);
   padding: 0;
@@ -299,7 +315,7 @@
   display: grid;
   width: 34px;
   align-self: stretch;
-  border-left: 1px solid var(--line);
+  border-inline-start: 1px solid var(--line);
 }
 
 .numberStepper button {
@@ -874,7 +890,7 @@
     }
 
   .soundVolumeControl strong {
-      text-align: left;
+      text-align: start;
     }
 
   .romajiPresetSegmented,

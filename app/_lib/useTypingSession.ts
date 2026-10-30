@@ -85,6 +85,7 @@ import {
 import { useChallengeTheme } from "./use-challenge-theme";
 import { getFinishSoundKind, useTypingSounds } from "./typing-sounds";
 import { getBrowserLocalStorage, removeLocalStorageItems, writeLocalStorageItem } from "./browser-storage";
+import { clearPracticeLanguagePreference, readPracticeLanguage, rememberPracticeLanguage } from "./practice-language";
 
 type KeyStabilityInput = {
   key: string;
@@ -627,11 +628,12 @@ export function getVisibleCorrectionDebt({
 }
 
 export function useTypingSession({
-  initialChallengeLanguage = "ja",
+  initialChallengeLanguage: requestedChallengeLanguage,
   initialModeId = "practice-accuracy",
   initialProductionDuration = 300,
   initialScreen = "mode-select",
 }: UseTypingSessionOptions = {}) {
+  const initialChallengeLanguage = requestedChallengeLanguage ?? "ja";
   const themeSelection = useChallengeTheme();
   const initialPracticeChallengeOrder = createOrderedIndexes(
     getDirectChallenges(initialChallengeLanguage, "practice", themeSelection.selectedThemeId).length,
@@ -1031,6 +1033,14 @@ export function useTypingSession({
   }, []);
 
   useEffect(() => {
+    if (requestedChallengeLanguage) {
+      rememberPracticeLanguage(requestedChallengeLanguage);
+    } else {
+      setChallengeLanguage(readPracticeLanguage());
+    }
+  }, [requestedChallengeLanguage]);
+
+  useEffect(() => {
     if (
       !canApplyChallengeTheme(challengeLanguage, startedAt !== null) ||
       activeChallengeThemeId === themeSelection.selectedThemeId
@@ -1081,8 +1091,9 @@ export function useTypingSession({
   }, [hasLoadedStoredState, stored]);
 
   useEffect(() => {
+    if (!hasLoadedStoredState) return;
     document.documentElement.dataset.theme = stored.settings.theme;
-  }, [stored.settings.theme]);
+  }, [hasLoadedStoredState, stored.settings.theme]);
 
   useEffect(() => {
     if (
@@ -1318,6 +1329,7 @@ export function useTypingSession({
   }
 
   function changeChallengeLanguage(nextLanguage: ChallengeLanguage) {
+    rememberPracticeLanguage(nextLanguage);
     if (challengeLanguage === nextLanguage) {
       return;
     }
@@ -1358,6 +1370,7 @@ export function useTypingSession({
 
     if (scope !== "user-data") {
       themeSelection.selectTheme(null);
+      clearPracticeLanguagePreference();
     }
 
     skipNextPersistRef.current = scope === "all" && removed;
@@ -1365,9 +1378,10 @@ export function useTypingSession({
     cacheStoredState(nextStored, scope === "all" ? removed : undefined);
     setStored(nextStored);
     setModeId("practice-accuracy");
-    setChallengeLanguage("ja");
+    const nextLanguage = scope === "user-data" ? challengeLanguage : "ja";
+    setChallengeLanguage(nextLanguage);
     setProductionDuration(300);
-    resetSession("ja", resetThemeId);
+    resetSession(nextLanguage, resetThemeId);
     setScreen("mode-select");
   }
 
@@ -1732,6 +1746,7 @@ export function useTypingSession({
   }
 
   return {
+    settingsReady: hasLoadedStoredState,
     bestPracticeRank,
     bestProductionRank,
     challengeLanguage,

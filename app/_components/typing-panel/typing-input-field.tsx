@@ -8,6 +8,7 @@ import type {
   RefObject,
 } from "react";
 import { css } from "../../_lib/css-module";
+import { useI18n } from "../../_lib/i18n";
 import styles from "../TypingPanel.module.css";
 import type { BlockableTextEvent } from "./types";
 
@@ -52,6 +53,7 @@ handleProductionImeResizePointerMove,
 handleProductionImeResizePointerUp,
 onPreventDirectTextInput,
 }: TypingInputFieldProps) {
+  const { t } = useI18n();
   if (acceptsTextInput && isProductionImeOn) {
     return (
       <div
@@ -60,7 +62,9 @@ onPreventDirectTextInput,
         style={productionImeInputWidth !== null ? { width: `${productionImeInputWidth}px` } : undefined}
       >
         <textarea
-          aria-label="typing input"
+          dir="ltr"
+          lang={challengeLanguage}
+          aria-label={t("typing input")}
           className={css(styles, "typing-input", "production-ime-input")}
           data-production-ime-input="true"
           disabled={isFinished}
@@ -75,16 +79,16 @@ onPreventDirectTextInput,
           placeholder={
             startedAt
               ? challengeLanguage === "ja"
-                ? "IMEありで入力し、行が一致したら Enter"
-                : "英文を入力し、行が一致したら Enter"
-              : "開始ボタン、またはここで入力を始める"
+                ? t("IMEありで入力し、行が一致したら Enter")
+                : t("英文を入力し、行が一致したら Enter")
+              : t("開始ボタン、またはここで入力を始める")
           }
           ref={inputRef}
           rows={3}
           value={input}
         />
         <button
-          aria-label="resize typing input"
+          aria-label={t("resize typing input")}
           className={css(styles, "production-ime-input-resize-handle")}
           onPointerDown={handleProductionImeResizePointerDown}
           onPointerMove={handleProductionImeResizePointerMove}
@@ -98,7 +102,9 @@ onPreventDirectTextInput,
 
   return acceptsTextInput ? (
     <textarea
-      aria-label="typing input"
+      dir="ltr"
+      lang={challengeLanguage}
+      aria-label={t("typing input")}
       className={css(styles, "typing-input", isProductionImeOn ? "production-ime-input" : "")}
       data-production-ime-input={isProductionImeOn ? "true" : undefined}
       onChange={handleImeInputChange}
@@ -114,9 +120,9 @@ onPreventDirectTextInput,
       placeholder={
         startedAt
           ? challengeLanguage === "ja"
-            ? "IMEありで入力し、行が一致したら Enter"
-            : "英文を入力し、行が一致したら Enter"
-          : "開始ボタン、またはここで入力を始める"
+            ? t("IMEありで入力し、行が一致したら Enter")
+            : t("英文を入力し、行が一致したら Enter")
+          : t("開始ボタン、またはここで入力を始める")
       }
       ref={inputRef}
       rows={isProductionImeOn ? 3 : undefined}
@@ -129,7 +135,9 @@ onPreventDirectTextInput,
     />
   ) : (
     <textarea
-      aria-label="direct keyboard capture"
+      dir="ltr"
+      lang={challengeLanguage}
+      aria-label={t("direct keyboard capture")}
       autoCapitalize="none"
       autoCorrect="off"
       className={css(styles, "direct-input-guard")}

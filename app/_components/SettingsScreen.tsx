@@ -12,7 +12,10 @@ import {
   Trash2,
 } from "lucide-react";
 import { clampInteger } from "../_lib/challenge-utils";
+import { appLanguages } from "../_lib/locale-catalogs";
+import { isAppLanguage } from "../_lib/locale-codes";
 import { css } from "../_lib/css-module";
+import { useI18n } from "../_lib/i18n";
 import { useChromeActiveTabMuted, useTypingSounds } from "../_lib/typing-sounds";
 import type { AppSettings, LocalDataClearScope } from "../_lib/types";
 import { SelectSoundLink } from "./SelectSoundLink";
@@ -39,6 +42,7 @@ export function SettingsScreen({
   onChange,
   onClearLocalData,
 }: SettingsScreenProps) {
+  const { t } = useI18n();
   const playTypingSound = useTypingSounds(settings);
   const detectedBrowserTabMuted = useChromeActiveTabMuted();
   const soundControlsDisabled = browserTabMuted ?? detectedBrowserTabMuted ?? false;
@@ -79,22 +83,22 @@ export function SettingsScreen({
   }
 
   function handleClearLocalData(scope: LocalDataClearScope) {
-    if (window.confirm(clearLocalDataConfirmMessages[scope])) {
+    if (window.confirm(t(clearLocalDataConfirmMessages[scope]))) {
       onClearLocalData(scope);
     }
   }
 
   return (
-    <section className={css(styles, "settings-screen")} aria-label="settings">
+    <section className={css(styles, "settings-screen")} aria-label={t("settings")}>
       <div className={css(styles, "settings-head")}>
         <div>
           <div className={css(styles, "panel-heading")}>
             <Settings size={18} />
-            <span>Settings</span>
+            <span>{t("Settings")}</span>
           </div>
-          <h2>設定</h2>
+          <h2>{t("設定")}</h2>
         </div>
-        <button className={css(styles, "icon-button")} onClick={handleBack} title="戻る" type="button">
+        <button className={css(styles, "icon-button")} onClick={handleBack} title={t("戻る")} type="button">
           <ArrowLeft size={18} />
         </button>
       </div>
@@ -102,15 +106,15 @@ export function SettingsScreen({
       <div className={css(styles, "settings-list")}>
         <section className={css(styles, "settings-category")} aria-labelledby="screen-settings">
           <h3 className={css(styles, "settings-category-title")} id="screen-settings">
-            画面
+            {t("画面")}
           </h3>
           <div className={css(styles, "settings-category-list")}>
             <section className={css(styles, "settings-row")} aria-labelledby="theme-setting">
               <div>
-                <h4 id="theme-setting">テーマ</h4>
-                <p>表示テーマを切り替える</p>
+                <h4 id="theme-setting">{t("テーマ")}</h4>
+                <p>{t("表示テーマを切り替える")}</p>
               </div>
-              <div className={css(styles, "theme-segmented")} role="group" aria-label="theme">
+              <div className={css(styles, "theme-segmented")} role="group" aria-label={t("theme")}>
                 <button
                   aria-pressed={settings.theme === "dark"}
                   className={settings.theme === "dark" ? css(styles, "selected") : ""}
@@ -118,7 +122,7 @@ export function SettingsScreen({
                   type="button"
                 >
                   <Moon size={17} />
-                  Dark
+                  {t("Dark")}
                 </button>
                 <button
                   aria-pressed={settings.theme === "light"}
@@ -127,24 +131,45 @@ export function SettingsScreen({
                   type="button"
                 >
                   <Sun size={17} />
-                  Light
+                  {t("Light")}
                 </button>
               </div>
             </section>
 
+            <section className={css(styles, "settings-row")} aria-labelledby="app-language-setting">
+              <div>
+                <h4 id="app-language-setting">{t("アプリの表示言語")}</h4>
+                <p>{t("画面に表示する言語を選択します。練習する言語はモード選択画面で変更できます。")}</p>
+              </div>
+              <label className={css(styles, "appLanguageSelect")}>
+                <select
+                  aria-label={t("アプリの表示言語")}
+                  onChange={(event) => {
+                    const value = event.currentTarget.value;
+                    if (isAppLanguage(value)) onChange({ appLanguage: value });
+                  }}
+                  value={settings.appLanguage}
+                >
+                  {appLanguages.map(({ code, name }) => (
+                    <option key={code} value={code} lang={code} dir="auto">{name}</option>
+                  ))}
+                </select>
+              </label>
+            </section>
+
             <section className={css(styles, "settings-row settings-link-row")} aria-labelledby="screen-preview-setting">
               <div>
-                <h4 id="screen-preview-setting">入力画面と入力方式</h4>
-                <p>練習画面のモックを見ながら入力方式と表示を調整する</p>
+                <h4 id="screen-preview-setting">{t("入力画面と入力方式")}</h4>
+                <p>{t("練習画面のモックを見ながら入力方式と表示を調整する")}</p>
               </div>
               <SelectSoundLink
-                aria-label="入力画面と入力方式"
+                aria-label={t("入力画面と入力方式")}
                 className={css(styles, "settings-row-link")}
                 href="/settings/screen"
                 soundSettings={settings}
               >
                 <MonitorCog size={18} />
-                開く
+                {t("開く")}
               </SelectSoundLink>
             </section>
           </div>
@@ -152,19 +177,19 @@ export function SettingsScreen({
 
         <section className={css(styles, "settings-category")} aria-labelledby="sound-settings">
           <h3 className={css(styles, "settings-category-title")} id="sound-settings">
-            サウンド
+            {t("サウンド")}
           </h3>
           <div className={css(styles, "settings-category-list")}>
             <section className={css(styles, "settings-row sound-settings-row")} aria-labelledby="sound-setting">
               <div>
-                <h4 id="sound-setting">サウンド</h4>
-                <p>タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。</p>
+                <h4 id="sound-setting">{t("サウンド")}</h4>
+                <p>{t("タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。")}</p>
               </div>
               <div className={css(styles, "sound-settings-controls")} aria-disabled={soundControlsDisabled}>
                 <label className={css(styles, "sound-volume-control")}>
-                  <span>音量</span>
+                  <span>{t("音量")}</span>
                   <input
-                    aria-label="音量"
+                    aria-label={t("音量")}
                     disabled={soundControlsDisabled}
                     max={100}
                     min={0}
@@ -177,7 +202,7 @@ export function SettingsScreen({
                 </label>
                 <div className={css(styles, "sound-toggle-list")}>
                   <label className={css(styles, "sound-toggle-item")}>
-                    <span>タイプ音</span>
+                    <span>{t("タイプ音")}</span>
                     <span className={css(styles, "toggle-control")}>
                       <input
                         checked={settings.typingSoundEnabled}
@@ -191,7 +216,7 @@ export function SettingsScreen({
                     </span>
                   </label>
                   <label className={css(styles, "sound-toggle-item")}>
-                    <span>UI/結果音</span>
+                    <span>{t("UI/結果音")}</span>
                     <span className={css(styles, "toggle-control")}>
                       <input
                         checked={settings.uiSoundEnabled}
@@ -212,17 +237,17 @@ export function SettingsScreen({
 
         <section className={css(styles, "settings-category")} aria-labelledby="auto-retire-settings">
           <h3 className={css(styles, "settings-category-title")} id="auto-retire-settings">
-            自動リタイア
+            {t("自動リタイア")}
           </h3>
           <div className={css(styles, "settings-category-list")}>
             <section className={css(styles, "settings-row")} aria-labelledby="idle-retire-setting">
               <div>
-                <h4 id="idle-retire-setting">無入力リタイア</h4>
-                <p>0 秒で無効</p>
+                <h4 id="idle-retire-setting">{t("無入力リタイア")}</h4>
+                <p>{t("0 秒で無効")}</p>
               </div>
               <div className={css(styles, "number-control")}>
                 <input
-                  aria-label="無入力リタイア秒数"
+                  aria-label={t("無入力リタイア秒数")}
                   min={0}
                   max={120}
                   onChange={(event) =>
@@ -234,17 +259,17 @@ export function SettingsScreen({
                   type="number"
                   value={settings.idleRetireSeconds}
                 />
-                <span>秒</span>
-                <div className={css(styles, "number-stepper")} aria-label="秒数を調整">
+                <span>{t("秒")}</span>
+                <div className={css(styles, "number-stepper")} aria-label={t("秒数を調整")}>
                   <button
-                    aria-label="1秒増やす"
+                    aria-label={t("1秒増やす")}
                     onClick={() => updateIdleRetireSeconds(settings.idleRetireSeconds + 1)}
                     type="button"
                   >
                     <ChevronUp size={14} />
                   </button>
                   <button
-                    aria-label="1秒減らす"
+                    aria-label={t("1秒減らす")}
                     disabled={settings.idleRetireSeconds <= 0}
                     onClick={() => updateIdleRetireSeconds(settings.idleRetireSeconds - 1)}
                     type="button"
@@ -260,12 +285,12 @@ export function SettingsScreen({
               aria-labelledby="consecutive-mistype-retire-setting"
             >
               <div>
-                <h4 id="consecutive-mistype-retire-setting">連続誤打鍵リタイア</h4>
-                <p>0 打鍵で無効</p>
+                <h4 id="consecutive-mistype-retire-setting">{t("連続誤打鍵リタイア")}</h4>
+                <p>{t("0 打鍵で無効")}</p>
               </div>
               <div className={css(styles, "number-control")}>
                 <input
-                  aria-label="連続誤打鍵数"
+                  aria-label={t("連続誤打鍵数")}
                   min={0}
                   max={50}
                   onChange={(event) =>
@@ -277,18 +302,18 @@ export function SettingsScreen({
                   type="number"
                   value={settings.consecutiveMistypeRetireCount}
                 />
-                <span>打鍵</span>
+                <span>{t("打鍵")}</span>
               </div>
             </section>
 
             <section className={css(styles, "settings-row")} aria-labelledby="accuracy-retire-border-setting">
               <div>
-                <h4 id="accuracy-retire-border-setting">正誤率ボーダー</h4>
-                <p>0% で無効</p>
+                <h4 id="accuracy-retire-border-setting">{t("正誤率ボーダー")}</h4>
+                <p>{t("0% で無効")}</p>
               </div>
               <div className={css(styles, "number-control")}>
                 <input
-                  aria-label="正誤率ボーダー"
+                  aria-label={t("正誤率ボーダー")}
                   min={0}
                   max={100}
                   onChange={(event) =>
@@ -308,17 +333,17 @@ export function SettingsScreen({
 
         <section className={css(styles, "settings-category")} aria-labelledby="other-settings">
           <h3 className={css(styles, "settings-category-title")} id="other-settings">
-            その他の設定
+            {t("その他の設定")}
           </h3>
           <div className={css(styles, "settings-category-list")}>
             <section className={css(styles, "settings-row")} aria-labelledby="next-challenge-preview-setting">
               <div>
-                <h4 id="next-challenge-preview-setting">次の課題の表示文字数</h4>
-                <p>短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示</p>
+                <h4 id="next-challenge-preview-setting">{t("次の課題の表示文字数")}</h4>
+                <p>{t("短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示")}</p>
               </div>
               <div className={css(styles, "number-control")}>
                 <input
-                  aria-label="次の課題の表示文字数"
+                  aria-label={t("次の課題の表示文字数")}
                   min={0}
                   max={40}
                   onChange={(event) =>
@@ -334,10 +359,10 @@ export function SettingsScreen({
                   type="number"
                   value={settings.nextChallengePreviewLength}
                 />
-                <span>文字</span>
-                <div className={css(styles, "number-stepper")} aria-label="次の課題の表示文字数を調整">
+                <span>{t("文字")}</span>
+                <div className={css(styles, "number-stepper")} aria-label={t("次の課題の表示文字数を調整")}>
                   <button
-                    aria-label="次の課題の表示文字数を増やす"
+                    aria-label={t("次の課題の表示文字数を増やす")}
                     disabled={settings.nextChallengePreviewLength >= 40}
                     onClick={() =>
                       updateNextChallengePreviewLength(
@@ -349,7 +374,7 @@ export function SettingsScreen({
                     <ChevronUp size={14} />
                   </button>
                   <button
-                    aria-label="次の課題の表示文字数を減らす"
+                    aria-label={t("次の課題の表示文字数を減らす")}
                     disabled={settings.nextChallengePreviewLength <= 0}
                     onClick={() =>
                       updateNextChallengePreviewLength(
@@ -368,13 +393,13 @@ export function SettingsScreen({
 
         <section className={css(styles, "settings-category")} aria-labelledby="danger-settings">
           <h3 className={css(styles, "settings-category-title")} id="danger-settings">
-            危険な操作
+            {t("危険な操作")}
           </h3>
           <div className={css(styles, "settings-category-list")}>
             <section className={css(styles, "settings-row danger-row")} aria-labelledby="clear-local-data-setting">
               <div>
-                <h4 id="clear-local-data-setting">データと設定を消去</h4>
-                <p>ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ</p>
+                <h4 id="clear-local-data-setting">{t("データと設定を消去")}</h4>
+                <p>{t("ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ")}</p>
               </div>
               <div className={css(styles, "danger-actions")}>
                 <button
@@ -384,7 +409,7 @@ export function SettingsScreen({
                   type="button"
                 >
                   <Trash2 size={17} />
-                  ユーザーデータ
+                  {t("ユーザーデータ")}
                 </button>
                 <button
                   className={css(styles, "danger-button secondary-danger-button")}
@@ -393,7 +418,7 @@ export function SettingsScreen({
                   type="button"
                 >
                   <RotateCcw size={17} />
-                  設定を初期化
+                  {t("設定を初期化")}
                 </button>
                 <button
                   className={css(styles, "danger-button")}
@@ -402,7 +427,7 @@ export function SettingsScreen({
                   type="button"
                 >
                   <Trash2 size={17} />
-                  両方
+                  {t("両方")}
                 </button>
               </div>
             </section>

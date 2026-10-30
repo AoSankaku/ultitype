@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { ChevronDown, ChevronUp, Lock, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
@@ -102,6 +104,7 @@ export function NumberControl({
   value,
   onChange,
 }: NumberControlProps) {
+  const { t } = useI18n();
   const formattedValue = formatNumberControlValue(value, step);
   const [draftValue, setDraftValue] = useState(formattedValue);
   const [isEditing, setIsEditing] = useState(false);
@@ -164,18 +167,18 @@ export function NumberControl({
         </b>
       ) : null}
       <button
-        aria-label={`${ariaLabel} を初期値に戻す`}
+        aria-label={t("{label} を初期値に戻す", { label: ariaLabel })}
         className={css(styles, "number-reset-button")}
         disabled={!canReset}
         onClick={resetToDefault}
-        title="初期値に戻す"
+        title={t("初期値に戻す")}
         type="button"
       >
         <RotateCcw aria-hidden="true" size={14} />
       </button>
-      <div className={css(styles, "number-stepper")} aria-label={`${ariaLabel} を調整`}>
+      <div className={css(styles, "number-stepper")} aria-label={t("{label} を調整", { label: ariaLabel })}>
         <button
-          aria-label={`${ariaLabel} を増やす`}
+          aria-label={t("{label} を増やす", { label: ariaLabel })}
           disabled={!canIncrease}
           onClick={() => changeBy(step)}
           type="button"
@@ -183,7 +186,7 @@ export function NumberControl({
           <ChevronUp size={14} />
         </button>
         <button
-          aria-label={`${ariaLabel} を減らす`}
+          aria-label={t("{label} を減らす", { label: ariaLabel })}
           disabled={!canDecrease}
           onClick={() => changeBy(-step)}
           type="button"

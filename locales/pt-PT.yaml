@@ -1,0 +1,440 @@
+meta:
+  code: pt-PT
+  name: Português (Portugal)
+  direction: ltr
+messages:
+  UltiType header: Cabeçalho UltiType
+  Typing practice and rating: Treino de escrita e classificação
+  ランクガイド: Guia de classificações
+  ランクガイド（現在 {rank}）: "Guia de classificações (atual: {rank})"
+  仮: Treino
+  本: Competição
+  ユーザー: Utilizador
+  設定: Definições
+  戻る: Voltar
+  settings: Definições
+  theme: Tema
+  画面: Ecrã
+  テーマ: Tema
+  表示テーマを切り替える: Alterar o tema visual
+  入力画面と入力方式: Ecrã de escrita e métodos de introdução
+  練習画面のモックを見ながら入力方式と表示を調整する: Ajuste a escrita e a apresentação com uma pré-visualização de treino
+  開く: Abrir
+  サウンド: Som
+  タイプ音とUI/結果音の音量、カテゴリ別のON/OFFを調整します。: Ajuste o volume dos sons de escrita, da interface e dos resultados; ative ou desative cada categoria.
+  音量: Volume
+  タイプ音: Sons de escrita
+  UI/結果音: Sons da interface e dos resultados
+  自動リタイア: Terminar automaticamente
+  無入力リタイア: Terminar por inatividade
+  0 秒で無効: 0 desativa esta opção
+  無入力リタイア秒数: Tempo de inatividade até terminar, em segundos
+  秒: s
+  秒数を調整: Ajustar segundos
+  1秒増やす: Adicionar 1 segundo
+  1秒減らす: Retirar 1 segundo
+  連続誤打鍵リタイア: Terminar após erros consecutivos
+  0 打鍵で無効: 0 desativa esta opção
+  連続誤打鍵数: Número de erros consecutivos
+  打鍵: teclas
+  正誤率ボーダー: Limite de precisão
+  0% で無効: 0% desativa esta opção
+  その他の設定: Outras definições
+  次の課題の表示文字数: Comprimento da pré-visualização do texto seguinte
+  短文練習モードで次に出る課題文の冒頭を表示する。0文字で非表示: Mostra o início do texto seguinte durante o treino de frases curtas. Defina 0 para ocultar.
+  文字: caracteres
+  次の課題の表示文字数を調整: Ajustar o comprimento da pré-visualização
+  次の課題の表示文字数を増やす: Aumentar o comprimento da pré-visualização
+  次の課題の表示文字数を減らす: Diminuir o comprimento da pré-visualização
+  危険な操作: Ações destrutivas
+  データと設定を消去: Apagar dados e definições
+  ユーザーデータだけの削除、設定だけの初期化、またはその両方を選ぶ: Escolha se pretende apagar os dados, repor as definições ou fazer ambas as coisas.
+  ユーザーデータ: Dados do utilizador
+  設定を初期化: Repor definições
+  両方: Ambas
+  スコアと履歴だけを削除します。設定は残します。よろしいですか？: Apagar pontuações e histórico e manter as definições?
+  設定をすべて初期値に戻します。スコアと履歴は残します。よろしいですか？: Repor todas as definições e manter as pontuações e o histórico?
+  スコア、履歴、設定をすべて削除します。よろしいですか？: Apagar todas as pontuações, o histórico e as definições?
+  アプリの表示言語: Idioma da interface
+  画面に表示する言語を選択します。練習する言語はモード選択画面で変更できます。: Escolha o idioma da interface. O idioma de treino pode ser alterado no ecrã de seleção dos modos.
+  日本語: Japonês
+  English: Inglês
+  ダーク: Escuro
+  ライト: Claro
+  この画面幅はサポート対象外です: Esta largura de ecrã não é suportada
+  UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。: O UltiType foi concebido para ecrãs de computador com, pelo menos, 520 px. O esquema de computador mantém-se no tamanho atual.
+  以後表示しない: Não voltar a mostrar
+  警告を閉じる: Fechar aviso
+  ランク到達状況: Progresso da classificação
+  スコア計算式: Fórmula da pontuação
+  基本のスコア計算式: Fórmula básica da pontuação
+  打鍵/秒 × 1000 × 正確率^モード係数 × 補正: Teclas/s × 1000 × precisão^fator do modo × modificador
+  正確率は正しく入力した文字数 ÷ 入力を試みた文字数です。均等モードのみ、打鍵間隔の安定度が補正として加わります。: A precisão é o número de caracteres corretos dividido pelo número de tentativas. Só o modo Ritmo aplica a estabilidade da escrita como modificador.
+  正確率係数: Fator de precisão
+  補正: Modificador
+  安定度: Estabilidade
+  なし: Nenhum
+  現在ランク: Classificação atual
+  最高スコア: Melhor pontuação
+  次の目標: Próximo objetivo
+  ランク帯: Classificação
+  基準スコア: Pontuação necessária
+  到達状況: Estado
+  達成: Alcançado
+  あと {score}: Faltam {score}
+  ランクなし: Sem classificação
+  "{title} ランク": Classificação {title}
+  灰: Cinzentos
+  薄緑: Verde-claro
+  薄青: Azul-claro
+  緑: Verde
+  青: Azul
+  橙: Laranja
+  赤: Vermelho
+  金: Dourado
+  紫: Roxo
+  黒紫: Roxo-escuro
+  黒: Preto
+  虹: Arco-íris
+  ローカルユーザー: Utilizador local
+  Keybase連携は未設定です。: A ligação ao Keybase não está configurada.
+  ユーザー概要: Resumo do utilizador
+  仮ランク: Classificação de treino
+  本番ランク: Classificação de competição
+  まだ保存されたセッションはありません。: Ainda não existem sessões guardadas.
+  Recent Sessions: Sessões recentes
+  ランク: Classificação
+  500点未満はランクなし、500点から G0 が始まり、基準スコアはランクごとに90点ずつ上がります。: Abaixo de 500 pontos não há classificação; G0 começa nos 500 e cada classificação aumenta 90 pontos.
+  入力待ち: A aguardar introdução
+  課題終了まで非表示: Oculto até ao fim do texto
+  正誤率: Precisão
+  ミス {count}: "{count} erros"
+  正誤履歴: Histórico de acertos
+  平均打鍵間隔: Intervalo médio entre teclas
+  ズレ平均: Desvio médio
+  物理打鍵: Teclas premidas
+  打鍵間隔の安定度グラフ: Gráfico de estabilidade dos intervalos entre teclas
+  あと {count} 回: Faltam {count}
+  残り時間: Tempo restante
+  残り時間（％）: Tempo restante (%)
+  打鍵/秒: Teclas/s
+  打鍵/分: Teclas/min
+  かな文字/秒: Caracteres kana/s
+  課題文字/秒: Caracteres do texto/s
+  正確率: Precisão
+  ミス数: Erros
+  完了課題: Textos concluídos
+  ミス/物理打鍵: Erros/teclas
+  正解/物理打鍵: Acertos/teclas
+  開始: Iniciar
+  修正: Correção
+  正打: Certo
+  ミス: Erro
+  モード選択: Selecionar modo
+  リセット: Repor
+  無入力が続いたためリタイアしました: A sessão terminou após um período de inatividade
+  "セッション終了: {rank} / {score}": "Sessão terminada: {rank} / {score}"
+  開始ボタン、またはここで入力を始める: Prima Iniciar ou comece a escrever aqui
+  IMEありで入力し、行が一致したら Enter: Escreva com o IME e prima Enter quando a linha coincidir
+  英文を入力し、行が一致したら Enter: Escreva a linha em inglês e prima Enter quando coincidir
+  typing input: Campo de escrita
+  direct keyboard capture: Captura direta do teclado
+  resize typing input: Redimensionar o campo de escrita
+  Rank hidden for the first 30 seconds: Classificação oculta durante os primeiros 30 segundos
+  タイピング: Escrita
+  速度だけじゃない。精度と安定性まで、次の一打へ。: "A velocidade não é tudo: cada tecla conta para a precisão e o ritmo."
+  速さだけじゃない。精度と安定性まで、次の一打へ。: "A velocidade não é tudo: cada tecla conta para a precisão e o ritmo."
+  Tips: Dicas
+  typing practice: prática de escrita
+  Live Analysis: Análise em direto
+  "{key} / {interval} / {state}": "{key} / {interval} / {state}"
+  画像を準備できませんでした。もう一度お試しください。: Não foi possível preparar a imagem. Tente novamente.
+  共有メニューにリザルト画像を送りました。: A imagem do resultado foi enviada para o menu de partilha.
+  共有を完了できませんでした。画像保存をお試しください。: Não foi possível partilhar. Tente guardar a imagem.
+  Share APIが使えないため、画像を保存して投稿文をコピーしました。: A API de partilha não está disponível; a imagem foi guardada e o texto da publicação foi copiado.
+  "{service}を開きます。画像はPNG保存から添付してください。": A abrir {service}. Guarde a imagem PNG e anexe-a à publicação.
+  "{service}を開きました。投稿画面にリザルト画像を貼り付けてください。": "{service} foi aberto. Cole a imagem do resultado na publicação."
+  "{service}を開き、リザルト画像を保存しました。投稿画面で添付してください。": "{service} foi aberto e a imagem do resultado foi guardada. Anexe-a à publicação."
+  投稿テンプレートをコピーしました。: Modelo de publicação copiado.
+  投稿テンプレートをコピーできませんでした。: Não foi possível copiar o modelo de publicação.
+  SNS用リザルト画像: Imagem de resultado para redes sociais
+  "{mode}のリザルト画像。ランク{rank}、{score}ポイント": Imagem do resultado de {mode}. Classificação {rank}, {score} pontos
+  文言をコピー: Copiar texto
+  各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。: O modelo já está preenchido nas páginas de publicação das redes. Cole a imagem ou, se o navegador não permitir, guarde-a e anexe-a.
+  pre-session tip: Dica antes da sessão
+  post-session tip: Dica depois da sessão
+  本番モードは開始後の入力だけを採点します。: O modo de competição só contabiliza as introduções feitas depois de iniciar.
+  本番モードは仮レーティング A0 以上で解放されます。: O modo de competição desbloqueia-se com uma classificação provisória A0 ou superior.
+  IMEあり本番では行を課題と一致させてから Enter で提出します。: Na competição com IME, faça coincidir a linha com o texto e prima Enter para a submeter.
+  500点未満は NR、500点以上は G0、以降は90点ごとにランクが上がります。: "Abaixo de 500 pontos: sem classificação; G0 começa nos 500; cada nível aumenta 90 pontos."
+  練習モードの仮レーティングは、本番モード解放の条件として使われます。: A classificação provisória do treino é usada para desbloquear o modo de competição.
+  次の課題プレビューは設定画面で表示方式と長さを変更できます。: Nas definições, altere o formato e o comprimento da pré-visualização do texto seguinte.
+  正確無比とIMEあり本番では、ミスをBackspaceで戻すまで先に進めません。: Nos modos Precisão e Competição com IME, corrija os erros com Backspace antes de continuar.
+  自動リタイアは、設定から有効にできます。: Ative o término automático nas definições.
+  自分の「つまづきパターン」を理解するのが、成長に不可欠です。: Compreender os seus padrões de erro é essencial para melhorar.
+  たいてい、他人より自分自身と競争するほうが良い結果が出ます。: Normalmente, competir consigo próprio traz melhores resultados do que competir com os outros.
+  楽だからといって「エンジニア座り」をしていると、腰を壊すので気をつけましょう。: Mesmo que pareça confortável, sentar-se curvado à secretária pode prejudicar as costas.
+  最高のパフォーマンスを出したいときは、まず机から離れ、爪の長さを確認するといいかも。: Para melhorar o desempenho, afaste-se um instante da secretária e veja se as unhas não estão compridas.
+  肩と手首の力を抜き、キーを押す力を必要最小限にすると次の入力が軽くなります。: Relaxe os ombros e os pulsos. Prima cada tecla só com a força necessária.
+  焦るより、遅くても正確にやるほうがすべてのモードでスコアが伸びます。: Em todos os modos, a precisão melhora a pontuação mais do que escrever depressa com erros.
+  1日に長時間練習しすぎないようにしましょう。腱鞘炎になります。: Evite treinar durante muitas horas por dia para reduzir o risco de tendinite.
+  英文はだいぶ日本語文と感覚が違います。分けて練習しましょう。: Escrever em inglês é bastante diferente de escrever em japonês. Treine cada língua em separado.
+  一瞬一瞬のブーストよりも、安定してスラスラ打てるほうがスコアが伸びます。: Um ritmo regular melhora a pontuação mais do que breves acelerações.
+  単語で反射神経を競わず、長文で実力を磨くのがオススメ。: Treine com textos longos em vez de competir pela rapidez com palavras isoladas.
+  文字をうったら、すぐにホームポジションに戻しましょう。: Regresse à posição inicial das mãos depois de cada tecla.
+  打鍵中、手元を絶対に見てはいけません。絶対です。: Não olhe para as mãos enquanto escreve. Mesmo.
+  できるだけ、毎日練習しましょう。それが最短ルートです。: Treine todos os dias, se puder. É o caminho mais curto para melhorar.
+  ずっと練習をするより、実用もするほうが伸びやすくなります。: Alternar entre treino e escrita do dia a dia ajuda a progredir.
+  ミスしたキー単体よりも、ミスした組み合わせを見つける方が役に立つかも。: Pode ser mais útil encontrar combinações que causam erros do que se focar numa única tecla.
+  常に先読みを意識してみよう。: Tente ler algumas palavras à frente enquanto escreve.
+  高速化とは、文字を速く打つことではなく、迷う時間を減らすこと。: Escrever mais depressa tem menos que ver com mover os dedos e mais com hesitar menos.
+  「ci」や「le」など、早く打てる別ルートも無理のない範囲で試してみよう。: Experimente sequências alternativas mais rápidas, como «ci» ou «le», se forem confortáveis.
+  入力画面設定: Definições do ecrã de escrita
+  画面設定: Definições do ecrã
+  入力画面のプレビュー: Pré-visualização do ecrã de escrita
+  一時停止: Pausa
+  10.0打鍵/秒プレビュー: Pré-visualização a 10 teclas/s
+  5.0打鍵/秒プレビュー: Pré-visualização a 5 teclas/s
+  プレビューの課題文: Pré-visualização do texto de treino
+  短文: Texto curto
+  長文: Texto longo
+  入力画面: Ecrã de escrita
+  フォント: Tipos de letra
+  表示順: Ordem de apresentação
+  漢字・ふりがな・ひらがな表示に使うGoogle Fonts: Google Fonts usadas para kanji, furigana e hiragana
+  日本語フォント: Tipo de letra japonês
+  ローマ字・英語課題文に使うGoogle Fonts: Google Fonts usadas para romaji e textos em inglês
+  英語フォント: Tipo de letra inglês
+  入力画面の表示順: Ordem dos elementos no ecrã de escrita
+  ドラッグで入力画面の行順を変更する。非表示中の項目も順序を保持する: Arraste para reordenar as linhas. Os elementos ocultos mantêm a sua posição.
+  表示中: Visível
+  非表示中: Oculto
+  上部表示情報: Informação no topo
+  表示する情報: Informação a apresentar
+  残り時間を外しても、残り時間バーは表示されます。: A barra do tempo restante permanece visível mesmo que o valor do tempo esteja oculto.
+  入力方式: Método de introdução
+  ローマ字入力法: Método de introdução romaji
+  許容する派生と、ガイドで優先表示する表記を選ぶ: Escolha as variantes aceites e a grafia preferida pelo guia.
+  すべて分割: Todas separadas
+  すべて統合: Todas combinadas
+  個別設定: Personalizado
+  ヘボン式優先: Preferir Hepburn
+  最短優先: Preferir a forma mais curta
+  促音入力: Introdução de sokuon
+  促音入力候補: Introduções de sokuon aceites
+  「っ」の子音重複と ltsu / xtsu / ltu / xtu の扱いを選ぶ: Escolha como tratar consoantes duplicadas e ltsu / xtsu / ltu / xtu para っ.
+  促音分割を許可: Permitir introdução separada de sokuon
+  表示: Grafia preferida
+  一般拗音分割入力: Introdução separada de yōon comuns
+  「きゃ」を kya だけでなく kila / kixa でも入力できるようにする: Permite introduzir きゃ como kila ou kixa, além de kya.
+  特殊拗音入力法: Método especial de introdução de yōon
+  出現頻度の低い外来語カナを統合形で打つか、分割形で打つかを選ぶ: Escolha se os kana menos comuns de palavras emprestadas são introduzidos juntos ou separados.
+  ローマ字: Romaji
+  ローマ字マーカー: Marcador romaji
+  入力中の位置をローマ字表示に下線で表示する。ON推奨: "Sublinhe a posição atual no guia romaji. Recomendado: ativado."
+  ローマ字マーカー単位: Unidade do marcador romaji
+  ローマ字の現在位置を1文字ずつ表示するか、su や shi などの発音単位で表示するかを選ぶ: Escolha se o marcador avança por carácter ou por som, como su ou shi.
+  文字単位: Por carácter
+  発音単位: Por som
+  ローマ字の課題文の文字サイズ: Tamanho do texto romaji
+  ローマ字フォントサイズ: Tamanho do tipo de letra romaji
+  ローマ字行の下に空ける余白: Espaço abaixo da linha romaji
+  ローマ字の下余白: Espaçamento inferior do romaji
+  ローマ字行の行間倍率: Multiplicador da altura da linha romaji
+  ローマ字の行間: Altura da linha romaji
+  英文モード: Modo inglês
+  スペース表示: Apresentação de espaços
+  英文モードでスペースを記号として表示する: Apresente os espaços como símbolos no modo inglês.
+  縦長ボックス: Caixa alta
+  次の課題の表示方式: Apresentação do texto seguinte
+  短文練習で次の課題をどう見せるかを選ぶ: Escolha como apresentar o texto seguinte durante o treino de textos curtos.
+  スライド: Deslizar
+  上下に分け、次の課題が上へ移る: Divida a vista e mova o texto seguinte para cima.
+  交代: Alternar
+  上下の入力位置を交互に切り替える: Alterne a posição de escrita entre a parte superior e inferior.
+  中央揃え・連結: Fluxo centrado
+  入力位置を中心に置く連続表示: Apresente os textos continuamente e centre a posição de escrita atual.
+  非表示: Oculto
+  次の課題を表示しない: Não apresentar o texto seguinte.
+  本番（IMEなし）の漢字文を表示する行数: Número de linhas de kanji no modo de avaliação sem IME
+  長文モードの漢字文エリアの高さ: Altura da área de kanji no modo de texto longo
+  行: linhas
+  長文モードの漢字文だけに適用する行間: Altura da linha aplicada apenas ao kanji no modo de texto longo
+  長文モードの行間: Altura da linha do texto longo
+  正確無比の誤入力表示: Apresentação de erros no modo Precisão
+  誤入力した文字を課題文ローマ字上に表示する方法を選ぶ: Escolha como as introduções incorretas aparecem sobre o romaji do texto.
+  上書き: Substituir
+  挿入: Inserir
+  何もしない: Não fazer nada
+  ランク算出方式: Cálculo da classificação
+  タイピング中のランク表示に使うスコアの算出方式を選びます。: Escolha como calcular a pontuação usada para a classificação durante a escrita.
+  予測値（変動方式）: Projetada (muda durante a sessão)
+  実値（加点方式）: Real (pontos adicionados)
+  漢字: Kanji
+  漢字表示: Apresentação de kanji
+  入力画面に漢字混じりの課題文を表示する: Apresente textos com kanji no ecrã de escrita.
+  漢字フォントサイズ: Tamanho do tipo de letra kanji
+  漢字混じりの課題文の文字サイズ: Tamanho dos textos com kanji
+  漢字行の下に空ける余白: Espaço abaixo da linha de kanji
+  漢字の下余白: Espaçamento inferior do kanji
+  漢字行の行間倍率: Multiplicador da altura da linha de kanji
+  漢字の行間: Altura da linha de kanji
+  漢字マーカー: Marcador de kanji
+  入力中の位置を漢字表示に下線で表示する: Sublinhe a posição atual na apresentação de kanji.
+  入力途中経過（漢字）: Progresso de escrita de kanji
+  入力途中経過（漢字）表示: Apresentar o progresso de escrita de kanji
+  入力済みの途中経過を漢字表示の下に追加する: Apresente o texto escrito abaixo dos kanji.
+  漢字表示オフのためロック: Bloqueado porque a apresentação de kanji está desativada
+  入力途中経過（漢字）の文字サイズ: Tamanho do tipo de letra do progresso de escrita de kanji
+  入力途中経過（漢字）フォントサイズ: Tamanho do tipo de letra do progresso de escrita de kanji
+  入力途中経過（漢字）の下に空ける余白: Espaço abaixo do progresso de escrita de kanji
+  入力途中経過（漢字）の下余白: Espaçamento inferior do progresso de kanji
+  入力途中経過（漢字）の行間倍率: Multiplicador da altura da linha do progresso de kanji
+  入力途中経過（漢字）の行間: Altura da linha do progresso de escrita de kanji
+  ふりがな: Furigana
+  ふりがな表示: Apresentação de furigana
+  漢字混じりの課題文の上にふりがなを表示する: Apresente furigana acima dos textos com kanji.
+  ふりがなフォント倍率: Escala do tipo de letra furigana
+  漢字フォントサイズに対するふりがなの倍率: Tamanho de furigana relativo ao tipo de letra kanji
+  ふりがな表示オフのためロック: Bloqueado porque a apresentação de furigana está desativada
+  倍: ×
+  ふりがなの下余白: Espaçamento inferior de furigana
+  ふりがな側に追加する下余白: Espaço abaixo da linha de furigana
+  ふりがなの行間: Altura da linha de furigana
+  ふりがなの行間倍率: Multiplicador da altura da linha de furigana
+  ふりがなマーカー: Marcador de furigana
+  入力中の位置をふりがな表示に下線で表示する: Sublinhe a posição atual na apresentação de furigana.
+  ひらがな: Hiragana
+  ひらがな表示: Apresentação de hiragana
+  入力画面にひらがなの読みを表示する: Apresente a leitura em hiragana no ecrã de escrita.
+  ひらがなの読みの文字サイズ: Tamanho do tipo de letra da leitura em hiragana
+  ひらがなフォントサイズ: Tamanho do tipo de letra hiragana
+  ひらがな行の下に空ける余白: Espaço abaixo da linha de hiragana
+  ひらがなの下余白: Espaçamento inferior do hiragana
+  ひらがな行の行間倍率: Multiplicador da altura da linha de hiragana
+  ひらがなの行間: Altura da linha de hiragana
+  ひらがなマーカー: Marcador de hiragana
+  入力中の位置をひらがな表示に下線で表示する: Sublinhe a posição atual na apresentação de hiragana.
+  入力途中経過（ひらがな）: Progresso de escrita de hiragana
+  入力途中経過（ひらがな）表示: Apresentar o progresso de escrita de hiragana
+  入力済みの途中経過をひらがな表示の下に追加する: Apresente o texto escrito abaixo da leitura em hiragana.
+  ひらがな表示オフのためロック: Bloqueado porque a apresentação de hiragana está desativada
+  入力途中経過（ひらがな）の文字サイズ: Tamanho do tipo de letra do progresso de escrita de hiragana
+  入力途中経過（ひらがな）フォントサイズ: Tamanho do tipo de letra do progresso de escrita de hiragana
+  入力途中経過（ひらがな）の下に空ける余白: Espaço abaixo do progresso de escrita de hiragana
+  入力途中経過（ひらがな）の下余白: Espaçamento inferior do hiragana
+  入力途中経過（ひらがな）の行間倍率: Multiplicador da altura da linha do progresso de hiragana
+  入力途中経過（ひらがな）の行間: Altura da linha do progresso de escrita de hiragana
+  初期値に戻す: Repor predefinições
+  "{label} を初期値に戻す": Repor {label} para a predefinição
+  "{label} を調整": Ajustar {label}
+  "{label} を増やす": Aumentar {label}
+  "{label} を減らす": Diminuir {label}
+  "{label} を上へ移動": Mover {label} para cima
+  "{label} を下へ移動": Mover {label} para baixo
+  "{label} display order item": "Elemento da ordem de apresentação: {label}"
+  練習言語: Idioma de treino
+  英語: Inglês
+  課題テーマ: Tema do texto
+  タイピングのコツ: Dicas de escrita
+  今週のテーマ：{theme}: "Tema desta semana: {theme}"
+  選択中：{theme}: "Selecionado: {theme}"
+  今週のテーマ：: "Tema desta semana: "
+  （日本時間・毎週月曜6時に更新）: (Atualizado todas as segundas-feiras às 06:00, hora do Japão)
+  自動（日本時間・毎週月曜6時）: Automático (segunda-feira, às 06:00, hora do Japão)
+  （今週）: " (esta semana)"
+  日常・趣味: Dia a dia e passatempos
+  国内旅行: Viagens pelo Japão
+  Alpha版では本番モードは開発中のためプレイできません。: Os modos de avaliação estão em desenvolvimento e indisponíveis nesta versão alfa.
+  国内旅行・都道府県: Viagens pelo Japão · prefeituras
+  国外旅行・ヨーロッパ: Viagens ao estrangeiro · Europa
+  国外旅行・アフリカ: Viagens ao estrangeiro · África
+  国外旅行・アジア: Viagens ao estrangeiro · Ásia
+  国外旅行・北アメリカ: Viagens ao estrangeiro · América do Norte
+  国外旅行・南アメリカ: Viagens ao estrangeiro · América do Sul
+  国外旅行・オセアニア: Viagens ao estrangeiro · Oceânia
+  練習モードまたは本番モードを選択してください。: Escolha um modo de treino ou avaliação.
+  練習モード: Modos de treino
+  本番モード: Modos de avaliação
+  "{minutes}分": "{minutes} min"
+  仮レーティング A0 以上で解放: Desbloqueado a partir de uma classificação provisória de treino A0
+  正確無比: Precisão
+  精度: Exatidão
+  ミス後は Backspace で修正。正確率の重みが最も高い練習。: Corrija os erros com Backspace. A exatidão tem o maior peso neste modo.
+  行雲流水: Fluidez
+  安定: Ritmo
+  自然な揺れを許容し、打鍵リズムの安定度をスコアに乗算する練習。: Treine um ritmo de escrita constante. A estabilidade multiplica a pontuação.
+  音速打破: Velocidade
+  速度: Velocidade
+  正確率の重みを軽くし、速度の限界を測る練習。: Teste a velocidade com menor peso para a exatidão.
+  本番 IMEなし: Avaliação · IME desligado
+  本番: Avaliação
+  時間を決めて行う本番測定。変換なしで長文を連続処理する。: Sessão de avaliação cronometrada. Escreva textos longos continuamente, sem conversão por IME.
+  本番 IMEあり: Avaliação · IME ligado
+  行単位で課題と一致させて Enter で提出する。: Faça corresponder o texto usando o IME e prima Enter para o submeter.
+  英語学習: Aprender inglês
+  魚の種類: Tipos de peixe
+  回転すし: Sushi de tapete rolante
+  高級寿司: Sushi requintado
+  ラーメンの歴史: História do ramen
+  ラーメンの種類: Tipos de ramen
+  音楽のジャンル: Géneros musicais
+  通勤電車: Comboios suburbanos
+  コミュニケーションの基本: Princípios de comunicação
+  パソコン購入: Comprar um computador
+  スマホ購入: Comprar um telemóvel
+  SNS: Redes sociais
+  イヤホンのこだわり: Escolher auscultadores
+  食料品の買い出し: Compras de mercearia
+  算数・数学: Matemática
+  カードゲーム: Jogos de cartas
+  薬: Medicamentos
+  恋愛: Relações
+  推し活: Ser fã
+  クラウドサービス: Serviços na nuvem
+  散歩: Passear
+  写真シール: Cromos com fotografias
+  漫画: Banda desenhada
+  ギター: Guitarra
+  時計: Relógios
+  オンライン会議: Reuniões em linha
+  授業: Aulas
+  塾: Explicações
+  卒業: Conclusão do curso
+  スポーツ一般: Desporto
+  水泳: Natação
+  昔話: Contos populares
+  アニメ: Animação
+  バレンタイン: Dia dos Namorados
+  ハロウィン: Halloween
+  クリスマス: Natal
+  マッサージ: Massagem
+  Modes: Modos
+  Practice: Treino
+  Rating: Avaliação
+  Settings: Definições
+  User: Utilizador
+  Share Result: Partilhar resultado
+  Share: Partilhar
+  PNG: PNG
+  Dark: Escuro
+  Light: Claro
+  mode selection: Seleção do modo
+  challenge language: Idioma de treino
+  saved ratings: Avaliações guardadas
+  on: Ativado
+  off: Desativado
+  IME: IME
+  Rank: Classificação
+  Score: Pontuação
+  ACCURACY: EXATIDÃO
+  KEYS / SEC: TECLAS / S
+  CORRECT CHARS: CARACTERES CORRETOS
+  ULTITYPE RESULT: RESULTADO DO ULTITYPE
+  theme.domestic: Viagem pelo Japão · {name}
+  theme.international: Viagem ao estrangeiro · {name}
+  share.intro: "ULTITYPE: Treinei «{mode}»!"
+  share.rank: 🏆 Classificação {rank} | {score} pts
+  share.accuracy: 🎯 Exatidão {accuracy}%
+  share.speed: ⌨️ {second} teclas/s | {minute} teclas/min
+  share.hashtags: "#ULTITYPE #escrita"

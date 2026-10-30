@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { initialSettings } from "../_lib/constants";
+import { LocaleProvider } from "../_lib/i18n";
 import {
   calculateAnimatedMockChallengeProgress,
   calculateAnimatedMockInputProgress,
@@ -11,13 +12,25 @@ import {
 
 function renderInputScreenSettingsScreen(settings = initialSettings) {
   return renderToStaticMarkup(
-    <InputScreenSettingsScreen
-      onBack={() => undefined}
-      onChange={() => undefined}
-      settings={settings}
-    />,
+    <LocaleProvider language={settings.appLanguage}>
+      <InputScreenSettingsScreen
+        onBack={() => undefined}
+        onChange={() => undefined}
+        settings={settings}
+      />
+    </LocaleProvider>,
   );
 }
+
+test("localizes input settings and accessible controls for an English app interface", () => {
+  const markup = renderInputScreenSettingsScreen({ ...initialSettings, appLanguage: "en" });
+  expect(markup).toContain('aria-label="Input Screen Settings"');
+  expect(markup).toContain('aria-label="Japanese font"');
+  expect(markup).toContain("Short text");
+  expect(markup).toContain("Romaji input method");
+  expect(markup).toContain("Hiragana display");
+  expect(markup).not.toContain("入力画面の表示順");
+});
 
 function readTypingPanelCss() {
   return readFileSync("app/_components/TypingPanel.module.css", "utf8");
@@ -319,7 +332,7 @@ describe("InputScreenSettingsScreen", () => {
       "target-display-order-input-screen-settings",
     );
 
-    expect(orderMarkup).toContain('aria-label="target display order"');
+    expect(orderMarkup).toContain('aria-label="入力画面の表示順"');
     expect(orderMarkup.match(/display order item/g)?.length).toBe(5);
     expect(orderMarkup.match(/draggable="true"/g)?.length).toBe(5);
     expect(orderMarkup.match(/hidden-item/g)?.length).toBe(3);
@@ -359,13 +372,13 @@ describe("InputScreenSettingsScreen", () => {
       "english-font-family-setting",
     );
 
-    expect(japaneseFontMarkup).toContain('aria-label="Japanese font family"');
+    expect(japaneseFontMarkup).toContain('aria-label="日本語フォント"');
     expect(japaneseFontMarkup).toContain('value="noto-sans-jp"');
     expect(japaneseFontMarkup).toContain('value="biz-udp-gothic" selected=""');
     expect(japaneseFontMarkup).toContain('value="m-plus-1"');
     expect(japaneseFontMarkup).toContain('value="noto-serif-jp"');
     expect(japaneseFontMarkup).not.toContain("Kosugi Maru");
-    expect(englishFontMarkup).toContain('aria-label="English font family"');
+    expect(englishFontMarkup).toContain('aria-label="英語フォント"');
     expect(englishFontMarkup).toContain('value="inter"');
     expect(englishFontMarkup).toContain('value="roboto" selected=""');
     expect(englishFontMarkup).toContain('value="noto-sans"');
@@ -756,7 +769,7 @@ describe("InputScreenSettingsScreen", () => {
     const rowMarkup = getSettingRowMarkup(romajiMarkup, "romaji-marker-mode-setting");
 
     expect(rowMarkup).toContain("ローマ字マーカー単位");
-    expect(rowMarkup).toContain('aria-label="romaji marker mode"');
+    expect(rowMarkup).toContain('aria-label="ローマ字マーカー単位"');
     expect(rowMarkup).toContain("文字単位");
     expect(rowMarkup).toContain("発音単位");
     expect(rowMarkup).toContain('aria-pressed="true"');

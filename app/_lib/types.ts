@@ -9,6 +9,8 @@ import type {
 } from "@/src/lib/typing";
 
 export type ChallengeLanguage = "ja" | "en";
+export type { AppLanguage } from "./locale-codes";
+import type { AppLanguage } from "./locale-codes";
 export type Theme = "dark" | "light";
 export type StrictMistakeDisplayMode = "overwrite" | "insert" | "none";
 export type RomajiMarkerMode = "character" | "token";
@@ -62,6 +64,7 @@ export type DirectKeyEvent = Pick<
 > & Partial<Pick<globalThis.KeyboardEvent, "ctrlKey" | "metaKey" | "getModifierState">>;
 
 export type AppSettings = {
+  appLanguage: AppLanguage;
   showKanjiDisplay: boolean;
   showFuriganaDisplay: boolean;
   showHiraganaDisplay: boolean;

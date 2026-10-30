@@ -4,8 +4,9 @@ import { Copy, Share2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { Metrics, TypingMode } from "@/src/lib/typing";
 import { drawRankBadge } from "../../_lib/rank-badge";
-import type { ChallengeLanguage, RuntimeStats } from "../../_lib/types";
+import type { AppLanguage, ChallengeLanguage, RuntimeStats } from "../../_lib/types";
 import { css } from "../../_lib/css-module";
+import { translate, useI18n } from "../../_lib/i18n";
 import styles from "../TypingPanel.module.css";
 import { paintResultShareModeIcon } from "./result-share-mode-icon";
 
@@ -38,6 +39,7 @@ export function ResultShareCard({
   rank: string;
   stats: RuntimeStats;
 }) {
+  const { language, t } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageBlobRef = useRef<Blob | null>(null);
   const [pageUrl, setPageUrl] = useState("");
@@ -60,86 +62,86 @@ export function ResultShareCard({
       return;
     }
 
-    paintShareResult(context, result);
+    paintShareResult(context, result, language);
     imageBlobRef.current = null;
     canvas.toBlob((blob) => {
       imageBlobRef.current = blob;
     }, "image/png");
-  }, [challengeLanguage, finishedAt, metrics, mode, rank, stats.correctCharacters]);
+  }, [challengeLanguage, finishedAt, language, metrics, mode, rank, stats.correctCharacters]);
 
   useEffect(() => {
     setPageUrl(window.location.href);
   }, []);
 
-  const shareTargets = getResultShareTargets(result, pageUrl);
+  const shareTargets = getResultShareTargets(result, pageUrl, language);
 
   async function handleNativeShare() {
     const blob = imageBlobRef.current ?? (await getCanvasBlob(canvasRef.current));
     if (!blob) {
-      setShareStatus("画像を準備できませんでした。もう一度お試しください。");
+      setShareStatus(t("画像を準備できませんでした。もう一度お試しください。"));
       return;
     }
 
     const file = new File([blob], getResultImageFilename(result), { type: "image/png" });
     const shareData = {
       files: [file],
-      text: getShareTextWithUrl(result, pageUrl),
+      text: getShareTextWithUrl(result, pageUrl, language),
       title: "ULTITYPE RESULT",
     };
 
     if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
       try {
         await navigator.share(shareData);
-        setShareStatus("共有メニューにリザルト画像を送りました。");
+        setShareStatus(t("共有メニューにリザルト画像を送りました。"));
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
           return;
         }
-        setShareStatus("共有を完了できませんでした。画像保存をお試しください。");
+        setShareStatus(t("共有を完了できませんでした。画像保存をお試しください。"));
       }
       return;
     }
 
     downloadBlob(blob, file.name);
-    await copyShareText(result, pageUrl);
-    setShareStatus("Share APIが使えないため、画像を保存して投稿文をコピーしました。");
+    await copyShareText(result, pageUrl, language);
+    setShareStatus(t("Share APIが使えないため、画像を保存して投稿文をコピーしました。"));
   }
 
   async function handleComposerShare(serviceName: string) {
     const blob = imageBlobRef.current ?? (await getCanvasBlob(canvasRef.current));
     if (!blob) {
-      setShareStatus(`${serviceName}を開きます。画像はPNG保存から添付してください。`);
+      setShareStatus(t("{service}を開きます。画像はPNG保存から添付してください。", { service: serviceName }));
       return;
     }
 
     const copied = await prepareImageForComposer(blob, getResultImageFilename(result));
     setShareStatus(
       copied
-        ? `${serviceName}を開きました。投稿画面にリザルト画像を貼り付けてください。`
-        : `${serviceName}を開き、リザルト画像を保存しました。投稿画面で添付してください。`,
+        ? t("{service}を開きました。投稿画面にリザルト画像を貼り付けてください。", { service: serviceName })
+        : t("{service}を開き、リザルト画像を保存しました。投稿画面で添付してください。", { service: serviceName }),
     );
   }
 
   async function handleCopy() {
-    const copied = await copyShareText(result, pageUrl);
+    const copied = await copyShareText(result, pageUrl, language);
     setShareStatus(
-      copied ? "投稿テンプレートをコピーしました。" : "投稿テンプレートをコピーできませんでした。",
+      copied ? t("投稿テンプレートをコピーしました。") : t("投稿テンプレートをコピーできませんでした。"),
     );
   }
 
   return (
-    <section className={css(styles, "result-share")} aria-label="SNS share result">
+    <section className={css(styles, "result-share")} aria-label={t("SNS share result")}>
       <div className={css(styles, "result-share-heading")}>
         <div>
-          <span>Share Result</span>
-          <strong>SNS用リザルト画像</strong>
+          <span>{t("Share Result")}</span>
+          <strong>{t("SNS用リザルト画像")}</strong>
         </div>
         <small>1200 × 630 PNG</small>
       </div>
 
       <div className={css(styles, "result-share-canvas-shell")}>
         <canvas
-          aria-label={`${mode.label}のリザルト画像。ランク${rank}、${Math.round(metrics.score).toLocaleString()}ポイント`}
+          aria-label={t("{mode}のリザルト画像。ランク{rank}、{score}ポイント", { mode: t(mode.label), rank, score: Math.round(metrics.score).toLocaleString() })}
           className={css(styles, "result-share-canvas")}
           height={imageHeight}
           ref={canvasRef}
@@ -185,12 +187,12 @@ export function ResultShareCard({
         </button>
         <button className={css(styles, "share-action")} onClick={handleCopy} type="button">
           <Copy size={17} aria-hidden="true" />
-          文言をコピー
+          {t("文言をコピー")}
         </button>
       </div>
 
       <p className={css(styles, "result-share-help")}>
-        各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。
+        {t("各SNSの投稿画面にはテンプレート文を入力済みです。画像は貼り付け、未対応ブラウザでは保存して添付できます。")}
       </p>
 
       <p aria-live="polite" className={css(styles, "result-share-status")} role="status">
@@ -200,18 +202,21 @@ export function ResultShareCard({
   );
 }
 
-export function getResultShareText(result: ShareResult) {
+export function getResultShareText(result: ShareResult, language: AppLanguage = "ja") {
   return [
-    `ULTITYPE「${result.mode.label}」に挑戦しました！`,
-    `🏆 Rank ${result.rank}｜${Math.round(result.score).toLocaleString("ja-JP")} pts`,
-    `🎯 正確率 ${(result.accuracy * 100).toFixed(1)}%`,
-    `⌨️ ${result.keysPerSecond.toFixed(2)} 打鍵/秒｜${Math.round(result.keysPerSecond * 60).toLocaleString("ja-JP")} 打鍵/分`,
-    "#ULTITYPE #タイピング",
+    translate(language, "share.intro", { mode: translate(language, result.mode.label) }),
+    translate(language, "share.rank", { rank: result.rank, score: Math.round(result.score).toLocaleString(language) }),
+    translate(language, "share.accuracy", { accuracy: (result.accuracy * 100).toFixed(1) }),
+    translate(language, "share.speed", {
+      second: result.keysPerSecond.toFixed(2),
+      minute: Math.round(result.keysPerSecond * 60).toLocaleString(language),
+    }),
+    translate(language, "share.hashtags"),
   ].join("\n");
 }
 
-export function getResultShareTargets(result: ShareResult, pageUrl: string) {
-  const text = getResultShareText(result);
+export function getResultShareTargets(result: ShareResult, pageUrl: string, language: AppLanguage = "ja") {
+  const text = getResultShareText(result, language);
   const misskey = new URL("https://misskey-hub.net/ja/share");
   misskey.searchParams.set("text", text);
   misskey.searchParams.set("url", pageUrl);
@@ -245,8 +250,8 @@ export function getResultImageFilename(result: ShareResult) {
   return `ultitype-result-${result.mode.id}-${parts.slice(0, 3).join("")}-${parts.slice(3).join("")}.png`;
 }
 
-export function formatResultDate(finishedAt: number) {
-  return new Intl.DateTimeFormat("ja-JP", {
+export function formatResultDate(finishedAt: number, language: AppLanguage = "ja") {
+  return new Intl.DateTimeFormat(language, {
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -265,15 +270,15 @@ export function getResultScoreFontSize(measuredWidth: number, maxWidth = 186) {
   return Math.max(minimumSize, Math.floor((baseSize * maxWidth) / measuredWidth));
 }
 
-export function getResultCardMetrics(result: ShareResult) {
+export function getResultCardMetrics(result: ShareResult, language: AppLanguage = "ja") {
   return [
-    { label: "ACCURACY", value: `${(result.accuracy * 100).toFixed(1)}%` },
-    { label: "KEYS / SEC", value: result.keysPerSecond.toFixed(2) },
-    { label: "CORRECT CHARS", value: result.correctCharacters.toLocaleString("ja-JP") },
+    { label: translate(language, "ACCURACY"), value: `${(result.accuracy * 100).toFixed(1)}%` },
+    { label: translate(language, "KEYS / SEC"), value: result.keysPerSecond.toFixed(2) },
+    { label: translate(language, "CORRECT CHARS"), value: result.correctCharacters.toLocaleString(language) },
   ];
 }
 
-function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult) {
+function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult, language: AppLanguage) {
   context.clearRect(0, 0, imageWidth, imageHeight);
   context.fillStyle = "#11100d";
   context.fillRect(0, 0, imageWidth, imageHeight);
@@ -291,12 +296,12 @@ function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult
   context.fillText("ULTITYPE", 72, 76);
   context.fillStyle = "#aaa394";
   context.font = '700 17px "Inter", "Noto Sans JP", sans-serif';
-  context.fillText("RESULT REPORT", 72, 108);
+  context.fillText(translate(language, "Share Result"), 72, 108, 550);
 
   context.textAlign = "right";
   context.fillStyle = "#aaa394";
   context.font = '700 19px "Inter", "Noto Sans JP", sans-serif';
-  context.fillText(formatResultDate(result.finishedAt), 1128, 78);
+  context.fillText(formatResultDate(result.finishedAt, language), 1128, 78);
   context.fillStyle = "#746d5f";
   context.font = '700 15px "Inter", "Noto Sans JP", sans-serif';
   context.fillText(`${result.mode.group.toUpperCase()} / ${result.language.toUpperCase()}`, 1128, 108);
@@ -311,16 +316,16 @@ function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult
   paintResultShareModeIcon(context, result.mode.id, 104, 174, 96);
   context.fillStyle = "#aaa394";
   context.font = '700 17px "Inter", "Noto Sans JP", sans-serif';
-  context.fillText("CHALLENGE", 224, 194);
+  context.fillText(translate(language, result.mode.group === "practice" ? "練習モード" : "本番モード"), 224, 194, 450);
   context.fillStyle = "#f2efe4";
   context.font = '900 42px "Noto Sans JP", "Inter", sans-serif';
-  context.fillText(result.mode.label, 224, 249);
+  context.fillText(translate(language, result.mode.label), 224, 249, 470);
 
   paintRankBadge(context, result.rank, 732, 168, 164, 106);
   context.fillStyle = "#aaa394";
   context.font = '700 16px "Inter", "Noto Sans JP", sans-serif';
-  context.fillText("SCORE", 930, 190);
-  const scoreText = Math.round(result.score).toLocaleString("ja-JP");
+  context.fillText(translate(language, "Score"), 930, 190, 190);
+  const scoreText = Math.round(result.score).toLocaleString(language);
   context.fillStyle = "#f2efe4";
   context.font = '900 48px "Quantico", "Inter", sans-serif';
   const scoreFontSize = getResultScoreFontSize(context.measureText(scoreText).width);
@@ -330,7 +335,7 @@ function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult
   context.font = '700 16px "Inter", sans-serif';
   context.fillText("PTS", 930, 270);
 
-  const metrics = getResultCardMetrics(result);
+  const metrics = getResultCardMetrics(result, language);
   metrics.forEach((metric, index) => {
     const x = 72 + index * 360;
     context.fillStyle = "#151410";
@@ -341,7 +346,7 @@ function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult
     context.fillRect(x, 320, 6, 154);
     context.fillStyle = "#aaa394";
     context.font = '700 16px "Inter", sans-serif';
-    context.fillText(metric.label, x + 30, 362);
+    context.fillText(metric.label, x + 30, 362, 276);
     context.fillStyle = "#f2efe4";
     context.font = '900 50px "Quantico", "Inter", sans-serif';
     context.fillText(metric.value, x + 30, 428);
@@ -349,7 +354,7 @@ function paintShareResult(context: CanvasRenderingContext2D, result: ShareResult
 
   context.fillStyle = "#746d5f";
   context.font = '700 16px "Inter", "Noto Sans JP", sans-serif';
-  context.fillText("速さだけじゃない。精度と安定性まで、次の一打へ。", 72, 548);
+  context.fillText(translate(language, "速さだけじゃない。精度と安定性まで、次の一打へ。"), 72, 548, 890);
   context.textAlign = "right";
   context.fillStyle = "#d7ff5f";
   context.fillText("ultitype", 1128, 548);
@@ -413,8 +418,10 @@ function downloadBlob(blob: Blob, filename: string) {
   URL.revokeObjectURL(objectUrl);
 }
 
-function getShareTextWithUrl(result: ShareResult, pageUrl: string) {
-  return pageUrl ? `${getResultShareText(result)}\n${pageUrl}` : getResultShareText(result);
+function getShareTextWithUrl(result: ShareResult, pageUrl: string, language: AppLanguage = "ja") {
+  return pageUrl
+    ? `${getResultShareText(result, language)}\n${pageUrl}`
+    : getResultShareText(result, language);
 }
 
 async function prepareImageForComposer(blob: Blob, filename: string) {
@@ -431,12 +438,12 @@ async function prepareImageForComposer(blob: Blob, filename: string) {
   return false;
 }
 
-async function copyShareText(result: ShareResult, pageUrl: string) {
+async function copyShareText(result: ShareResult, pageUrl: string, language: AppLanguage = "ja") {
   if (!navigator.clipboard?.writeText) {
     return false;
   }
   try {
-    await navigator.clipboard.writeText(getShareTextWithUrl(result, pageUrl));
+    await navigator.clipboard.writeText(getShareTextWithUrl(result, pageUrl, language));
     return true;
   } catch {
     return false;

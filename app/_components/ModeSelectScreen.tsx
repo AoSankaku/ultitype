@@ -5,7 +5,8 @@ import Link from "next/link";
 import { modes, type ModeId, type TypingMode } from "@/src/lib/typing";
 import { challengeLanguages } from "../_lib/constants";
 import { css } from "../_lib/css-module";
-import { getModePath, getModeSelectPath } from "../_lib/mode-routes";
+import { getModePath } from "../_lib/mode-routes";
+import { useI18n } from "../_lib/i18n";
 import { modeIcons } from "../_lib/mode-icons";
 import {
   ALPHA_PRODUCTION_LOCK_MESSAGE,
@@ -51,6 +52,7 @@ export function ModeSelectScreen({
   onSelectChallengeTheme,
   onSelectMode,
 }: ModeSelectScreenProps) {
+  const { t } = useI18n();
   const playTypingSound = useTypingSounds(soundSettings);
 
   function handleSelectMode(modeId: ModeId) {
@@ -74,51 +76,50 @@ export function ModeSelectScreen({
   );
 
   return (
-    <section className={css(styles, "mode-select-screen")} aria-label="mode selection">
+    <section className={css(styles, "mode-select-screen")} aria-label={t("mode selection")}>
       <div className={css(styles, "mode-select-intro")}>
-      <div className={css(styles, "mode-select-language")}>
-        <span className={css(styles, "language-switch-label")}>Text</span>
-        <div className={css(styles, "language-switch")} aria-label="challenge language">
-          {challengeLanguages.map((language) => (
-            <Link
-              aria-pressed={challengeLanguage === language.id}
-              className={challengeLanguage === language.id ? css(styles, "selected") : ""}
-              href={getModeSelectPath(language.id, productionDuration)}
-              key={language.id}
-              onClick={() => handleLanguageChange(language.id)}
-              role="button"
-            >
-              <img className={css(styles, "flag-icon")} src={language.flagSrc} alt="" aria-hidden="true" />
-              {language.label}
-            </Link>
-          ))}
-        </div>
-      </div>
       <div className={css(styles, "mode-select-heading")}>
         <div className={css(styles, "panel-heading")}>
           <Gauge size={18} />
-          <span>Modes</span>
+          <span>{t("Modes")}</span>
         </div>
-        <p>練習モードまたは本番モードを選択してください。</p>
+        <p>{t("練習モードまたは本番モードを選択してください。")}</p>
       </div>
 
-      {challengeLanguage === "ja" && selectedChallengeThemeId && weeklyChallengeThemeId ? (
+      <div className={css(styles, "challenge-controls")}>
+        <label className={css(styles, "practice-language-label")}>
+          {t("練習言語")}
+          <select
+            aria-label={t("練習言語")}
+            className={css(styles, "practice-language-select")}
+            value={challengeLanguage}
+            onChange={(event) => {
+              const language = event.currentTarget.value;
+              if (language === "ja" || language === "en") handleLanguageChange(language);
+            }}
+          >
+            {challengeLanguages.map(({ id, label }) => (
+              <option key={id} value={id}>{label}</option>
+            ))}
+          </select>
+        </label>
         <ChallengeThemeSelector
+          challengeLanguage={challengeLanguage}
           isDevelopment={challengeThemeSelectorEnabled}
           isThemeOverride={challengeThemeOverride}
-          selectedThemeId={selectedChallengeThemeId}
-          weeklyThemeId={weeklyChallengeThemeId}
+          selectedThemeId={selectedChallengeThemeId ?? "typing-tips"}
+          weeklyThemeId={weeklyChallengeThemeId ?? "typing-tips"}
           onSelectTheme={onSelectChallengeTheme ?? (() => undefined)}
         />
-      ) : null}
+      </div>
 
       </div>
 
       <div className={css(styles, "mode-select-group")}>
         <div className={css(styles, "mode-select-section")}>
           <div className={css(styles, "mode-select-section-heading")}>
-            <span>Practice</span>
-            <small>練習モード</small>
+            <span>{t("Practice")}</span>
+            <small>{t("練習モード")}</small>
           </div>
           <div className={css(styles, "mode-select-grid practice-modes")}>
             {modes
@@ -138,11 +139,11 @@ export function ModeSelectScreen({
 
         <div className={css(styles, "mode-select-section production-section")}>
           <div className={css(styles, "mode-select-section-heading")}>
-            <span>Rating</span>
-            <small>本番モード</small>
+            <span>{t("Rating")}</span>
+            <small>{t("本番モード")}</small>
           </div>
           {!hasPlayableProductionMode ? (
-            <p className={css(styles, "alpha-lock-note")}>{ALPHA_PRODUCTION_LOCK_MESSAGE}</p>
+            <p className={css(styles, "alpha-lock-note")}>{t(ALPHA_PRODUCTION_LOCK_MESSAGE)}</p>
           ) : null}
           <div className={css(styles, "duration-block mode-select-duration")}>
             <div className={css(styles, "segmented")}>
@@ -152,10 +153,10 @@ export function ModeSelectScreen({
                   disabled={!hasPlayableProductionMode}
                   key={duration}
                   onClick={() => onProductionDurationChange(duration)}
-                  title={!hasPlayableProductionMode ? ALPHA_PRODUCTION_LOCK_MESSAGE : undefined}
+                  title={!hasPlayableProductionMode ? t(ALPHA_PRODUCTION_LOCK_MESSAGE) : undefined}
                   type="button"
                 >
-                  {duration / 60}分
+                  {t("{minutes}分", { minutes: duration / 60 })}
                 </button>
               ))}
             </div>
@@ -170,8 +171,8 @@ export function ModeSelectScreen({
                   lockLabel={productionPlayable ? "A0" : "Alpha"}
                   lockReason={
                     productionPlayable
-                      ? "仮レーティング A0 以上で解放"
-                      : ALPHA_PRODUCTION_LOCK_MESSAGE
+                      ? t("仮レーティング A0 以上で解放")
+                      : t(ALPHA_PRODUCTION_LOCK_MESSAGE)
                   }
                   locked={!productionPlayable || !productionUnlocked}
                   mode={item}
@@ -205,6 +206,7 @@ function ModeSelectCard({
   productionDuration: ProductionDuration;
   onSelect: () => void;
 }) {
+  const { t } = useI18n();
   const ModeIcon = modeIcons[mode.id];
   const cardContents = (
     <>
@@ -212,11 +214,11 @@ function ModeSelectCard({
         <span className={css(styles, "mode-icon")} aria-hidden="true">
           <ModeIcon size={26} strokeWidth={2.2} />
         </span>
-        {!locked ? <span className={css(styles, "mode-code")}>{mode.shortLabel}</span> : null}
+        {!locked ? <span className={css(styles, "mode-code")}>{t(mode.shortLabel)}</span> : null}
       </div>
       <div className={css(styles, "mode-card-copy")}>
-        <strong>{mode.label}</strong>
-        <small>{mode.description}</small>
+        <strong>{t(mode.label)}</strong>
+        <small>{t(mode.description)}</small>
       </div>
       {locked ? (
         <span className={css(styles, "mode-lock")}>
@@ -237,7 +239,7 @@ function ModeSelectCard({
           mode.group === "production" ? productionDuration : undefined,
         )}
         onClick={onSelect}
-        title={mode.description}
+        title={t(mode.description)}
       >
         {cardContents}
       </Link>

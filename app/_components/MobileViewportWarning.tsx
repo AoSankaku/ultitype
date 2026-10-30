@@ -4,6 +4,7 @@ import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { css } from "../_lib/css-module";
+import { useI18n } from "../_lib/i18n";
 import { readLocalStorageItem, writeLocalStorageItem } from "../_lib/browser-storage";
 import styles from "./MobileViewportWarning.module.css";
 
@@ -53,6 +54,7 @@ export function calculateMobileViewportWarningStyle({
 }
 
 export function MobileViewportWarning() {
+  const { t } = useI18n();
   const [isNarrowViewport, setIsNarrowViewport] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [dismissOnClose, setDismissOnClose] = useState(false);
@@ -121,9 +123,9 @@ export function MobileViewportWarning() {
         <AlertTriangle size={20} />
       </div>
       <div className={css(styles, "mobile-viewport-warning-copy")}>
-        <strong>この画面幅はサポート対象外です</strong>
+        <strong>{t("この画面幅はサポート対象外です")}</strong>
         <p>
-          UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。
+          {t("UltiType は 520px 以上のデスクトップ画面向けです。現在の表示ではデスクトップ向けレイアウトを維持します。")}
         </p>
         <label className={css(styles, "mobile-viewport-warning-check")}>
           <input
@@ -131,13 +133,13 @@ export function MobileViewportWarning() {
             type="checkbox"
             onChange={(event) => setDismissOnClose(event.currentTarget.checked)}
           />
-          <span>以後表示しない</span>
+          <span>{t("以後表示しない")}</span>
         </label>
       </div>
       <button
         className={css(styles, "mobile-viewport-warning-close")}
         type="button"
-        aria-label="警告を閉じる"
+        aria-label={t("警告を閉じる")}
         onClick={closeWarning}
       >
         <X size={18} />

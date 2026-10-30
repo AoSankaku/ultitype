@@ -41,6 +41,11 @@
   --grid-line-soft: rgba(28, 26, 22, 0.04);
 }
 
+/* A saved locale may differ from static HTML. Reveal only after that locale is rendered. */
+html[data-locale-pending="true"] [data-app-shell] {
+  visibility: hidden;
+}
+
 * {
   box-sizing: border-box;
 }

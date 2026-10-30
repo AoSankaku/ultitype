@@ -1,5 +1,7 @@
 "use client";
 
+import { useI18n } from "../../_lib/i18n";
+
 import { ChevronDown, ChevronUp, Lock } from "lucide-react";
 import { englishFontFamilyOptions, initialSettings, japaneseFontFamilyOptions, targetDisplayElementOptions } from "../../_lib/constants";
 import { css } from "../../_lib/css-module";
@@ -16,6 +18,7 @@ import { RomajiOtherInputScreenSettings } from "./romaji-other-input-screen-sett
 import type { InputSettingsController } from "./controller";
 
 export function InputScreenSettingsSection({ controller }: { controller: InputSettingsController }) {
+  const { t } = useI18n();
   const {
     draggedDisplayOrderId,
     getTargetDisplayElementVisibility,
@@ -40,7 +43,7 @@ export function InputScreenSettingsSection({ controller }: { controller: InputSe
   return (
       <section className={css(styles, "settings-category")} aria-labelledby="input-screen-settings">
         <h3 className={css(styles, "settings-category-title")} id="input-screen-settings">
-          入力画面
+          {t("入力画面")}
         </h3>
         <div className={css(styles, "settings-category-list input-screen-category-list")}>
           <InputScreenLayoutSettings controller={controller} />

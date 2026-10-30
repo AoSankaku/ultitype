@@ -37,6 +37,7 @@ import {
   type JapaneseReadingGuidePart,
 } from "@/src/lib/challenges";
 import { css, cx } from "../../_lib/css-module";
+import { useI18n } from "../../_lib/i18n";
 import {
   getRandomPostSessionTip,
   getRandomPreSessionTip,
@@ -80,6 +81,7 @@ export function ChallengeTip({
   isFinished: boolean;
   startedAt: number | null;
 }) {
+  const { t } = useI18n();
   const phase = isFinished ? "post" : startedAt === null ? "pre" : "running";
   const fallbackTip =
     phase === "post"
@@ -131,10 +133,10 @@ export function ChallengeTip({
   return (
     <p
       className={css(styles, "challenge-tip", tipState.isExiting ? "exiting" : "")}
-      aria-label={tipState.phase === "pre" ? "pre-session tip" : "post-session tip"}
+      aria-label={t(tipState.phase === "pre" ? "pre-session tip" : "post-session tip")}
     >
-      <strong>Tips</strong>
-      <span>{tipState.text}</span>
+      <strong>{t("Tips")}</strong>
+      <span>{t(tipState.text)}</span>
     </p>
   );
 }
@@ -154,22 +156,23 @@ export function ChallengeAnalysis({
   metrics: Metrics;
   stats: RuntimeStats;
 }) {
-  const tiles = acceptsTextInput ? [] : getDirectCorrectnessTiles(stats.keyStabilityHistory);
+  const { t } = useI18n();
+  const tiles = acceptsTextInput ? [] : getDirectCorrectnessTiles(stats.keyStabilityHistory, t);
   const correctnessEmptyLabel =
-    acceptsTextInput && input.length > 0 ? "課題終了まで非表示" : "入力待ち";
+    acceptsTextInput && input.length > 0 ? t("課題終了まで非表示") : t("入力待ち");
   const speedMetric = getSpeedMetric(metrics.keysPerSecond);
   const driftMs = getAverageAbsoluteDrift(stats.keyStabilityHistory, metrics.paceMs);
 
   return (
-    <section className={css(styles, "challenge-analysis")} aria-label="Live Analysis">
-      <div className={css(styles, "challenge-analysis-title")}>Live Analysis</div>
+    <section className={css(styles, "challenge-analysis")} aria-label={t("Live Analysis")}>
+      <div className={css(styles, "challenge-analysis-title")}>{t("Live Analysis")}</div>
       <div className={css(styles, "analysis-column correctness-column")}>
         <div className={css(styles, "analysis-heading")}>
-          <span>正誤率</span>
+          <span>{t("正誤率")}</span>
           <strong>{(currentAccuracy * 100).toFixed(1)}%</strong>
-          <small>ミス {stats.mistakes}</small>
+          <small>{t("ミス {count}", { count: stats.mistakes })}</small>
         </div>
-        <div className={css(styles, "correctness-tiles")} aria-label="正誤履歴">
+        <div className={css(styles, "correctness-tiles")} aria-label={t("正誤履歴")}>
           {tiles.length === 0 ? (
             <span className={css(styles, "analysis-empty")}>{correctnessEmptyLabel}</span>
           ) : (
@@ -184,34 +187,34 @@ export function ChallengeAnalysis({
 
       <div className={css(styles, "analysis-column stability-column")}>
         <div className={css(styles, "analysis-heading")}>
-          <span>安定度</span>
+          <span>{t("安定度")}</span>
           <strong>{(metrics.consistency * 100).toFixed(0)}%</strong>
-          <small>{speedMetric.label} {speedMetric.value}</small>
+          <small>{t(speedMetric.label)} {speedMetric.value}</small>
         </div>
         <div className={css(styles, "analysis-metrics")}>
           <div>
-            <span>平均打鍵間隔</span>
+            <span>{t("平均打鍵間隔")}</span>
             <strong>{metrics.paceMs ? `${metrics.paceMs.toFixed(0)} ms` : "--"}</strong>
           </div>
           <div>
-            <span>ズレ平均</span>
+            <span>{t("ズレ平均")}</span>
             <strong>{driftMs ? `${driftMs.toFixed(0)} ms` : "--"}</strong>
           </div>
           <div>
-            <span>物理打鍵</span>
+            <span>{t("物理打鍵")}</span>
             <strong>{stats.physicalKeystrokes}</strong>
           </div>
         </div>
-        <div className={css(styles, "stability-mini-chart")} aria-label="打鍵間隔の安定度グラフ">
+        <div className={css(styles, "stability-mini-chart")} aria-label={t("打鍵間隔の安定度グラフ")}>
           {stats.keyStabilityHistory.slice(-48).length === 0 ? (
-            <span className={css(styles, "analysis-empty")}>入力待ち</span>
+            <span className={css(styles, "analysis-empty")}>{t("入力待ち")}</span>
           ) : (
             stats.keyStabilityHistory.slice(-48).map((sample) => (
               <span
                 className={getStabilityBarClass(sample, metrics.paceMs)}
                 key={sample.id}
                 style={{ height: `${getBarHeight(sample.intervalMs, metrics.paceMs)}%` }}
-                title={formatSampleTitle(sample)}
+                title={formatSampleTitle(sample, t)}
               />
             ))
           )}
@@ -230,6 +233,7 @@ export function getSessionModeIcon(mode: TypingMode) {
 }
 
 export function CorrectionDebtIndicator({ debt }: { debt: number }) {
+  const { t } = useI18n();
   if (debt <= 0) {
     return null;
   }
@@ -239,7 +243,7 @@ export function CorrectionDebtIndicator({ debt }: { debt: number }) {
   return (
     <div aria-live="polite" className={css(styles, "correction-debt")} role="status">
       <span className={css(styles, "keycap")}>Backspace</span>
-      <span className={css(styles, "debt-count")}>あと {debt} 回</span>
+      <span className={css(styles, "debt-count")}>{t("あと {count} 回", { count: debt })}</span>
       <span className={css(styles, "debt-dots")} aria-hidden="true">
         {Array.from({ length: visibleDots }, (_, index) => (
           <span key={index} />
@@ -361,7 +365,10 @@ export function getSpeedMetric(keysPerSecond: number) {
   };
 }
 
-export function getDirectCorrectnessTiles(history: KeyStabilitySample[]): CorrectnessTile[] {
+export function getDirectCorrectnessTiles(
+  history: KeyStabilitySample[],
+  t?: (text: string, params?: Record<string, string | number>) => string,
+): CorrectnessTile[] {
   return history.slice(-48).map((sample) => {
     const state = sample.kind === "correction" ? "correction" : sample.isCorrect ? "correct" : "wrong";
     const label = formatKeyLabel(sample.key);
@@ -370,7 +377,7 @@ export function getDirectCorrectnessTiles(history: KeyStabilitySample[]): Correc
       id: `direct-${sample.id}`,
       label,
       state,
-      title: formatSampleTitle(sample),
+      title: formatSampleTitle(sample, t),
     };
   });
 }
@@ -434,10 +441,16 @@ export function formatKeyLabel(key: string) {
   return key;
 }
 
-export function formatSampleTitle(sample: KeyStabilitySample) {
-  const interval = sample.intervalMs === null ? "開始" : `${sample.intervalMs} ms`;
+export function formatSampleTitle(
+  sample: KeyStabilitySample,
+  t?: (text: string, params?: Record<string, string | number>) => string,
+) {
+  const interval = sample.intervalMs === null ? (t?.("開始") ?? "開始") : `${sample.intervalMs} ms`;
   const state = sample.kind === "correction" ? "修正" : sample.isCorrect ? "正打" : "ミス";
-  return `${formatKeyLabel(sample.key)} / ${interval} / ${state}`;
+  const translatedState = t?.(state) ?? state;
+  return t
+    ? t("{key} / {interval} / {state}", { key: formatKeyLabel(sample.key), interval, state: translatedState })
+    : `${formatKeyLabel(sample.key)} / ${interval} / ${state}`;
 }
 
 export function Metric({
